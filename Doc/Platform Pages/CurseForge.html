@@ -1,5 +1,5 @@
 <h2>Camera Culling</h2>
-<p><strong>Camera Culling</strong> is a lightweight, purely client-side Fabric performance mod that dynamically unrenders entities and block entities hidden behind walls, outside your field of view, or buried behind dense crowds of other mobs.</p>
+<p><strong>Camera Culling</strong> is a lightweight, purely client-side Fabric performance mod that dynamically unrenders entities and block entities hidden behind walls, outside your field of view, or buried behind dense crowds of other mobs, while downscaling textures on distant mobs to dramatically improve FPS and lower GPU memory bandwidth.</p>
 
 <hr/>
 
@@ -7,6 +7,7 @@
 <ul>
   <li><strong>Entity Occlusion Culling:</strong> Fast multi-point raytracing against block collision shapes unrenders mobs hidden behind solid walls, dramatically boosting FPS in mob-heavy areas and farms.</li>
   <li><strong>Entity-Behind-Entity Culling:</strong> Detects when mobs are completely hidden behind other closer opaque mobs or packed inside cramming pens (cluster density cap of 8 mobs per 1.5 blocks).</li>
+  <li><strong>Distance-Based Mob Texture LOD:</strong> Independent standalone setting that reduces texture sampling resolution for distant mobs (<16m: 100% full res, 16-32m: 1/2 res, >32m: 1/4 res) to significantly cut GPU VRAM fillrate.</li>
   <li><strong>Block Entity Culling:</strong> Skips render extraction for chests, signs, banners, skulls, and decorated pots that are enclosed in opaque blocks or hidden behind walls.</li>
   <li><strong>4 Culling Intensity Profiles:</strong>
     <ul>
@@ -16,9 +17,9 @@
       <li><strong>SUPER (Extreme / Potato PC):</strong> 0.25-block safety buffer, ultra-fast 1-point center check for maximum FPS on low-end hardware.</li>
     </ul>
   </li>
-  <li><strong>In-Game Commands:</strong> <code>/cameraculling status</code>, <code>/cameraculling set &lt;low|medium|high|super&gt;</code>, <code>/cameraculling entityculling &lt;true|false|auto&gt;</code>, <code>/cameraculling maxcluster &lt;1-128&gt;</code>, and <code>/cameraculling toggle</code>.</li>
+  <li><strong>In-Game Commands:</strong> <code>/cameraculling status</code>, <code>/cameraculling set &lt;low|medium|high|super&gt;</code>, <code>/cameraculling texturlod &lt;true|false&gt;</code>, <code>/cameraculling texturlod range &lt;near&gt; &lt;far&gt;</code>, <code>/cameraculling entityculling &lt;true|false|auto&gt;</code>, <code>/cameraculling maxcluster &lt;1-128&gt;</code>, and <code>/cameraculling toggle</code>.</li>
   <li><strong>Zero Multiplayer Desync:</strong> Purely client-side rendering hooks; world simulation, network packets, and mob AI remain 100% untouched.</li>
-  <li><strong>Essential Safety Guards:</strong> Glowing entities, player mounts, and Bosses (Ender Dragon, Wither, Warden) are immune to culling. Slimes and Vexes never block visibility.</li>
+  <li><strong>Essential Safety Guards:</strong> Glowing entities, player mounts, and Bosses (Ender Dragon, Wither, Warden) are immune to culling and texture LOD reduction. Slimes and Vexes never block visibility.</li>
 </ul>
 
 <hr/>
