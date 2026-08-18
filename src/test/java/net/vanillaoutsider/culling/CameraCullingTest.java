@@ -15,6 +15,8 @@ public class CameraCullingTest {
     public void setup() {
         CameraCullingConfig.setEnabled(true);
         CameraCullingConfig.setLevel(CullingLevel.MEDIUM);
+        CameraCullingConfig.setCullEntitiesBehindEntities(null);
+        CameraCullingConfig.setMaxEntitiesPerCluster(8);
         CameraCullingConfig.setDebugMode(false);
     }
 
@@ -34,18 +36,57 @@ public class CameraCullingTest {
         assertEquals(16.0, CullingLevel.LOW.getMinDistanceSq());
         assertEquals(7, CullingLevel.LOW.getSamplePoints());
         assertFalse(CullingLevel.LOW.shouldCullAllBlockEntities());
+        assertFalse(CullingLevel.LOW.isDefaultCullEntitiesBehindEntities());
 
         CameraCullingConfig.setLevel(CullingLevel.HIGH);
         assertEquals(CullingLevel.HIGH, CameraCullingConfig.getLevel());
         assertEquals(1.0, CullingLevel.HIGH.getMinDistanceSq());
         assertEquals(2, CullingLevel.HIGH.getSamplePoints());
         assertTrue(CullingLevel.HIGH.shouldCullDecorativeEntities());
+        assertTrue(CullingLevel.HIGH.isDefaultCullEntitiesBehindEntities());
 
         CameraCullingConfig.setLevel(CullingLevel.SUPER);
         assertEquals(CullingLevel.SUPER, CameraCullingConfig.getLevel());
         assertEquals(0.25, CullingLevel.SUPER.getMinDistanceSq());
         assertEquals(1, CullingLevel.SUPER.getSamplePoints());
         assertTrue(CullingLevel.SUPER.shouldCullAllBlockEntities());
+        assertTrue(CullingLevel.SUPER.isDefaultCullEntitiesBehindEntities());
+    }
+
+    @Test
+    public void testEntityBehindEntityConfigAndOverrides() {
+        CameraCullingConfig.setLevel(CullingLevel.MEDIUM);
+        assertFalse(CameraCullingConfig.isCullEntitiesBehindEntities(), "MEDIUM should default entity culling to false");
+
+        CameraCullingConfig.setLevel(CullingLevel.HIGH);
+        assertTrue(CameraCullingConfig.isCullEntitiesBehindEntities(), "HIGH should default entity culling to true");
+
+        // Explicit override to false
+        CameraCullingConfig.setCullEntitiesBehindEntities(false);
+        assertFalse(CameraCullingConfig.isCullEntitiesBehindEntities(), "Explicit false should override level default");
+
+        // Explicit override to true
+        CameraCullingConfig.setLevel(CullingLevel.LOW);
+        CameraCullingConfig.setCullEntitiesBehindEntities(true);
+        assertTrue(CameraCullingConfig.isCullEntitiesBehindEntities(), "Explicit true should override LOW default");
+
+        // Reset to auto
+        CameraCullingConfig.setCullEntitiesBehindEntities(null);
+        assertFalse(CameraCullingConfig.isCullEntitiesBehindEntities(), "Reset to auto should match LOW default (false)");
+    }
+
+    @Test
+    public void testClusterLimitClamping() {
+        assertEquals(8, CameraCullingConfig.getMaxEntitiesPerCluster());
+
+        CameraCullingConfig.setMaxEntitiesPerCluster(16);
+        assertEquals(16, CameraCullingConfig.getMaxEntitiesPerCluster());
+
+        CameraCullingConfig.setMaxEntitiesPerCluster(0);
+        assertEquals(1, CameraCullingConfig.getMaxEntitiesPerCluster(), "Should clamp lower bound to 1");
+
+        CameraCullingConfig.setMaxEntitiesPerCluster(200);
+        assertEquals(128, CameraCullingConfig.getMaxEntitiesPerCluster(), "Should clamp upper bound to 128");
     }
 
     @Test
@@ -87,6 +128,11 @@ public class CameraCullingTest {
         assertDoesNotThrow(() -> {
             boolean blockOccluded = CullingRaycastHelper.isBlockEntityOccluded(null, null);
             assertFalse(blockOccluded, "Null block entity should never be occluded");
+        });
+
+        assertDoesNotThrow(() -> {
+            boolean entityOccluded = CullingRaycastHelper.isEntityOccludedByCloserEntities(null, null, null, null, 0);
+            assertFalse(entityOccluded, "Null entity/level should return false safely");
         });
     }
 
