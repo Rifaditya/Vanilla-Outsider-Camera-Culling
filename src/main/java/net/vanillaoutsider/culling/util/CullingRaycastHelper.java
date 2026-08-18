@@ -63,9 +63,14 @@ public final class CullingRaycastHelper {
             return false;
         }
 
+        // 4. Client & Server Blacklist immunity (Wolf, Allay, custom mobs)
+        if (BlacklistHelper.isBlacklisted(entity)) {
+            return false;
+        }
+
         CullingLevel cullingLevel = CameraCullingConfig.getLevel();
 
-        // 4. Decorative entity check (e.g. Armor stands / Item frames)
+        // 5. Decorative entity check (e.g. Armor stands / Item frames)
         if (!cullingLevel.shouldCullDecorativeEntities() && (entity instanceof ArmorStand || entity instanceof ItemFrame)) {
             return false;
         }
@@ -89,7 +94,7 @@ public final class CullingRaycastHelper {
         Vec3 center = box.getCenter();
         int samplePoints = cullingLevel.getSamplePoints();
 
-        // 5. Block Occlusion Raycast Check
+        // 6. Block Occlusion Raycast Check
         boolean centerHit = hasLineOfSight(level, camPos, center);
         if (centerHit) {
             // Check Entity-Behind-Entity if enabled

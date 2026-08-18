@@ -24,7 +24,7 @@ public final class TextureLodHelper {
             return 0.0f;
         }
 
-        // Exemptions: Glowing entities, player, bosses & mini-bosses
+        // Exemptions: Glowing entities, player, bosses & mini-bosses, blacklisted entities
         if (state.appearsGlowing()) {
             return 0.0f;
         }
@@ -37,6 +37,10 @@ public final class TextureLodHelper {
         }
 
         if (BossDetectionHelper.isBossOrMiniBoss(state)) {
+            return 0.0f;
+        }
+
+        if (BlacklistHelper.isBlacklisted(state)) {
             return 0.0f;
         }
 
