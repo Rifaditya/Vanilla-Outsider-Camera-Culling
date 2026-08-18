@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "camera-culling",
+  "version": "${version}",
+  "name": "Camera Culling",
+  "description": "Client-side entity and block entity camera frustum & occlusion culling prototype.",
+  "authors": [
+    "Dasik (Rifaditya)"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/camera-culling",
+    "sources": "https://github.com/rifaditya/camera-culling"
+  },
+  "license": "GPL-3.0-only",
+  "icon": "assets/camera-culling/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.vanillaoutsider.culling.CameraCullingClient"
+    ]
+  },
+  "mixins": [
+    "camera-culling.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": ">=26.3-",
+    "fabric-api": "*"
+  }
+}
