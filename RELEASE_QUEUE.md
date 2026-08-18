@@ -1,5 +1,10 @@
 # Release Queue: Camera Culling (MC 26.2)
 
+## [1.2.0+26.2] - 2026-08-18
+- Added Entity-Behind-Entity (Crowd / Mob Overdraw) Culling.
+- Added Cluster Density Cap (max 8 mobs per 1.5 blocks).
+- Added `/cameraculling entityculling` and `/cameraculling maxcluster` commands.
+
 ## [1.1.0+26.2] - 2026-08-18
 - Added 4 culling profiles: LOW, MEDIUM, HIGH, SUPER.
 - Persistent JSON configuration (`config/camera-culling.json`).

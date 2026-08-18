@@ -2,6 +2,8 @@
 package net.vanillaoutsider.culling.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -28,6 +30,8 @@ public final class CameraCullingCommand {
                         src.sendFeedback(Component.literal("§6[Camera Culling Status]§r"));
                         src.sendFeedback(Component.literal("§7Status: " + (CameraCullingConfig.isEnabled() ? "§aEnabled" : "§cDisabled")));
                         src.sendFeedback(Component.literal("§7Current Level: §e" + CameraCullingConfig.getLevel().getDisplayName()));
+                        src.sendFeedback(Component.literal("§7Entity-Behind-Entity Culling: " + (CameraCullingConfig.isCullEntitiesBehindEntities() ? "§aActive" : "§7Inactive")));
+                        src.sendFeedback(Component.literal("§7Cluster Density Cap: §e" + CameraCullingConfig.getMaxEntitiesPerCluster() + " mobs / 1.5 blocks"));
                         src.sendFeedback(Component.literal("§7Culled Entities: §b" + CameraCullingClient.getCulledEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedEntitiesCount()));
                         src.sendFeedback(Component.literal("§7Culled Block Entities: §b" + CameraCullingClient.getCulledBlockEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedBlockEntitiesCount()));
                         return 1;
@@ -40,6 +44,33 @@ public final class CameraCullingCommand {
                         ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Culling is now " + (newState ? "§aEnabled" : "§cDisabled")));
                         return 1;
                     })
+                )
+                .then(ClientCommands.literal("entityculling")
+                    .then(ClientCommands.argument("enabled", BoolArgumentType.bool())
+                        .executes(ctx -> {
+                            boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
+                            CameraCullingConfig.setCullEntitiesBehindEntities(enabled);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Entity-Behind-Entity culling set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
+                            return 1;
+                        })
+                    )
+                    .then(ClientCommands.literal("auto")
+                        .executes(ctx -> {
+                            CameraCullingConfig.setCullEntitiesBehindEntities(null);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Entity-Behind-Entity culling reset to §eAuto (Level Default: " + CameraCullingConfig.getLevel().isDefaultCullEntitiesBehindEntities() + ")§r"));
+                            return 1;
+                        })
+                    )
+                )
+                .then(ClientCommands.literal("maxcluster")
+                    .then(ClientCommands.argument("limit", IntegerArgumentType.integer(1, 128))
+                        .executes(ctx -> {
+                            int limit = IntegerArgumentType.getInteger(ctx, "limit");
+                            CameraCullingConfig.setMaxEntitiesPerCluster(limit);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Cluster density cap set to: §e" + limit + " mobs / 1.5 blocks"));
+                            return 1;
+                        })
+                    )
                 )
                 .then(ClientCommands.literal("set")
                     .then(ClientCommands.literal("low")
