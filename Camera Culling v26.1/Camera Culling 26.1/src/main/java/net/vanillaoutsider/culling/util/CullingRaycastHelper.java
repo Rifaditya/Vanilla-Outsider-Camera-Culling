@@ -4,8 +4,13 @@ package net.vanillaoutsider.culling.util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.monster.Vex;
+import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,6 +23,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.vanillaoutsider.culling.CameraCullingClient;
 import net.vanillaoutsider.culling.config.CameraCullingConfig;
 import net.vanillaoutsider.culling.config.CullingLevel;
+
+import java.util.List;
 
 public final class CullingRaycastHelper {
 
@@ -44,19 +51,24 @@ public final class CullingRaycastHelper {
             return false;
         }
 
-        // Local player and mounted vehicles are never culled
+        // 1. Local player and mounted vehicles are never culled
         if (mc.player == entity || mc.player.getVehicle() == entity || entity.hasPassenger(mc.player)) {
             return false;
         }
 
-        // Glowing entities must remain visible through blocks
+        // 2. Glowing entities must remain visible through blocks
         if (mc.shouldEntityAppearGlowing(entity)) {
+            return false;
+        }
+
+        // 3. Boss immunity: Ender Dragon, Wither, Warden are never culled
+        if (entity instanceof EnderDragon || entity instanceof WitherBoss || entity instanceof Warden) {
             return false;
         }
 
         CullingLevel cullingLevel = CameraCullingConfig.getLevel();
 
-        // Decorative entity check (e.g. Armor stands / Item frames)
+        // 4. Decorative entity check (e.g. Armor stands / Item frames)
         if (!cullingLevel.shouldCullDecorativeEntities() && (entity instanceof ArmorStand || entity instanceof ItemFrame)) {
             return false;
         }
@@ -80,8 +92,16 @@ public final class CullingRaycastHelper {
         Vec3 center = box.getCenter();
         int samplePoints = cullingLevel.getSamplePoints();
 
-        // Sample 1: Center
-        if (hasLineOfSight(level, camPos, center)) {
+        // 5. Block Occlusion Raycast Check
+        boolean centerHit = hasLineOfSight(level, camPos, center);
+        if (centerHit) {
+            // Check Entity-Behind-Entity if enabled
+            if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
+                if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
+                    CameraCullingClient.incrementCulledEntities();
+                    return true;
+                }
+            }
             CameraCullingClient.incrementRenderedEntities();
             return false;
         }
@@ -90,6 +110,12 @@ public final class CullingRaycastHelper {
         if (samplePoints >= 2) {
             Vec3 head = new Vec3(center.x, Math.max(box.minY, box.maxY - 0.1), center.z);
             if (hasLineOfSight(level, camPos, head)) {
+                if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
+                    if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
+                        CameraCullingClient.incrementCulledEntities();
+                        return true;
+                    }
+                }
                 CameraCullingClient.incrementRenderedEntities();
                 return false;
             }
@@ -99,6 +125,12 @@ public final class CullingRaycastHelper {
         if (samplePoints >= 3) {
             Vec3 feet = new Vec3(center.x, Math.min(box.maxY, box.minY + 0.1), center.z);
             if (hasLineOfSight(level, camPos, feet)) {
+                if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
+                    if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
+                        CameraCullingClient.incrementCulledEntities();
+                        return true;
+                    }
+                }
                 CameraCullingClient.incrementRenderedEntities();
                 return false;
             }
@@ -112,6 +144,12 @@ public final class CullingRaycastHelper {
             Vec3 c4 = new Vec3(box.maxX - 0.1, center.y, box.maxZ - 0.1);
             if (hasLineOfSight(level, camPos, c1) || hasLineOfSight(level, camPos, c2)
                 || hasLineOfSight(level, camPos, c3) || hasLineOfSight(level, camPos, c4)) {
+                if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
+                    if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
+                        CameraCullingClient.incrementCulledEntities();
+                        return true;
+                    }
+                }
                 CameraCullingClient.incrementRenderedEntities();
                 return false;
             }
@@ -119,6 +157,78 @@ public final class CullingRaycastHelper {
 
         CameraCullingClient.incrementCulledEntities();
         return true;
+    }
+
+    /**
+     * Hybrid check: (1) Cluster Density Cap for packed mob pens, (2) Geometric raycast AABB intersection.
+     */
+    public static boolean isEntityOccludedByCloserEntities(Entity target, Level level, Vec3 camPos, AABB targetBox, double targetDistSq) {
+        if (target == null || level == null || camPos == null) {
+            return false;
+        }
+
+        // 1. Cluster Density Cap in tight 1.5-block sphere
+        int maxCluster = CameraCullingConfig.getMaxEntitiesPerCluster();
+        AABB clusterBox = target.getBoundingBox().inflate(1.5);
+        List<Entity> clusterEntities = level.getEntities(target, clusterBox, e -> e instanceof LivingEntity && !isTransparentOrDecorative(e));
+        
+        int closerInCluster = 0;
+        for (Entity e : clusterEntities) {
+            double distSq = camPos.distanceToSqr(e.getX(), e.getY(), e.getZ());
+            if (distSq < targetDistSq) {
+                closerInCluster++;
+                if (closerInCluster >= maxCluster) {
+                    return true; // Culled due to cluster density cap
+                }
+            }
+        }
+
+        // 2. Direct Geometric Raycast against closer entities between camera and target
+        AABB pathBox = targetBox.minmax(new AABB(camPos.x, camPos.y, camPos.z, camPos.x, camPos.y, camPos.z));
+        List<Entity> candidateOccluders = level.getEntities(target, pathBox, e -> {
+            if (e == target || isTransparentOrDecorative(e)) return false;
+            double d = camPos.distanceToSqr(e.getX(), e.getY(), e.getZ());
+            return d < (targetDistSq - 0.25); // Closer to camera than target
+        });
+
+        if (candidateOccluders.isEmpty()) {
+            return false;
+        }
+
+        Vec3 center = targetBox.getCenter();
+        Vec3 head = new Vec3(center.x, Math.max(targetBox.minY, targetBox.maxY - 0.1), center.z);
+        Vec3 feet = new Vec3(center.x, Math.min(targetBox.maxY, targetBox.minY + 0.1), center.z);
+
+        boolean centerBlocked = false;
+        boolean headBlocked = false;
+        boolean feetBlocked = false;
+
+        for (Entity occluder : candidateOccluders) {
+            AABB occBox = occluder.getBoundingBox();
+            if (!centerBlocked && occBox.clip(camPos, center).isPresent()) {
+                centerBlocked = true;
+            }
+            if (!headBlocked && occBox.clip(camPos, head).isPresent()) {
+                headBlocked = true;
+            }
+            if (!feetBlocked && occBox.clip(camPos, feet).isPresent()) {
+                feetBlocked = true;
+            }
+            if (centerBlocked && headBlocked && feetBlocked) {
+                return true; // All key sightlines blocked by closer entities
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isTransparentOrDecorative(Entity entity) {
+        if (entity == null) return true;
+        if (entity instanceof Vex || entity instanceof ArmorStand || entity instanceof ItemFrame) {
+            return true;
+        }
+        String className = entity.getClass().getSimpleName();
+        return className.contains("Slime") || className.contains("Cube");
     }
 
     /**

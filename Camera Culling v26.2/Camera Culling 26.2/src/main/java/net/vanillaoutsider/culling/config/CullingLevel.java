@@ -10,6 +10,7 @@ public enum CullingLevel {
         7,
         0.4,
         false,
+        false,
         false
     ),
     MEDIUM(
@@ -18,6 +19,7 @@ public enum CullingLevel {
         3,
         0.1,
         true,
+        false,
         false
     ),
     HIGH(
@@ -26,6 +28,7 @@ public enum CullingLevel {
         2,
         0.0,
         true,
+        true,
         true
     ),
     SUPER(
@@ -33,6 +36,7 @@ public enum CullingLevel {
         0.25,
         1,
         -0.05,
+        true,
         true,
         true
     );
@@ -43,6 +47,7 @@ public enum CullingLevel {
     private final double padding;
     private final boolean cullAllBlockEntities;
     private final boolean cullDecorativeEntities;
+    private final boolean defaultCullEntitiesBehindEntities;
 
     CullingLevel(
         String displayName,
@@ -50,7 +55,8 @@ public enum CullingLevel {
         int samplePoints,
         double padding,
         boolean cullAllBlockEntities,
-        boolean cullDecorativeEntities
+        boolean cullDecorativeEntities,
+        boolean defaultCullEntitiesBehindEntities
     ) {
         this.displayName = displayName;
         this.minDistanceSq = minDistanceSq;
@@ -58,6 +64,7 @@ public enum CullingLevel {
         this.padding = padding;
         this.cullAllBlockEntities = cullAllBlockEntities;
         this.cullDecorativeEntities = cullDecorativeEntities;
+        this.defaultCullEntitiesBehindEntities = defaultCullEntitiesBehindEntities;
     }
 
     public String getDisplayName() {
@@ -82,6 +89,10 @@ public enum CullingLevel {
 
     public boolean shouldCullDecorativeEntities() {
         return cullDecorativeEntities;
+    }
+
+    public boolean isDefaultCullEntitiesBehindEntities() {
+        return defaultCullEntitiesBehindEntities;
     }
 
     public static CullingLevel fromString(String name) {
