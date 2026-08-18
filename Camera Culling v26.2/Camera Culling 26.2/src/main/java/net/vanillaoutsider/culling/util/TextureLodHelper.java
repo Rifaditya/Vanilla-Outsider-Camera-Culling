@@ -24,17 +24,20 @@ public final class TextureLodHelper {
             return 0.0f;
         }
 
-        // Exemptions: Glowing entities, player, bosses
+        // Exemptions: Glowing entities, player, bosses & mini-bosses
         if (state.appearsGlowing()) {
             return 0.0f;
         }
 
         EntityType<?> type = state.entityType;
         if (type != null) {
-            String name = type.toShortString();
-            if (name.contains("player") || name.contains("dragon") || name.contains("wither") || name.contains("warden")) {
+            if (type.toShortString().contains("player")) {
                 return 0.0f;
             }
+        }
+
+        if (BossDetectionHelper.isBossOrMiniBoss(state)) {
+            return 0.0f;
         }
 
         return calculateLodBias(

@@ -26,6 +26,9 @@ public final class CameraCullingConfig {
     private static boolean distanceTextureLod = true;
     private static double distanceTextureLodStart = 16.0;
     private static double distanceTextureLodFar = 32.0;
+    private static boolean bossImmunity = true;
+    private static double bossHealthThreshold = 150.0;
+    private static double miniBossHealthThreshold = 50.0;
     private static boolean debugMode = false;
 
     private CameraCullingConfig() {}
@@ -74,11 +77,20 @@ public final class CameraCullingConfig {
             if (json.has("distanceTextureLodFar")) {
                 distanceTextureLodFar = Math.max(distanceTextureLodStart + 1.0, json.get("distanceTextureLodFar").getAsDouble());
             }
+            if (json.has("bossImmunity")) {
+                bossImmunity = json.get("bossImmunity").getAsBoolean();
+            }
+            if (json.has("bossHealthThreshold")) {
+                bossHealthThreshold = Math.max(1.0, Math.min(10000.0, json.get("bossHealthThreshold").getAsDouble()));
+            }
+            if (json.has("miniBossHealthThreshold")) {
+                miniBossHealthThreshold = Math.max(1.0, Math.min(10000.0, json.get("miniBossHealthThreshold").getAsDouble()));
+            }
             if (json.has("debugMode")) {
                 debugMode = json.get("debugMode").getAsBoolean();
             }
-            LOGGER.info("[Camera Culling] Configuration loaded. Active Level: {}, Entity Culling: {}, Texture LOD: {} ({}m-{}m)",
-                    level.getDisplayName(), isCullEntitiesBehindEntities(), distanceTextureLod, distanceTextureLodStart, distanceTextureLodFar);
+            LOGGER.info("[Camera Culling] Configuration loaded. Active Level: {}, Entity Culling: {}, Texture LOD: {}, Boss Immunity: {} (Boss HP: {}, Mini-Boss HP: {})",
+                    level.getDisplayName(), isCullEntitiesBehindEntities(), distanceTextureLod, bossImmunity, bossHealthThreshold, miniBossHealthThreshold);
         } catch (Exception e) {
             LOGGER.error("[Camera Culling] Failed to load config, restoring defaults: {}", e.getMessage());
             save();
@@ -103,6 +115,9 @@ public final class CameraCullingConfig {
             json.addProperty("distanceTextureLod", distanceTextureLod);
             json.addProperty("distanceTextureLodStart", distanceTextureLodStart);
             json.addProperty("distanceTextureLodFar", distanceTextureLodFar);
+            json.addProperty("bossImmunity", bossImmunity);
+            json.addProperty("bossHealthThreshold", bossHealthThreshold);
+            json.addProperty("miniBossHealthThreshold", miniBossHealthThreshold);
             json.addProperty("debugMode", debugMode);
 
             try (FileWriter writer = new FileWriter(file)) {
@@ -174,6 +189,33 @@ public final class CameraCullingConfig {
     public static void setDistanceTextureLodRange(double start, double far) {
         distanceTextureLodStart = Math.max(1.0, Math.min(start, far - 1.0));
         distanceTextureLodFar = Math.max(distanceTextureLodStart + 1.0, far);
+        save();
+    }
+
+    public static boolean isBossImmunity() {
+        return bossImmunity;
+    }
+
+    public static void setBossImmunity(boolean enabled) {
+        bossImmunity = enabled;
+        save();
+    }
+
+    public static double getBossHealthThreshold() {
+        return bossHealthThreshold;
+    }
+
+    public static void setBossHealthThreshold(double threshold) {
+        bossHealthThreshold = Math.max(1.0, Math.min(10000.0, threshold));
+        save();
+    }
+
+    public static double getMiniBossHealthThreshold() {
+        return miniBossHealthThreshold;
+    }
+
+    public static void setMiniBossHealthThreshold(double threshold) {
+        miniBossHealthThreshold = Math.max(1.0, Math.min(10000.0, threshold));
         save();
     }
 

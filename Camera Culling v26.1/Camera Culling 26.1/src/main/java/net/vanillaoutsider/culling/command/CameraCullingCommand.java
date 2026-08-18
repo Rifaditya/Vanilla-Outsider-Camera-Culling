@@ -36,6 +36,11 @@ public final class CameraCullingCommand {
                         src.sendFeedback(Component.literal("§7Distance Texture LOD: " + (CameraCullingConfig.isDistanceTextureLod()
                             ? "§aEnabled §7(" + CameraCullingConfig.getDistanceTextureLodStart() + "m - " + CameraCullingConfig.getDistanceTextureLodFar() + "m)"
                             : "§cDisabled")));
+                        double bossHp = CameraCullingConfig.getBossHealthThreshold();
+                        double miniHp = CameraCullingConfig.getMiniBossHealthThreshold();
+                        src.sendFeedback(Component.literal("§7Boss & Mini-Boss Immunity: " + (CameraCullingConfig.isBossImmunity()
+                            ? "§aActive §7(Boss: §e" + bossHp + " HP§7/§c" + (bossHp / 2.0) + "♥§7 | Mini-Boss: §e" + miniHp + " HP§7/§c" + (miniHp / 2.0) + "♥§7)"
+                            : "§cDisabled")));
                         src.sendFeedback(Component.literal("§7Culled Entities: §b" + CameraCullingClient.getCulledEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedEntitiesCount()));
                         src.sendFeedback(Component.literal("§7Culled Block Entities: §b" + CameraCullingClient.getCulledBlockEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedBlockEntitiesCount()));
                         return 1;
@@ -97,6 +102,46 @@ public final class CameraCullingCommand {
                                 })
                             )
                         )
+                    )
+                )
+                .then(ClientCommands.literal("bossimmunity")
+                    .then(ClientCommands.argument("enabled", BoolArgumentType.bool())
+                        .executes(ctx -> {
+                            boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
+                            CameraCullingConfig.setBossImmunity(enabled);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Boss & Mini-Boss immunity set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
+                            return 1;
+                        })
+                    )
+                )
+                .then(ClientCommands.literal("bosshealth")
+                    .then(ClientCommands.argument("boss_hp", DoubleArgumentType.doubleArg(1.0, 10000.0))
+                        .executes(ctx -> {
+                            double hp = DoubleArgumentType.getDouble(ctx, "boss_hp");
+                            CameraCullingConfig.setBossHealthThreshold(hp);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Major Boss health threshold set to: §e" + hp + " HP §7(§c" + (hp / 2.0) + " hearts§7)"));
+                            return 1;
+                        })
+                        .then(ClientCommands.argument("miniboss_hp", DoubleArgumentType.doubleArg(1.0, 10000.0))
+                            .executes(ctx -> {
+                                double bossHp = DoubleArgumentType.getDouble(ctx, "boss_hp");
+                                double miniHp = DoubleArgumentType.getDouble(ctx, "miniboss_hp");
+                                CameraCullingConfig.setBossHealthThreshold(bossHp);
+                                CameraCullingConfig.setMiniBossHealthThreshold(miniHp);
+                                ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Health thresholds updated: Boss §e" + bossHp + " HP §7(§c" + (bossHp / 2.0) + "♥§7) | Mini-Boss §e" + miniHp + " HP §7(§c" + (miniHp / 2.0) + "♥§7)"));
+                                return 1;
+                            })
+                        )
+                    )
+                )
+                .then(ClientCommands.literal("minibosshealth")
+                    .then(ClientCommands.argument("miniboss_hp", DoubleArgumentType.doubleArg(1.0, 10000.0))
+                        .executes(ctx -> {
+                            double hp = DoubleArgumentType.getDouble(ctx, "miniboss_hp");
+                            CameraCullingConfig.setMiniBossHealthThreshold(hp);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Mini-Boss health threshold set to: §e" + hp + " HP §7(§c" + (hp / 2.0) + " hearts§7)"));
+                            return 1;
+                        })
                     )
                 )
                 .then(ClientCommands.literal("set")

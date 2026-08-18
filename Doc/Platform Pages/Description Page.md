@@ -14,6 +14,10 @@
   - **16 – 32 blocks**: Half-resolution texture sampling (OpenGL Mipmap LOD bias +1.0).
   - **> 32 blocks**: Quarter-resolution low-res mipmap sampling (OpenGL Mipmap LOD bias +2.5).
   - Drastically lowers VRAM fillrate and texture sampling bandwidth on large amounts of distant mobs.
+- **Dynamic Boss & Mini-Boss Detection and Full Immunity**:
+  - Automatically identifies both vanilla and modded bosses & mini-bosses (Elder Guardians, Ravagers, Iron Golems, Piglin Brutes, Evokers, Breezes, and modded champions/elites).
+  - **Player-Configurable Health Limits**: Set custom thresholds for Major Bosses (`bossHealthThreshold: 150.0 HP`) and Mini-Bosses (`miniBossHealthThreshold: 50.0 HP`).
+  - Mobs classified as bosses or mini-bosses are **never culled behind walls**, **never culled by crowd density caps**, and **never downscaled by texture LOD**.
 - **Block Entity Culling**: Skips render extraction for chests, signs, banners, skulls, and decorated pots that are enclosed in opaque blocks or hidden behind walls.
 - **4 Culling Intensity Profiles**:
   - **LOW (Conservative)**: 4.0-block safety buffer, 7-point sampling, padded hitboxes.
@@ -21,15 +25,18 @@
   - **HIGH (Aggressive)**: 1.0-block safety buffer, fast 2-point sampling, entity-behind-entity culling enabled, aggressive culling of all block entities, item frames, and armor stands.
   - **SUPER (Extreme / Potato PC)**: 0.25-block safety buffer, ultra-fast 1-point center check for maximum FPS on low-end hardware.
 - **In-Game Commands**:
-  - `/cameraculling status` — View active level, entity culling state, texture LOD range, and real-time culled vs rendered counts.
+  - `/cameraculling status` — View active level, entity culling state, texture LOD range, boss/mini-boss thresholds, and real-time culled vs rendered counts.
   - `/cameraculling set <low|medium|high|super>` — Change culling intensity on the fly.
   - `/cameraculling texturlod <true|false>` — Toggle distance texture LOD independently.
   - `/cameraculling texturlod range <near> <far>` — Set custom distance thresholds for half-res and quarter-res textures.
+  - `/cameraculling bossimmunity <true|false>` — Toggle Boss & Mini-Boss immunity on or off.
+  - `/cameraculling bosshealth <hp>` — Adjust major boss health threshold (e.g. `200`).
+  - `/cameraculling minibosshealth <hp>` — Adjust mini-boss health threshold (e.g. `60`).
+  - `/cameraculling bosshealth <boss_hp> <miniboss_hp>` — Adjust both health thresholds simultaneously.
   - `/cameraculling entityculling <true|false|auto>` — Toggle entity-behind-entity culling independently.
   - `/cameraculling maxcluster <1-128>` — Configure maximum mobs rendered per 1.5-block cluster.
   - `/cameraculling toggle` — Toggle culling on or off.
 - **Zero Multiplayer Desync**: Purely client-side rendering hooks; world simulation, network packets, and mob AI remain 100% untouched.
-- **Essential Safety Guards**: Glowing entities, the player character, mounted vehicles, and Bosses (Ender Dragon, Wither, Warden) are immune to culling and texture reduction. Slimes and Vexes never block visibility.
 
 ---
 
