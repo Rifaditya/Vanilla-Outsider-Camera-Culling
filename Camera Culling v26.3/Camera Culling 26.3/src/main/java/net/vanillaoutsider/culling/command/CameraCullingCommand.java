@@ -5,6 +5,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -12,6 +13,8 @@ import net.minecraft.network.chat.Component;
 import net.vanillaoutsider.culling.CameraCullingClient;
 import net.vanillaoutsider.culling.config.CameraCullingConfig;
 import net.vanillaoutsider.culling.config.CullingLevel;
+
+import java.util.Set;
 
 public final class CameraCullingCommand {
     private CameraCullingCommand() {}
@@ -41,6 +44,7 @@ public final class CameraCullingCommand {
                         src.sendFeedback(Component.literal("§7Boss & Mini-Boss Immunity: " + (CameraCullingConfig.isBossImmunity()
                             ? "§aActive §7(Boss: §e" + bossHp + " HP§7/§c" + (bossHp / 2.0) + "♥§7 | Mini-Boss: §e" + miniHp + " HP§7/§c" + (miniHp / 2.0) + "♥§7)"
                             : "§cDisabled")));
+                        src.sendFeedback(Component.literal("§7Client Blacklist: §e" + CameraCullingConfig.getClientBlacklist().size() + " entities§7 | Server Blacklist: §e" + CameraCullingConfig.getServerBlacklist().size() + " entities"));
                         src.sendFeedback(Component.literal("§7Culled Entities: §b" + CameraCullingClient.getCulledEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedEntitiesCount()));
                         src.sendFeedback(Component.literal("§7Culled Block Entities: §b" + CameraCullingClient.getCulledBlockEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedBlockEntitiesCount()));
                         return 1;
@@ -53,6 +57,102 @@ public final class CameraCullingCommand {
                         ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Culling is now " + (newState ? "§aEnabled" : "§cDisabled")));
                         return 1;
                     })
+                )
+                .then(ClientCommands.literal("blacklist")
+                    .then(ClientCommands.literal("add")
+                        .then(ClientCommands.argument("entity_id", StringArgumentType.string())
+                            .executes(ctx -> {
+                                String id = StringArgumentType.getString(ctx, "entity_id");
+                                boolean added = CameraCullingConfig.addClientBlacklist(id);
+                                if (added) {
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Added §e" + id + "§r to personal immunity blacklist (never culled)."));
+                                } else {
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§c " + id + " is already on your personal blacklist."));
+                                }
+                                return 1;
+                            })
+                        )
+                    )
+                    .then(ClientCommands.literal("remove")
+                        .then(ClientCommands.argument("entity_id", StringArgumentType.string())
+                            .executes(ctx -> {
+                                String id = StringArgumentType.getString(ctx, "entity_id");
+                                boolean removed = CameraCullingConfig.removeClientBlacklist(id);
+                                if (removed) {
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Removed §e" + id + "§r from personal immunity blacklist."));
+                                } else {
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§c " + id + " was not found on your personal blacklist."));
+                                }
+                                return 1;
+                            })
+                        )
+                    )
+                    .then(ClientCommands.literal("list")
+                        .executes(ctx -> {
+                            Set<String> list = CameraCullingConfig.getClientBlacklist();
+                            if (list.isEmpty()) {
+                                ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§7 Your personal immunity blacklist is currently empty."));
+                            } else {
+                                ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§e Personal Blacklisted Entities (" + list.size() + "):§r " + String.join(", ", list)));
+                            }
+                            return 1;
+                        })
+                    )
+                    .then(ClientCommands.literal("clear")
+                        .executes(ctx -> {
+                            CameraCullingConfig.clearClientBlacklist();
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§a Personal immunity blacklist cleared."));
+                            return 1;
+                        })
+                    )
+                )
+                .then(ClientCommands.literal("serverblacklist")
+                    .then(ClientCommands.literal("add")
+                        .then(ClientCommands.argument("entity_id", StringArgumentType.string())
+                            .executes(ctx -> {
+                                String id = StringArgumentType.getString(ctx, "entity_id");
+                                boolean added = CameraCullingConfig.addServerBlacklist(id);
+                                if (added) {
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§r Added §e" + id + "§r to server-wide immunity blacklist."));
+                                } else {
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§c " + id + " is already on server blacklist."));
+                                }
+                                return 1;
+                            })
+                        )
+                    )
+                    .then(ClientCommands.literal("remove")
+                        .then(ClientCommands.argument("entity_id", StringArgumentType.string())
+                            .executes(ctx -> {
+                                String id = StringArgumentType.getString(ctx, "entity_id");
+                                boolean removed = CameraCullingConfig.removeServerBlacklist(id);
+                                if (removed) {
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§r Removed §e" + id + "§r from server-wide immunity blacklist."));
+                                } else {
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§c " + id + " was not found on server blacklist."));
+                                }
+                                return 1;
+                            })
+                        )
+                    )
+                    .then(ClientCommands.literal("list")
+                        .executes(ctx -> {
+                            Set<String> list = CameraCullingConfig.getServerBlacklist();
+                            if (list.isEmpty()) {
+                                ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§7 Server immunity blacklist is currently empty."));
+                            } else {
+                                ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§e Server Blacklisted Entities (" + list.size() + "):§r " + String.join(", ", list)));
+                            }
+                            return 1;
+                        })
+                    )
+                    .then(ClientCommands.literal("clear")
+                        .executes(ctx -> {
+                            CameraCullingConfig.clearServerBlacklist();
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§a Server immunity blacklist cleared."));
+                            return 1;
+                        })
+                    )
                 )
                 .then(ClientCommands.literal("entityculling")
                     .then(ClientCommands.argument("enabled", BoolArgumentType.bool())

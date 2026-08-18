@@ -1,5 +1,9 @@
 # Release Queue: Camera Culling (MC 26.3)
 
+## [1.5.0+26.3] - 2026-08-18
+- Added Two-Tier Entity Immunity Blacklist (Client personal list + Server admin enforcement).
+- Added `/cameraculling blacklist` and `/cameraculling serverblacklist` subcommands.
+
 ## [1.4.0+26.3] - 2026-08-18
 - Added Dynamic Boss & Mini-Boss Detection and Full Immunity.
 - Added player-configurable health limits (`bossHealthThreshold: 150.0`, `miniBossHealthThreshold: 50.0`).

@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.world.entity.Entity;
 import net.vanillaoutsider.culling.config.CameraCullingConfig;
 import net.vanillaoutsider.culling.config.CullingLevel;
+import net.vanillaoutsider.culling.util.BlacklistHelper;
 import net.vanillaoutsider.culling.util.BossDetectionHelper;
 import net.vanillaoutsider.culling.util.TextureLodHelper;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,40 @@ public class CameraCullingTest {
         CameraCullingConfig.setBossImmunity(true);
         CameraCullingConfig.setBossHealthThreshold(150.0);
         CameraCullingConfig.setMiniBossHealthThreshold(50.0);
+        CameraCullingConfig.clearClientBlacklist();
+        CameraCullingConfig.clearServerBlacklist();
+    }
+
+    @Test
+    void testClientAndServerBlacklist() {
+        assertFalse(CameraCullingConfig.isEntityBlacklisted("minecraft:wolf"));
+
+        // Add client blacklist
+        assertTrue(CameraCullingConfig.addClientBlacklist("minecraft:wolf"));
+        assertTrue(CameraCullingConfig.isEntityBlacklisted("minecraft:wolf"));
+        assertTrue(CameraCullingConfig.getClientBlacklist().contains("minecraft:wolf"));
+
+        // Add duplicate
+        assertFalse(CameraCullingConfig.addClientBlacklist("minecraft:wolf"));
+
+        // Add server blacklist
+        assertTrue(CameraCullingConfig.addServerBlacklist("minecraft:allay"));
+        assertTrue(CameraCullingConfig.isEntityBlacklisted("minecraft:allay"));
+        assertTrue(CameraCullingConfig.getServerBlacklist().contains("minecraft:allay"));
+
+        // Non-blacklisted mob
+        assertFalse(CameraCullingConfig.isEntityBlacklisted("minecraft:zombie"));
+
+        // Remove from client blacklist
+        assertTrue(CameraCullingConfig.removeClientBlacklist("minecraft:wolf"));
+        assertFalse(CameraCullingConfig.isEntityBlacklisted("minecraft:wolf"));
+
+        // Server blacklist is still active
+        assertTrue(CameraCullingConfig.isEntityBlacklisted("minecraft:allay"));
+
+        // Clear all
+        CameraCullingConfig.clearServerBlacklist();
+        assertFalse(CameraCullingConfig.isEntityBlacklisted("minecraft:allay"));
     }
 
     @Test

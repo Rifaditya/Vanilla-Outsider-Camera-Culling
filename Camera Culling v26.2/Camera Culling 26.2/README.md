@@ -1,6 +1,6 @@
 # Camera Culling
 
-**Camera Culling** is a lightweight, purely client-side Fabric performance mod for Minecraft **26.1.2**, **26.2**, and **26.3** that optimizes frame rates and rendering performance by unrendering entities and block entities hidden behind walls, outside your field of view, or buried behind dense crowds of other mobs, while dynamically reducing texture resolution on distant mobs and protecting vanilla & modded Bosses and Mini-Bosses.
+**Camera Culling** is a lightweight, purely client-side Fabric performance mod for Minecraft **26.1.2**, **26.2**, and **26.3** that optimizes frame rates and rendering performance by unrendering entities and block entities hidden behind walls, outside your field of view, or buried behind dense crowds of other mobs, while dynamically reducing texture resolution on distant mobs, protecting Bosses/Mini-Bosses, and providing a two-tier entity immunity blacklist.
 
 ---
 
@@ -14,9 +14,12 @@
   - `16.0 – 32.0 blocks`: Half-resolution texture sampling.
   - `> 32.0 blocks`: Quarter-resolution / low-res mipmap sampling.
   - Significantly reduces VRAM fillrate and memory bandwidth on distant mobs.
+- **Two-Tier Entity Immunity Blacklist**:
+  - **Client Personal Blacklist**: Whitelist specific mobs (like `minecraft:wolf` or `minecraft:allay`) on individual client profiles.
+  - **Server Admin Enforcement**: Server admins can enforce global immunity across all connected clients.
 - **Dynamic Boss & Mini-Boss Detection and Full Immunity**:
   - Automatically identifies both vanilla and modded bosses & mini-bosses (Elder Guardians, Ravagers, Iron Golems, Piglin Brutes, Evokers, Breezes, and modded elites).
-  - **Player-Configurable Health Limits**: Set custom thresholds for Major Bosses (`bossHealthThreshold: 150.0 HP` / 75 hearts) and Mini-Bosses (`miniBossHealthThreshold: 50.0 HP` / 25 hearts).
+  - **Player-Configurable Health Limits**: Set custom thresholds for Major Bosses (`bossHealthThreshold: 150.0 HP`) and Mini-Bosses (`miniBossHealthThreshold: 50.0 HP`).
   - Mobs classified as bosses or mini-bosses are **never culled behind walls**, **never culled by crowd density caps**, and **never downscaled by texture LOD**.
 - **Block Entity Occlusion Culling**: Skips rendering chests, signs, banners, and skulls that are encased in opaque blocks or blocked by walls.
 - **4 Culling Intensity Profiles**:
@@ -25,8 +28,10 @@
   - `HIGH` (Aggressive): 1.0-block buffer, fast 2-point sampling, entity-behind-entity culling active.
   - `SUPER` (Extreme): 0.25-block buffer, ultra-fast 1-point center check for potato PCs.
 - **In-Game Commands**:
-  - `/cameraculling status` — View active level, entity-behind-entity state, texture LOD range, boss/mini-boss thresholds, and real-time culled vs rendered counts.
+  - `/cameraculling status` — View active level, entity-behind-entity state, texture LOD range, boss/mini-boss thresholds, blacklist counts, and real-time culled vs rendered counts.
   - `/cameraculling set <low|medium|high|super>` — Change intensity on the fly.
+  - `/cameraculling blacklist <add|remove|list|clear> <id>` — Manage personal immunity blacklist.
+  - `/cameraculling serverblacklist <add|remove|list|clear> <id>` — Manage server-wide immunity blacklist (OP/Admin).
   - `/cameraculling texturlod <true|false>` — Toggle distance texture LOD independently.
   - `/cameraculling texturlod range <near> <far>` — Set custom distance thresholds for half-res and quarter-res textures.
   - `/cameraculling bossimmunity <true|false>` — Toggle Boss & Mini-Boss immunity on or off.

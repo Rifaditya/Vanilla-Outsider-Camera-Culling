@@ -14,6 +14,9 @@
   - **16 – 32 blocks**: Half-resolution texture sampling (OpenGL Mipmap LOD bias +1.0).
   - **> 32 blocks**: Quarter-resolution low-res mipmap sampling (OpenGL Mipmap LOD bias +2.5).
   - Drastically lowers VRAM fillrate and texture sampling bandwidth on large amounts of distant mobs.
+- **Two-Tier Entity Immunity Blacklist**:
+  - **Personal Client Blacklist**: Whitelist specific mobs (e.g. `minecraft:wolf`, `minecraft:allay`) that you never want culled or texture-reduced.
+  - **Server Admin Enforcement**: Server admins can enforce global immunity across all connected clients.
 - **Dynamic Boss & Mini-Boss Detection and Full Immunity**:
   - Automatically identifies both vanilla and modded bosses & mini-bosses (Elder Guardians, Ravagers, Iron Golems, Piglin Brutes, Evokers, Breezes, and modded champions/elites).
   - **Player-Configurable Health Limits**: Set custom thresholds for Major Bosses (`bossHealthThreshold: 150.0 HP`) and Mini-Bosses (`miniBossHealthThreshold: 50.0 HP`).
@@ -25,8 +28,10 @@
   - **HIGH (Aggressive)**: 1.0-block safety buffer, fast 2-point sampling, entity-behind-entity culling enabled, aggressive culling of all block entities, item frames, and armor stands.
   - **SUPER (Extreme / Potato PC)**: 0.25-block safety buffer, ultra-fast 1-point center check for maximum FPS on low-end hardware.
 - **In-Game Commands**:
-  - `/cameraculling status` — View active level, entity culling state, texture LOD range, boss/mini-boss thresholds, and real-time culled vs rendered counts.
+  - `/cameraculling status` — View active level, entity culling state, texture LOD range, boss/mini-boss thresholds, blacklist counts, and real-time culled vs rendered counts.
   - `/cameraculling set <low|medium|high|super>` — Change culling intensity on the fly.
+  - `/cameraculling blacklist <add|remove|list|clear> <id>` — Manage personal immunity blacklist.
+  - `/cameraculling serverblacklist <add|remove|list|clear> <id>` — Manage server-wide immunity blacklist (OP/Admin).
   - `/cameraculling texturlod <true|false>` — Toggle distance texture LOD independently.
   - `/cameraculling texturlod range <near> <far>` — Set custom distance thresholds for half-res and quarter-res textures.
   - `/cameraculling bossimmunity <true|false>` — Toggle Boss & Mini-Boss immunity on or off.
