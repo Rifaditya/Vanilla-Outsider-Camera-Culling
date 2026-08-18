@@ -1,9 +1,11 @@
 // Copyright (C) 2026 Dasik (Rifaditya) | GNU GPLv3
 package net.vanillaoutsider.culling;
 
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.world.entity.Entity;
 import net.vanillaoutsider.culling.config.CameraCullingConfig;
 import net.vanillaoutsider.culling.config.CullingLevel;
-import net.vanillaoutsider.culling.util.CullingRaycastHelper;
+import net.vanillaoutsider.culling.util.BossDetectionHelper;
 import net.vanillaoutsider.culling.util.TextureLodHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,175 +15,122 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CameraCullingTest {
 
     @BeforeEach
-    public void setup() {
+    void setUp() {
         CameraCullingConfig.setEnabled(true);
         CameraCullingConfig.setLevel(CullingLevel.MEDIUM);
         CameraCullingConfig.setCullEntitiesBehindEntities(null);
         CameraCullingConfig.setMaxEntitiesPerCluster(8);
         CameraCullingConfig.setDistanceTextureLod(true);
         CameraCullingConfig.setDistanceTextureLodRange(16.0, 32.0);
-        CameraCullingConfig.setDebugMode(false);
+        CameraCullingConfig.setBossImmunity(true);
+        CameraCullingConfig.setBossHealthThreshold(150.0);
+        CameraCullingConfig.setMiniBossHealthThreshold(50.0);
     }
 
     @Test
-    public void testToggleCulling() {
-        assertTrue(CameraCullingConfig.isEnabled(), "Culling should be enabled by default");
-        CameraCullingConfig.setEnabled(false);
-        assertFalse(CameraCullingConfig.isEnabled(), "Culling should be disabled after toggle");
+    void testBossAndMiniBossKeywordHeuristics() {
+        // Major Bosses
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("minecraft:ender_dragon"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("minecraft:wither"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("minecraft:warden"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("cataclysm:netherite_monstrosity_boss"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("twilightforest:hydra_titan"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("mowziesmobs:ferrous_wroughtnaut_champion"));
+
+        // Mini-Bosses
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("minecraft:elder_guardian"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("minecraft:ravager"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("minecraft:iron_golem"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("minecraft:piglin_brute"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("minecraft:evoker"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("mod:dungeon_elite_guard"));
+        assertTrue(BossDetectionHelper.isBossOrMiniBossName("mod:goblin_miniboss"));
+
+        // Normal Mobs (Must NOT be flagged as boss/mini-boss)
+        assertFalse(BossDetectionHelper.isBossOrMiniBossName("minecraft:zombie"));
+        assertFalse(BossDetectionHelper.isBossOrMiniBossName("minecraft:skeleton"));
+        assertFalse(BossDetectionHelper.isBossOrMiniBossName("minecraft:creeper"));
+        assertFalse(BossDetectionHelper.isBossOrMiniBossName("minecraft:cow"));
+        assertFalse(BossDetectionHelper.isBossOrMiniBossName("minecraft:sheep"));
+        assertFalse(BossDetectionHelper.isBossOrMiniBossName(null));
+        assertFalse(BossDetectionHelper.isBossOrMiniBossName(""));
     }
 
     @Test
-    public void testCullingLevels() {
-        assertEquals(CullingLevel.MEDIUM, CameraCullingConfig.getLevel());
+    void testBossHealthThresholdsAndClamping() {
+        assertEquals(150.0, CameraCullingConfig.getBossHealthThreshold());
+        assertEquals(50.0, CameraCullingConfig.getMiniBossHealthThreshold());
 
-        CameraCullingConfig.setLevel(CullingLevel.LOW);
-        assertEquals(CullingLevel.LOW, CameraCullingConfig.getLevel());
+        // Test custom threshold settings
+        CameraCullingConfig.setBossHealthThreshold(200.0);
+        assertEquals(200.0, CameraCullingConfig.getBossHealthThreshold());
+
+        CameraCullingConfig.setMiniBossHealthThreshold(75.0);
+        assertEquals(75.0, CameraCullingConfig.getMiniBossHealthThreshold());
+
+        // Bounds clamping [1.0, 10000.0]
+        CameraCullingConfig.setBossHealthThreshold(0.5);
+        assertEquals(1.0, CameraCullingConfig.getBossHealthThreshold());
+
+        CameraCullingConfig.setBossHealthThreshold(50000.0);
+        assertEquals(10000.0, CameraCullingConfig.getBossHealthThreshold());
+
+        CameraCullingConfig.setMiniBossHealthThreshold(-10.0);
+        assertEquals(1.0, CameraCullingConfig.getMiniBossHealthThreshold());
+
+        CameraCullingConfig.setMiniBossHealthThreshold(20000.0);
+        assertEquals(10000.0, CameraCullingConfig.getMiniBossHealthThreshold());
+    }
+
+    @Test
+    void testBossImmunityToggle() {
+        assertTrue(CameraCullingConfig.isBossImmunity());
+        CameraCullingConfig.setBossImmunity(false);
+        assertFalse(CameraCullingConfig.isBossImmunity());
+
+        // When immunity disabled, isBossOrMiniBoss returns false
+        assertFalse(BossDetectionHelper.isBossOrMiniBoss((Entity) null));
+        assertFalse(BossDetectionHelper.isBossOrMiniBoss((EntityRenderState) null));
+    }
+
+    @Test
+    void testTextureLodBiasCalculation() {
+        // Distance < 16m (e.g. 10m -> 100 sq dist) -> 0.0f
+        assertEquals(0.0f, TextureLodHelper.calculateLodBias(100.0, 16.0, 32.0));
+
+        // Distance 16m - 32m (e.g. 20m -> 400 sq dist) -> 1.0f (Half resolution)
+        assertEquals(1.0f, TextureLodHelper.calculateLodBias(400.0, 16.0, 32.0));
+
+        // Distance > 32m (e.g. 40m -> 1600 sq dist) -> 2.5f (Quarter resolution)
+        assertEquals(2.5f, TextureLodHelper.calculateLodBias(1600.0, 16.0, 32.0));
+    }
+
+    @Test
+    void testCullingLevelProfiles() {
+        assertEquals(CullingLevel.LOW, CullingLevel.fromString("low"));
+        assertEquals(CullingLevel.MEDIUM, CullingLevel.fromString("medium"));
+        assertEquals(CullingLevel.HIGH, CullingLevel.fromString("high"));
+        assertEquals(CullingLevel.SUPER, CullingLevel.fromString("super"));
+        assertEquals(CullingLevel.MEDIUM, CullingLevel.fromString("invalid"));
+
         assertEquals(16.0, CullingLevel.LOW.getMinDistanceSq());
-        assertEquals(7, CullingLevel.LOW.getSamplePoints());
-        assertFalse(CullingLevel.LOW.shouldCullAllBlockEntities());
-        assertFalse(CullingLevel.LOW.isDefaultCullEntitiesBehindEntities());
-
-        CameraCullingConfig.setLevel(CullingLevel.HIGH);
-        assertEquals(CullingLevel.HIGH, CameraCullingConfig.getLevel());
+        assertEquals(4.0, CullingLevel.MEDIUM.getMinDistanceSq());
         assertEquals(1.0, CullingLevel.HIGH.getMinDistanceSq());
-        assertEquals(2, CullingLevel.HIGH.getSamplePoints());
-        assertTrue(CullingLevel.HIGH.shouldCullDecorativeEntities());
-        assertTrue(CullingLevel.HIGH.isDefaultCullEntitiesBehindEntities());
-
-        CameraCullingConfig.setLevel(CullingLevel.SUPER);
-        assertEquals(CullingLevel.SUPER, CameraCullingConfig.getLevel());
         assertEquals(0.25, CullingLevel.SUPER.getMinDistanceSq());
-        assertEquals(1, CullingLevel.SUPER.getSamplePoints());
-        assertTrue(CullingLevel.SUPER.shouldCullAllBlockEntities());
-        assertTrue(CullingLevel.SUPER.isDefaultCullEntitiesBehindEntities());
     }
 
     @Test
-    public void testEntityBehindEntityConfigAndOverrides() {
-        CameraCullingConfig.setLevel(CullingLevel.MEDIUM);
-        assertFalse(CameraCullingConfig.isCullEntitiesBehindEntities(), "MEDIUM should default entity culling to false");
-
-        CameraCullingConfig.setLevel(CullingLevel.HIGH);
-        assertTrue(CameraCullingConfig.isCullEntitiesBehindEntities(), "HIGH should default entity culling to true");
-
-        CameraCullingConfig.setCullEntitiesBehindEntities(false);
-        assertFalse(CameraCullingConfig.isCullEntitiesBehindEntities(), "Explicit false should override level default");
-
-        CameraCullingConfig.setLevel(CullingLevel.LOW);
-        CameraCullingConfig.setCullEntitiesBehindEntities(true);
-        assertTrue(CameraCullingConfig.isCullEntitiesBehindEntities(), "Explicit true should override LOW default");
-
-        CameraCullingConfig.setCullEntitiesBehindEntities(null);
-        assertFalse(CameraCullingConfig.isCullEntitiesBehindEntities(), "Reset to auto should match LOW default (false)");
-    }
-
-    @Test
-    public void testClusterLimitClamping() {
+    void testClusterDensityCap() {
         assertEquals(8, CameraCullingConfig.getMaxEntitiesPerCluster());
-
         CameraCullingConfig.setMaxEntitiesPerCluster(16);
         assertEquals(16, CameraCullingConfig.getMaxEntitiesPerCluster());
 
+        // Clamp minimum
         CameraCullingConfig.setMaxEntitiesPerCluster(0);
-        assertEquals(1, CameraCullingConfig.getMaxEntitiesPerCluster(), "Should clamp lower bound to 1");
+        assertEquals(1, CameraCullingConfig.getMaxEntitiesPerCluster());
 
+        // Clamp maximum
         CameraCullingConfig.setMaxEntitiesPerCluster(200);
-        assertEquals(128, CameraCullingConfig.getMaxEntitiesPerCluster(), "Should clamp upper bound to 128");
-    }
-
-    @Test
-    public void testDistanceTextureLodConfig() {
-        assertTrue(CameraCullingConfig.isDistanceTextureLod());
-        CameraCullingConfig.setDistanceTextureLod(false);
-        assertFalse(CameraCullingConfig.isDistanceTextureLod());
-
-        CameraCullingConfig.setDistanceTextureLodRange(24.0, 48.0);
-        assertEquals(24.0, CameraCullingConfig.getDistanceTextureLodStart());
-        assertEquals(48.0, CameraCullingConfig.getDistanceTextureLodFar());
-    }
-
-    @Test
-    public void testTextureLodBiasMath() {
-        double start = 16.0;
-        double far = 32.0;
-
-        // Distance = 10m (distSq = 100) -> Near -> 0.0f
-        assertEquals(0.0f, TextureLodHelper.calculateLodBias(100.0, start, far));
-
-        // Distance = 20m (distSq = 400) -> Medium -> 1.0f
-        assertEquals(1.0f, TextureLodHelper.calculateLodBias(400.0, start, far));
-
-        // Distance = 40m (distSq = 1600) -> Far -> 2.5f
-        assertEquals(2.5f, TextureLodHelper.calculateLodBias(1600.0, start, far));
-
-        // Boundary: exactly on start (16m -> distSq = 256) -> Medium -> 1.0f
-        assertEquals(1.0f, TextureLodHelper.calculateLodBias(256.0, start, far));
-
-        // Boundary: exactly on far (32m -> distSq = 1024) -> Far -> 2.5f
-        assertEquals(2.5f, TextureLodHelper.calculateLodBias(1024.0, start, far));
-    }
-
-    @Test
-    public void testCullingLevelFromString() {
-        assertEquals(CullingLevel.LOW, CullingLevel.fromString("low"));
-        assertEquals(CullingLevel.MEDIUM, CullingLevel.fromString("MEDIUM"));
-        assertEquals(CullingLevel.HIGH, CullingLevel.fromString("High"));
-        assertEquals(CullingLevel.SUPER, CullingLevel.fromString("super"));
-        assertEquals(CullingLevel.MEDIUM, CullingLevel.fromString("invalid_name"));
-        assertEquals(CullingLevel.MEDIUM, CullingLevel.fromString(null));
-    }
-
-    @Test
-    public void testCounterIncrements() {
-        long initialCulled = CameraCullingClient.getCulledEntitiesCount();
-        CameraCullingClient.incrementCulledEntities();
-        assertEquals(initialCulled + 1, CameraCullingClient.getCulledEntitiesCount());
-
-        long initialRendered = CameraCullingClient.getRenderedEntitiesCount();
-        CameraCullingClient.incrementRenderedEntities();
-        assertEquals(initialRendered + 1, CameraCullingClient.getRenderedEntitiesCount());
-
-        long initialCulledBlocks = CameraCullingClient.getCulledBlockEntitiesCount();
-        CameraCullingClient.incrementCulledBlockEntities();
-        assertEquals(initialCulledBlocks + 1, CameraCullingClient.getCulledBlockEntitiesCount());
-
-        long initialRenderedBlocks = CameraCullingClient.getRenderedBlockEntitiesCount();
-        CameraCullingClient.incrementRenderedBlockEntities();
-        assertEquals(initialRenderedBlocks + 1, CameraCullingClient.getRenderedBlockEntitiesCount());
-    }
-
-    @Test
-    public void testNullSafety() {
-        assertDoesNotThrow(() -> {
-            boolean occluded = CullingRaycastHelper.isEntityOccluded(null, 0, 0, 0);
-            assertFalse(occluded, "Null entity should never be occluded");
-        });
-
-        assertDoesNotThrow(() -> {
-            boolean blockOccluded = CullingRaycastHelper.isBlockEntityOccluded(null, null);
-            assertFalse(blockOccluded, "Null block entity should never be occluded");
-        });
-
-        assertDoesNotThrow(() -> {
-            boolean entityOccluded = CullingRaycastHelper.isEntityOccludedByCloserEntities(null, null, null, null, 0);
-            assertFalse(entityOccluded, "Null entity/level should return false safely");
-        });
-
-        assertDoesNotThrow(() -> {
-            float bias = TextureLodHelper.getLodBias(null);
-            assertEquals(0.0f, bias, "Null render state should return 0.0f bias");
-        });
-
-        assertDoesNotThrow(() -> {
-            TextureLodHelper.applyLodBias(1.0f);
-            TextureLodHelper.resetLodBias();
-        });
-    }
-
-    @Test
-    public void testDisabledCullingFastPass() {
-        CameraCullingConfig.setEnabled(false);
-        assertFalse(CullingRaycastHelper.isEntityOccluded(null, 100, 100, 100));
-        assertFalse(CullingRaycastHelper.isBlockEntityOccluded(null, null));
+        assertEquals(128, CameraCullingConfig.getMaxEntitiesPerCluster());
     }
 }

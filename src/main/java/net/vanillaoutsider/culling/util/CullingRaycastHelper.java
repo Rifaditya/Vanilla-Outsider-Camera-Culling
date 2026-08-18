@@ -5,12 +5,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.monster.Vex;
-import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -61,8 +58,8 @@ public final class CullingRaycastHelper {
             return false;
         }
 
-        // 3. Boss immunity: Ender Dragon, Wither, Warden are never culled
-        if (entity instanceof EnderDragon || entity instanceof WitherBoss || entity instanceof Warden) {
+        // 3. Boss & Mini-Boss immunity: Ender Dragon, Wither, Warden, modded bosses & elites
+        if (BossDetectionHelper.isBossOrMiniBoss(entity)) {
             return false;
         }
 
