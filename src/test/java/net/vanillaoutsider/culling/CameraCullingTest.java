@@ -4,6 +4,7 @@ package net.vanillaoutsider.culling;
 import net.vanillaoutsider.culling.config.CameraCullingConfig;
 import net.vanillaoutsider.culling.config.CullingLevel;
 import net.vanillaoutsider.culling.util.CullingRaycastHelper;
+import net.vanillaoutsider.culling.util.TextureLodHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +18,8 @@ public class CameraCullingTest {
         CameraCullingConfig.setLevel(CullingLevel.MEDIUM);
         CameraCullingConfig.setCullEntitiesBehindEntities(null);
         CameraCullingConfig.setMaxEntitiesPerCluster(8);
+        CameraCullingConfig.setDistanceTextureLod(true);
+        CameraCullingConfig.setDistanceTextureLodRange(16.0, 32.0);
         CameraCullingConfig.setDebugMode(false);
     }
 
@@ -61,16 +64,13 @@ public class CameraCullingTest {
         CameraCullingConfig.setLevel(CullingLevel.HIGH);
         assertTrue(CameraCullingConfig.isCullEntitiesBehindEntities(), "HIGH should default entity culling to true");
 
-        // Explicit override to false
         CameraCullingConfig.setCullEntitiesBehindEntities(false);
         assertFalse(CameraCullingConfig.isCullEntitiesBehindEntities(), "Explicit false should override level default");
 
-        // Explicit override to true
         CameraCullingConfig.setLevel(CullingLevel.LOW);
         CameraCullingConfig.setCullEntitiesBehindEntities(true);
         assertTrue(CameraCullingConfig.isCullEntitiesBehindEntities(), "Explicit true should override LOW default");
 
-        // Reset to auto
         CameraCullingConfig.setCullEntitiesBehindEntities(null);
         assertFalse(CameraCullingConfig.isCullEntitiesBehindEntities(), "Reset to auto should match LOW default (false)");
     }
@@ -87,6 +87,38 @@ public class CameraCullingTest {
 
         CameraCullingConfig.setMaxEntitiesPerCluster(200);
         assertEquals(128, CameraCullingConfig.getMaxEntitiesPerCluster(), "Should clamp upper bound to 128");
+    }
+
+    @Test
+    public void testDistanceTextureLodConfig() {
+        assertTrue(CameraCullingConfig.isDistanceTextureLod());
+        CameraCullingConfig.setDistanceTextureLod(false);
+        assertFalse(CameraCullingConfig.isDistanceTextureLod());
+
+        CameraCullingConfig.setDistanceTextureLodRange(24.0, 48.0);
+        assertEquals(24.0, CameraCullingConfig.getDistanceTextureLodStart());
+        assertEquals(48.0, CameraCullingConfig.getDistanceTextureLodFar());
+    }
+
+    @Test
+    public void testTextureLodBiasMath() {
+        double start = 16.0;
+        double far = 32.0;
+
+        // Distance = 10m (distSq = 100) -> Near -> 0.0f
+        assertEquals(0.0f, TextureLodHelper.calculateLodBias(100.0, start, far));
+
+        // Distance = 20m (distSq = 400) -> Medium -> 1.0f
+        assertEquals(1.0f, TextureLodHelper.calculateLodBias(400.0, start, far));
+
+        // Distance = 40m (distSq = 1600) -> Far -> 2.5f
+        assertEquals(2.5f, TextureLodHelper.calculateLodBias(1600.0, start, far));
+
+        // Boundary: exactly on start (16m -> distSq = 256) -> Medium -> 1.0f
+        assertEquals(1.0f, TextureLodHelper.calculateLodBias(256.0, start, far));
+
+        // Boundary: exactly on far (32m -> distSq = 1024) -> Far -> 2.5f
+        assertEquals(2.5f, TextureLodHelper.calculateLodBias(1024.0, start, far));
     }
 
     @Test
@@ -133,6 +165,16 @@ public class CameraCullingTest {
         assertDoesNotThrow(() -> {
             boolean entityOccluded = CullingRaycastHelper.isEntityOccludedByCloserEntities(null, null, null, null, 0);
             assertFalse(entityOccluded, "Null entity/level should return false safely");
+        });
+
+        assertDoesNotThrow(() -> {
+            float bias = TextureLodHelper.getLodBias(null);
+            assertEquals(0.0f, bias, "Null render state should return 0.0f bias");
+        });
+
+        assertDoesNotThrow(() -> {
+            TextureLodHelper.applyLodBias(1.0f);
+            TextureLodHelper.resetLodBias();
         });
     }
 

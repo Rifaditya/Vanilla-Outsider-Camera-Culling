@@ -15,17 +15,103 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public final class CameraCullingConfig {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CameraCullingConfig.class);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final String CONFIG_FILE_NAME = "camera-culling.json";
 
     private static boolean enabled = true;
     private static CullingLevel level = CullingLevel.MEDIUM;
-    private static Boolean explicitCullEntitiesBehindEntities = null;
+    private static Boolean cullEntitiesBehindEntities = null; // null = use level default
     private static int maxEntitiesPerCluster = 8;
+    private static boolean distanceTextureLod = true;
+    private static double distanceTextureLodStart = 16.0;
+    private static double distanceTextureLodFar = 32.0;
     private static boolean debugMode = false;
 
     private CameraCullingConfig() {}
+
+    private static File getConfigFile() {
+        try {
+            if (FabricLoader.getInstance() != null && FabricLoader.getInstance().getConfigDir() != null) {
+                return FabricLoader.getInstance().getConfigDir().resolve("camera-culling.json").toFile();
+            }
+        } catch (Throwable ignored) {
+        }
+        return new File("build/config/camera-culling.json");
+    }
+
+    public static void load() {
+        File file = getConfigFile();
+        if (!file.exists()) {
+            save();
+            return;
+        }
+
+        try (FileReader reader = new FileReader(file)) {
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            if (json.has("enabled")) {
+                enabled = json.get("enabled").getAsBoolean();
+            }
+            if (json.has("level")) {
+                level = CullingLevel.fromString(json.get("level").getAsString());
+            }
+            if (json.has("cullEntitiesBehindEntities")) {
+                if (json.get("cullEntitiesBehindEntities").isJsonNull()) {
+                    cullEntitiesBehindEntities = null;
+                } else {
+                    cullEntitiesBehindEntities = json.get("cullEntitiesBehindEntities").getAsBoolean();
+                }
+            }
+            if (json.has("maxEntitiesPerCluster")) {
+                maxEntitiesPerCluster = Math.max(1, Math.min(128, json.get("maxEntitiesPerCluster").getAsInt()));
+            }
+            if (json.has("distanceTextureLod")) {
+                distanceTextureLod = json.get("distanceTextureLod").getAsBoolean();
+            }
+            if (json.has("distanceTextureLodStart")) {
+                distanceTextureLodStart = Math.max(1.0, json.get("distanceTextureLodStart").getAsDouble());
+            }
+            if (json.has("distanceTextureLodFar")) {
+                distanceTextureLodFar = Math.max(distanceTextureLodStart + 1.0, json.get("distanceTextureLodFar").getAsDouble());
+            }
+            if (json.has("debugMode")) {
+                debugMode = json.get("debugMode").getAsBoolean();
+            }
+            LOGGER.info("[Camera Culling] Configuration loaded. Active Level: {}, Entity Culling: {}, Texture LOD: {} ({}m-{}m)",
+                    level.getDisplayName(), isCullEntitiesBehindEntities(), distanceTextureLod, distanceTextureLodStart, distanceTextureLodFar);
+        } catch (Exception e) {
+            LOGGER.error("[Camera Culling] Failed to load config, restoring defaults: {}", e.getMessage());
+            save();
+        }
+    }
+
+    public static void save() {
+        File file = getConfigFile();
+        try {
+            if (file.getParentFile() != null && !file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            JsonObject json = new JsonObject();
+            json.addProperty("enabled", enabled);
+            json.addProperty("level", level.name());
+            if (cullEntitiesBehindEntities == null) {
+                json.add("cullEntitiesBehindEntities", null);
+            } else {
+                json.addProperty("cullEntitiesBehindEntities", cullEntitiesBehindEntities);
+            }
+            json.addProperty("maxEntitiesPerCluster", maxEntitiesPerCluster);
+            json.addProperty("distanceTextureLod", distanceTextureLod);
+            json.addProperty("distanceTextureLodStart", distanceTextureLodStart);
+            json.addProperty("distanceTextureLodFar", distanceTextureLodFar);
+            json.addProperty("debugMode", debugMode);
+
+            try (FileWriter writer = new FileWriter(file)) {
+                GSON.toJson(json, writer);
+            }
+        } catch (IOException e) {
+            LOGGER.error("[Camera Culling] Failed to save config: {}", e.getMessage());
+        }
+    }
 
     public static boolean isEnabled() {
         return enabled;
@@ -48,27 +134,46 @@ public final class CameraCullingConfig {
     }
 
     public static boolean isCullEntitiesBehindEntities() {
-        if (explicitCullEntitiesBehindEntities != null) {
-            return explicitCullEntitiesBehindEntities;
+        if (cullEntitiesBehindEntities != null) {
+            return cullEntitiesBehindEntities;
         }
         return level.isDefaultCullEntitiesBehindEntities();
     }
 
     public static void setCullEntitiesBehindEntities(Boolean value) {
-        explicitCullEntitiesBehindEntities = value;
+        cullEntitiesBehindEntities = value;
         save();
-    }
-
-    public static Boolean getExplicitCullEntitiesBehindEntities() {
-        return explicitCullEntitiesBehindEntities;
     }
 
     public static int getMaxEntitiesPerCluster() {
         return maxEntitiesPerCluster;
     }
 
-    public static void setMaxEntitiesPerCluster(int value) {
-        maxEntitiesPerCluster = Math.max(1, Math.min(128, value));
+    public static void setMaxEntitiesPerCluster(int limit) {
+        maxEntitiesPerCluster = Math.max(1, Math.min(128, limit));
+        save();
+    }
+
+    public static boolean isDistanceTextureLod() {
+        return distanceTextureLod;
+    }
+
+    public static void setDistanceTextureLod(boolean enabled) {
+        distanceTextureLod = enabled;
+        save();
+    }
+
+    public static double getDistanceTextureLodStart() {
+        return distanceTextureLodStart;
+    }
+
+    public static double getDistanceTextureLodFar() {
+        return distanceTextureLodFar;
+    }
+
+    public static void setDistanceTextureLodRange(double start, double far) {
+        distanceTextureLodStart = Math.max(1.0, Math.min(start, far - 1.0));
+        distanceTextureLodFar = Math.max(distanceTextureLodStart + 1.0, far);
         save();
     }
 
@@ -79,78 +184,5 @@ public final class CameraCullingConfig {
     public static void setDebugMode(boolean value) {
         debugMode = value;
         save();
-    }
-
-    public static void load() {
-        File configFile = getConfigFile();
-        if (!configFile.exists()) {
-            save();
-            return;
-        }
-
-        try (FileReader reader = new FileReader(configFile)) {
-            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-            if (json.has("enabled")) {
-                enabled = json.get("enabled").getAsBoolean();
-            }
-            if (json.has("cullingLevel")) {
-                level = CullingLevel.fromString(json.get("cullingLevel").getAsString());
-            }
-            if (json.has("cullEntitiesBehindEntities")) {
-                if (json.get("cullEntitiesBehindEntities").isJsonNull()) {
-                    explicitCullEntitiesBehindEntities = null;
-                } else {
-                    explicitCullEntitiesBehindEntities = json.get("cullEntitiesBehindEntities").getAsBoolean();
-                }
-            }
-            if (json.has("maxEntitiesPerCluster")) {
-                maxEntitiesPerCluster = Math.max(1, Math.min(128, json.get("maxEntitiesPerCluster").getAsInt()));
-            }
-            if (json.has("debugMode")) {
-                debugMode = json.get("debugMode").getAsBoolean();
-            }
-            LOGGER.info("[Camera Culling] Loaded config: enabled={}, level={}, cullEntitiesBehindEntities={}, maxCluster={}, debugMode={}",
-                enabled, level, isCullEntitiesBehindEntities(), maxEntitiesPerCluster, debugMode);
-        } catch (Exception e) {
-            LOGGER.error("[Camera Culling] Failed to load config from {}: {}", configFile.getAbsolutePath(), e.getMessage());
-            save();
-        }
-    }
-
-    public static void save() {
-        File configFile = getConfigFile();
-        try {
-            File parent = configFile.getParentFile();
-            if (parent != null && !parent.exists()) {
-                parent.mkdirs();
-            }
-            JsonObject json = new JsonObject();
-            json.addProperty("enabled", enabled);
-            json.addProperty("cullingLevel", level.name());
-            if (explicitCullEntitiesBehindEntities != null) {
-                json.addProperty("cullEntitiesBehindEntities", explicitCullEntitiesBehindEntities);
-            } else {
-                json.add("cullEntitiesBehindEntities", null);
-            }
-            json.addProperty("maxEntitiesPerCluster", maxEntitiesPerCluster);
-            json.addProperty("debugMode", debugMode);
-
-            try (FileWriter writer = new FileWriter(configFile)) {
-                GSON.toJson(json, writer);
-            }
-        } catch (IOException e) {
-            LOGGER.error("[Camera Culling] Failed to save config: {}", e.getMessage());
-        }
-    }
-
-    private static File getConfigFile() {
-        try {
-            if (FabricLoader.getInstance() != null && FabricLoader.getInstance().getConfigDir() != null) {
-                return FabricLoader.getInstance().getConfigDir().resolve(CONFIG_FILE_NAME).toFile();
-            }
-        } catch (Throwable ignored) {
-            // FabricLoader not initialized in unit tests
-        }
-        return new File("build/config/" + CONFIG_FILE_NAME);
     }
 }
