@@ -23,7 +23,7 @@ public abstract class BlockEntityRenderDispatcherMixin {
     private Vec3 cameraPos;
 
     @Inject(
-        method = "tryExtractRenderState(Lnet/minecraft/world/level/block/entity/BlockEntity;FLnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;Z)Lnet/minecraft/client/renderer/blockentity/state/BlockEntityRenderState;",
+        method = "tryExtractRenderState(Lnet/minecraft/world/level/block/entity/BlockEntity;FLnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)Lnet/minecraft/client/renderer/blockentity/state/BlockEntityRenderState;",
         at = @At("HEAD"),
         cancellable = true
     )
@@ -31,7 +31,6 @@ public abstract class BlockEntityRenderDispatcherMixin {
         E blockEntity,
         float partialTicks,
         ModelFeatureRenderer.CrumblingOverlay breakProgress,
-        boolean isGloballyRendered,
         CallbackInfoReturnable<S> cir
     ) {
         if (this.cameraPos != null && CullingRaycastHelper.isBlockEntityOccluded(blockEntity, this.cameraPos)) {
@@ -40,14 +39,13 @@ public abstract class BlockEntityRenderDispatcherMixin {
     }
 
     @Inject(
-        method = "tryExtractRenderState(Lnet/minecraft/world/level/block/entity/BlockEntity;FLnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;Z)Lnet/minecraft/client/renderer/blockentity/state/BlockEntityRenderState;",
+        method = "tryExtractRenderState(Lnet/minecraft/world/level/block/entity/BlockEntity;FLnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)Lnet/minecraft/client/renderer/blockentity/state/BlockEntityRenderState;",
         at = @At("RETURN")
     )
     private <E extends BlockEntity, S extends BlockEntityRenderState> void onTryExtractRenderStateReturn(
         E blockEntity,
         float partialTicks,
         ModelFeatureRenderer.CrumblingOverlay breakProgress,
-        boolean isGloballyRendered,
         CallbackInfoReturnable<S> cir
     ) {
         S state = cir.getReturnValue();

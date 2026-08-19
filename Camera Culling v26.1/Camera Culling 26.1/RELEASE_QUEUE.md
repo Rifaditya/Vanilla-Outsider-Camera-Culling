@@ -1,6 +1,9 @@
 # Release Queue: Camera Culling (MC 26.1.2)
 
-## [1.10.0+26.1.2] - 2026-08-19
+## [1.10.1+26.1.2] - 2026-08-19
+- Fix tryExtractRenderState Mixin descriptor (3 arguments) resolving startup crash on 26.1.2.
+
+## [1.10.0+26.1.2] - 2026-08-19 [BROKEN / CRASHED ON STARTUP]
 - Zero-Allocation Hot-Path Raycast Engine (eliminating unculling GC spikes) + 2-Sided Sign & Hanging Sign Back-Face/Blank Text Culling with YACL GUI integration.
 
 ## [1.9.2+26.1.2] - 2026-08-19

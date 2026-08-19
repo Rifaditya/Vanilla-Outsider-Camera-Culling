@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.10.0+26.1.2] - 2026-08-19
+## [1.10.1+26.1.2] - 2026-08-19
+
+### Fixed
+- **BlockEntityRenderDispatcher Bytecode Alignment**:
+  - Corrected `tryExtractRenderState` Mixin target descriptor to 3 arguments `(Lnet/minecraft/world/level/block/entity/BlockEntity;FLnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)Lnet/minecraft/client/renderer/blockentity/state/BlockEntityRenderState;` resolving `InvalidInjectionException` on Minecraft 26.1.2 startup.
+
+---
+
+## [1.10.0+26.1.2] - 2026-08-19 [BROKEN / CRASHED ON STARTUP]
+
+> **Post-Mortem**: Crashed on game startup with `InvalidInjectionException: Critical injection failure: @Inject annotation on onTryExtractRenderStateHead could not find any targets matching 'tryExtractRenderState(...;Z)'`. In 26.1.2, `tryExtractRenderState` takes 3 parameters without the trailing `boolean isGloballyRendered` introduced in 26.2. Superseded by `v1.10.1+26.1.2`.
 
 ### Added & Optimized
 - **Zero-Allocation Hot-Path Engine**:
