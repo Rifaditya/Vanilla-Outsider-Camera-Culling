@@ -6,7 +6,7 @@ import java.util.Locale;
 public enum CullingLevel {
     LOW(
         "Low (Conservative)",
-        16.0,
+        25.0,
         7,
         0.4,
         false,
@@ -15,27 +15,27 @@ public enum CullingLevel {
     ),
     MEDIUM(
         "Medium (Balanced)",
-        4.0,
-        3,
-        0.1,
+        12.25,
+        5,
+        0.2,
         true,
         false,
         false
     ),
     HIGH(
         "High (Aggressive)",
-        1.0,
-        2,
-        0.0,
+        9.0,
+        3,
+        0.1,
         true,
         true,
         true
     ),
     SUPER(
         "Super (Extreme)",
-        0.25,
-        1,
-        -0.05,
+        4.0,
+        2,
+        0.0,
         true,
         true,
         true

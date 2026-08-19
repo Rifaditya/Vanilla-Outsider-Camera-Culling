@@ -1,5 +1,10 @@
 # Release Queue: Camera Culling (MC 26.3)
 
+## [1.8.0+26.3] - 2026-08-19
+- 2-Frame Temporal Hysteresis Anti-Flicker Architecture.
+- Anatomical Multi-Vector Sampling (Eyes, center, pelvis, feet, deflated perimeter).
+- Expanded Contact Tolerance ($0.25\text{m}^2$) and Proximity Safety Bubble ($3.5\text{m}$).
+
 ## [1.7.0+26.3] - 2026-08-19
 - Added Block & Texture Animation Culling.
 - Added `/cameraculling animations [true|false]` command and `cullAnimations` config option.

@@ -27,6 +27,32 @@ public final class CullingRaycastHelper {
 
     private CullingRaycastHelper() {}
 
+    private static final it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap OCCLUDED_STREAK = new it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap();
+
+    public static void resetState() {
+        OCCLUDED_STREAK.clear();
+    }
+
+    private static boolean recordVisible(Entity entity) {
+        OCCLUDED_STREAK.remove(entity.getId());
+        CameraCullingClient.incrementRenderedEntities();
+        return false;
+    }
+
+    private static boolean recordOccluded(Entity entity) {
+        if (OCCLUDED_STREAK.size() > 2048) {
+            OCCLUDED_STREAK.clear();
+        }
+        int streak = OCCLUDED_STREAK.addTo(entity.getId(), 1) + 1;
+        if (streak < 2) {
+            // 1-frame grace decay: prevent 1-frame edge grazing flicker
+            CameraCullingClient.incrementRenderedEntities();
+            return false;
+        }
+        CameraCullingClient.incrementCulledEntities();
+        return true;
+    }
+
     /**
      * Determines whether an entity is fully occluded from the camera position.
      * Returns true if occluded (should NOT render), false if visible (should render).
@@ -50,40 +76,40 @@ public final class CullingRaycastHelper {
 
         // 1. Local player and mounted vehicles are never culled
         if (mc.player == entity || mc.player.getVehicle() == entity || entity.hasPassenger(mc.player)) {
-            return false;
+            return recordVisible(entity);
         }
 
         // 2. Glowing entities must remain visible through blocks
         if (mc.shouldEntityAppearGlowing(entity)) {
-            return false;
+            return recordVisible(entity);
         }
 
         // 3. Boss & Mini-Boss immunity: Ender Dragon, Wither, Warden, modded bosses & elites
         if (BossDetectionHelper.isBossOrMiniBoss(entity)) {
-            return false;
+            return recordVisible(entity);
         }
 
         // 4. Client & Server Blacklist immunity (Wolf, Allay, custom mobs)
         if (BlacklistHelper.isBlacklisted(entity)) {
-            return false;
+            return recordVisible(entity);
         }
 
         CullingLevel cullingLevel = CameraCullingConfig.getLevel();
 
         // 5. Decorative entity check (e.g. Armor stands / Item frames)
         if (!cullingLevel.shouldCullDecorativeEntities() && (entity instanceof ArmorStand || entity instanceof ItemFrame)) {
-            return false;
+            return recordVisible(entity);
         }
 
         Vec3 camPos = new Vec3(camX, camY, camZ);
         double distSq = camPos.distanceToSqr(entity.getX(), entity.getY(), entity.getZ());
         if (distSq < cullingLevel.getMinDistanceSq()) {
-            return false;
+            return recordVisible(entity);
         }
 
         AABB box = entity.getBoundingBox();
         if (box.getSize() <= 0.0 || box.hasNaN()) {
-            return false;
+            return recordVisible(entity);
         }
 
         double padding = cullingLevel.getPadding();
@@ -94,71 +120,71 @@ public final class CullingRaycastHelper {
         Vec3 center = box.getCenter();
         int samplePoints = cullingLevel.getSamplePoints();
 
-        // 6. Block Occlusion Raycast Check
-        boolean centerHit = hasLineOfSight(level, camPos, center);
-        if (centerHit) {
-            // Check Entity-Behind-Entity if enabled
+        // Sample 1: Anatomical Eye Position (Highest priority)
+        Vec3 eyePos = entity.getEyePosition();
+        if (hasLineOfSight(level, camPos, eyePos)) {
             if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                 if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                    CameraCullingClient.incrementCulledEntities();
-                    return true;
+                    return recordOccluded(entity);
                 }
             }
-            CameraCullingClient.incrementRenderedEntities();
-            return false;
+            return recordVisible(entity);
         }
 
-        // Sample 2: Upper / Head (if level >= 2 points)
-        if (samplePoints >= 2) {
-            Vec3 head = new Vec3(center.x, Math.max(box.minY, box.maxY - 0.1), center.z);
-            if (hasLineOfSight(level, camPos, head)) {
-                if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
-                    if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                        CameraCullingClient.incrementCulledEntities();
-                        return true;
-                    }
+        // Sample 2: Torso Center
+        if (hasLineOfSight(level, camPos, center)) {
+            if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
+                if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
+                    return recordOccluded(entity);
                 }
-                CameraCullingClient.incrementRenderedEntities();
-                return false;
             }
+            return recordVisible(entity);
         }
 
-        // Sample 3: Lower / Feet (if level >= 3 points)
+        // Sample 3: Lower / Feet
         if (samplePoints >= 3) {
-            Vec3 feet = new Vec3(center.x, Math.min(box.maxY, box.minY + 0.1), center.z);
+            Vec3 feet = new Vec3(center.x, Math.min(box.maxY, box.minY + 0.15), center.z);
             if (hasLineOfSight(level, camPos, feet)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                        CameraCullingClient.incrementCulledEntities();
-                        return true;
+                        return recordOccluded(entity);
                     }
                 }
-                CameraCullingClient.incrementRenderedEntities();
-                return false;
+                return recordVisible(entity);
             }
         }
 
-        // Sample 4-7: Corners (if level >= 7 points or wide entity)
-        if (samplePoints >= 7 || box.getXsize() > 1.2 || box.getZsize() > 1.2) {
-            Vec3 c1 = new Vec3(box.minX + 0.1, center.y, box.minZ + 0.1);
-            Vec3 c2 = new Vec3(box.maxX - 0.1, center.y, box.minZ + 0.1);
-            Vec3 c3 = new Vec3(box.minX + 0.1, center.y, box.maxZ - 0.1);
-            Vec3 c4 = new Vec3(box.maxX - 0.1, center.y, box.maxZ - 0.1);
+        // Sample 4: Elevated Pelvis
+        if (samplePoints >= 4) {
+            Vec3 pelvis = new Vec3(center.x, box.minY + box.getYsize() * 0.45, center.z);
+            if (hasLineOfSight(level, camPos, pelvis)) {
+                if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
+                    if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
+                        return recordOccluded(entity);
+                    }
+                }
+                return recordVisible(entity);
+            }
+        }
+
+        // Sample 5-8: Deflated Perimeter Flanks (for wide entities or high precision)
+        if (samplePoints >= 5 || box.getXsize() > 1.0 || box.getZsize() > 1.0) {
+            Vec3 c1 = new Vec3(box.minX + 0.15, center.y, box.minZ + 0.15);
+            Vec3 c2 = new Vec3(box.maxX - 0.15, center.y, box.minZ + 0.15);
+            Vec3 c3 = new Vec3(box.minX + 0.15, center.y, box.maxZ - 0.15);
+            Vec3 c4 = new Vec3(box.maxX - 0.15, center.y, box.maxZ - 0.15);
             if (hasLineOfSight(level, camPos, c1) || hasLineOfSight(level, camPos, c2)
                 || hasLineOfSight(level, camPos, c3) || hasLineOfSight(level, camPos, c4)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                        CameraCullingClient.incrementCulledEntities();
-                        return true;
+                        return recordOccluded(entity);
                     }
                 }
-                CameraCullingClient.incrementRenderedEntities();
-                return false;
+                return recordVisible(entity);
             }
         }
 
-        CameraCullingClient.incrementCulledEntities();
-        return true;
+        return recordOccluded(entity);
     }
 
     /**
@@ -291,7 +317,7 @@ public final class CullingRaycastHelper {
         }
         double hitDistSq = from.distanceToSqr(hit.getLocation());
         double targetDistSq = from.distanceToSqr(to);
-        return hitDistSq >= (targetDistSq - 0.05);
+        return hitDistSq >= (targetDistSq - 0.25);
     }
 
     public static boolean hasLineOfSightToBlock(Level level, Vec3 from, Vec3 to, BlockPos targetPos) {

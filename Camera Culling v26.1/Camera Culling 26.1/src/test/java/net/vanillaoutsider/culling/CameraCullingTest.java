@@ -148,10 +148,10 @@ public class CameraCullingTest {
         assertEquals(CullingLevel.SUPER, CullingLevel.fromString("super"));
         assertEquals(CullingLevel.MEDIUM, CullingLevel.fromString("invalid"));
 
-        assertEquals(16.0, CullingLevel.LOW.getMinDistanceSq());
-        assertEquals(4.0, CullingLevel.MEDIUM.getMinDistanceSq());
-        assertEquals(1.0, CullingLevel.HIGH.getMinDistanceSq());
-        assertEquals(0.25, CullingLevel.SUPER.getMinDistanceSq());
+        assertEquals(25.0, CullingLevel.LOW.getMinDistanceSq());
+        assertEquals(12.25, CullingLevel.MEDIUM.getMinDistanceSq());
+        assertEquals(9.0, CullingLevel.HIGH.getMinDistanceSq());
+        assertEquals(4.0, CullingLevel.SUPER.getMinDistanceSq());
     }
 
     @Test
@@ -193,5 +193,10 @@ public class CameraCullingTest {
         assertFalse(net.vanillaoutsider.culling.util.AnimationCullingHelper.shouldPauseAtlasAnimation());
 
         CameraCullingConfig.setCullAnimations(true);
+    }
+
+    @Test
+    void testHysteresisResetState() {
+        assertDoesNotThrow(net.vanillaoutsider.culling.util.CullingRaycastHelper::resetState);
     }
 }

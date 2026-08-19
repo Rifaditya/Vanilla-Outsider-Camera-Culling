@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.8.0+26.1.2] - 2026-08-19
+
+### Optimized & Improved
+- **2-Frame Temporal Hysteresis Anti-Flicker Architecture**:
+  - Implemented a lock-free, zero-allocation client-side temporal debounce buffer (`Int2IntOpenHashMap`).
+  - **Instant Un-Cull (0ms)**: Entities render immediately upon obtaining any unobstructed sightline.
+  - **2-Frame Grace Decay**: Requires 2 consecutive occluded frames before hiding an entity, eliminating 100% of single-frame edge grazing flicker when the camera or player moves past block corners, fences, and walls.
+- **Anatomical Multi-Vector Sampling**:
+  - Prioritized eye position (`entity.getEyePosition()`), torso center, elevated pelvis, feet, and deflated perimeter flank points.
+- **Expanded Contact Tolerance & Proximity Safety Bubble**:
+  - Expanded raycast hit contact tolerance to $0.25\text{m}^2$ ($0.50\text{m}$ margin) to eliminate false-positive culling on block edges.
+  - Expanded proximity bubble thresholds: `LOW` $\rightarrow 5.0\text{m}$, `MEDIUM` $\rightarrow 3.5\text{m}$, `HIGH` $\rightarrow 3.0\text{m}$, `SUPER` $\rightarrow 2.0\text{m}$.
+
+---
+
 ## [1.7.0+26.1.2] - 2026-08-19
 
 ### Added
