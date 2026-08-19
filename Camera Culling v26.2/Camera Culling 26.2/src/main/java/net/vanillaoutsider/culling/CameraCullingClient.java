@@ -15,6 +15,8 @@ public class CameraCullingClient implements ClientModInitializer {
     private static long renderedEntitiesCount = 0;
     private static long culledBlockEntitiesCount = 0;
     private static long renderedBlockEntitiesCount = 0;
+    private static long culledParticlesCount = 0;
+    private static long renderedParticlesCount = 0;
 
     @Override
     public void onInitializeClient() {
@@ -56,6 +58,14 @@ public class CameraCullingClient implements ClientModInitializer {
         renderedBlockEntitiesCount++;
     }
 
+    public static void incrementCulledParticles() {
+        culledParticlesCount++;
+    }
+
+    public static void incrementRenderedParticles() {
+        renderedParticlesCount++;
+    }
+
     public static long getCulledEntitiesCount() {
         return culledEntitiesCount;
     }
@@ -70,5 +80,13 @@ public class CameraCullingClient implements ClientModInitializer {
 
     public static long getRenderedBlockEntitiesCount() {
         return renderedBlockEntitiesCount;
+    }
+
+    public static long getCulledParticlesCount() {
+        return culledParticlesCount;
+    }
+
+    public static long getRenderedParticlesCount() {
+        return renderedParticlesCount;
     }
 }

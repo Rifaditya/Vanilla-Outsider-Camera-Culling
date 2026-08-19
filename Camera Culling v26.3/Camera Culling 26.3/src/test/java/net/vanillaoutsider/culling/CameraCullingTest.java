@@ -168,4 +168,18 @@ public class CameraCullingTest {
         CameraCullingConfig.setMaxEntitiesPerCluster(200);
         assertEquals(128, CameraCullingConfig.getMaxEntitiesPerCluster());
     }
+
+    @Test
+    void testParticleCullingConfigAndNullSafety() {
+        assertTrue(CameraCullingConfig.isCullParticles());
+        CameraCullingConfig.setCullParticles(false);
+        assertFalse(CameraCullingConfig.isCullParticles());
+
+        // When disabled, shouldCullParticle is always false
+        assertFalse(net.vanillaoutsider.culling.util.ParticleCullingHelper.shouldCullParticle(0, 0, 0, null, null));
+
+        CameraCullingConfig.setCullParticles(true);
+        // Null camera/level safety
+        assertFalse(net.vanillaoutsider.culling.util.ParticleCullingHelper.shouldCullParticle(0, 0, 0, null, null));
+    }
 }

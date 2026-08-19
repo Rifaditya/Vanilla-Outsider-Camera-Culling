@@ -35,6 +35,7 @@ public final class CameraCullingConfig {
     private static boolean bossImmunity = true;
     private static double bossHealthThreshold = 150.0;
     private static double miniBossHealthThreshold = 50.0;
+    private static boolean cullParticles = true;
     private static final Set<String> clientBlacklist = new HashSet<>();
     private static final Set<String> serverBlacklist = new HashSet<>();
     private static boolean debugMode = false;
@@ -102,6 +103,9 @@ public final class CameraCullingConfig {
                 if (json.has("miniBossHealthThreshold")) {
                     miniBossHealthThreshold = Math.max(1.0, Math.min(10000.0, json.get("miniBossHealthThreshold").getAsDouble()));
                 }
+                if (json.has("cullParticles")) {
+                    cullParticles = json.get("cullParticles").getAsBoolean();
+                }
                 if (json.has("clientBlacklist") && json.get("clientBlacklist").isJsonArray()) {
                     clientBlacklist.clear();
                     for (JsonElement el : json.getAsJsonArray("clientBlacklist")) {
@@ -118,8 +122,8 @@ public final class CameraCullingConfig {
         }
 
         loadServerConfig();
-        LOGGER.info("[Camera Culling] Configuration loaded. Active Level: {}, Entity Culling: {}, Texture LOD: {}, Boss Immunity: {} (Client Blacklist: {}, Server Blacklist: {})",
-                level.getDisplayName(), isCullEntitiesBehindEntities(), distanceTextureLod, bossImmunity, clientBlacklist.size(), serverBlacklist.size());
+        LOGGER.info("[Camera Culling] Configuration loaded. Active Level: {}, Entity Culling: {}, Texture LOD: {}, Boss Immunity: {}, Particle Culling: {} (Client Blacklist: {}, Server Blacklist: {})",
+                level.getDisplayName(), isCullEntitiesBehindEntities(), distanceTextureLod, bossImmunity, cullParticles, clientBlacklist.size(), serverBlacklist.size());
     }
 
     public static void loadServerConfig() {
@@ -162,6 +166,7 @@ public final class CameraCullingConfig {
             json.addProperty("bossImmunity", bossImmunity);
             json.addProperty("bossHealthThreshold", bossHealthThreshold);
             json.addProperty("miniBossHealthThreshold", miniBossHealthThreshold);
+            json.addProperty("cullParticles", cullParticles);
 
             JsonArray blacklistArray = new JsonArray();
             for (String id : clientBlacklist) {
@@ -287,6 +292,15 @@ public final class CameraCullingConfig {
 
     public static void setMiniBossHealthThreshold(double threshold) {
         miniBossHealthThreshold = Math.max(1.0, Math.min(10000.0, threshold));
+        save();
+    }
+
+    public static boolean isCullParticles() {
+        return cullParticles;
+    }
+
+    public static void setCullParticles(boolean value) {
+        cullParticles = value;
         save();
     }
 
