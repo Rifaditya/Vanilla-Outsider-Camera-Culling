@@ -66,7 +66,7 @@ public final class YaclScreenHelper {
                 .option(Option.<Boolean>createBuilder()
                     .name(Component.translatable("config.cameraculling.cullEntitiesBehindEntities"))
                     .description(OptionDescription.of(Component.translatable("config.cameraculling.cullEntitiesBehindEntities.desc")))
-                    .binding(true, CameraCullingConfig::isCullEntitiesBehindEntities, CameraCullingConfig::setCullEntitiesBehindEntities)
+                    .binding(false, CameraCullingConfig::isCullEntitiesBehindEntities, CameraCullingConfig::setCullEntitiesBehindEntities)
                     .controller(TickBoxControllerBuilder::create)
                     .build())
 

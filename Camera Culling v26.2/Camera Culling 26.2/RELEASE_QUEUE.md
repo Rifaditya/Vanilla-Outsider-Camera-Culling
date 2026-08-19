@@ -1,5 +1,8 @@
 # Release Queue: Camera Culling (MC 26.2)
 
+## [1.9.2+26.2] - 2026-08-19
+- Set Crowd Overdraw Culling to false by default; added 16m distance gating & local cluster filtering to eliminate open-field CPU lag.
+
 ## [1.9.1+26.2] - 2026-08-19
 - Configured all culling features to ON and default culling level to SUPER (Extreme) for maximum optimization.
 

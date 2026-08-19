@@ -207,62 +207,35 @@ public final class CullingRaycastHelper {
     }
 
     /**
-     * Hybrid check: (1) Cluster Density Cap for packed mob pens, (2) Geometric raycast AABB intersection.
+     * Safeguarded local cluster check: (1) 16m distance fast-fail, (2) Tight 1.5m local cluster density cap.
      */
     public static boolean isEntityOccludedByCloserEntities(Entity target, Level level, Vec3 camPos, AABB targetBox, double targetDistSq) {
         if (target == null || level == null || camPos == null) {
             return false;
         }
 
-        // 1. Cluster Density Cap in tight 1.5-block sphere
+        // Fast-fail: only apply crowd overdraw culling within 16 meters (256.0 sq dist)
+        if (targetDistSq > 256.0) {
+            return false;
+        }
+
+        // 1. Cluster Density Cap in tight 1.5-block sphere (targets dense mob pens / grinders)
         int maxCluster = CameraCullingConfig.getMaxEntitiesPerCluster();
-        AABB clusterBox = target.getBoundingBox().inflate(1.5);
+        AABB clusterBox = targetBox.inflate(1.5);
         List<Entity> clusterEntities = level.getEntities(target, clusterBox, e -> e instanceof LivingEntity && !isTransparentOrDecorative(e));
         
+        if (clusterEntities.size() < maxCluster) {
+            return false;
+        }
+
         int closerInCluster = 0;
         for (Entity e : clusterEntities) {
             double distSq = camPos.distanceToSqr(e.getX(), e.getY(), e.getZ());
             if (distSq < targetDistSq) {
                 closerInCluster++;
                 if (closerInCluster >= maxCluster) {
-                    return true; // Culled due to cluster density cap
+                    return true; // Culled due to cluster density cap in packed mob grinder pen
                 }
-            }
-        }
-
-        // 2. Direct Geometric Raycast against closer entities between camera and target
-        AABB pathBox = targetBox.minmax(new AABB(camPos.x, camPos.y, camPos.z, camPos.x, camPos.y, camPos.z));
-        List<Entity> candidateOccluders = level.getEntities(target, pathBox, e -> {
-            if (e == target || isTransparentOrDecorative(e)) return false;
-            double d = camPos.distanceToSqr(e.getX(), e.getY(), e.getZ());
-            return d < (targetDistSq - 0.25); // Closer to camera than target
-        });
-
-        if (candidateOccluders.isEmpty()) {
-            return false;
-        }
-
-        Vec3 center = targetBox.getCenter();
-        Vec3 head = new Vec3(center.x, Math.max(targetBox.minY, targetBox.maxY - 0.1), center.z);
-        Vec3 feet = new Vec3(center.x, Math.min(targetBox.maxY, targetBox.minY + 0.1), center.z);
-
-        boolean centerBlocked = false;
-        boolean headBlocked = false;
-        boolean feetBlocked = false;
-
-        for (Entity occluder : candidateOccluders) {
-            AABB occBox = occluder.getBoundingBox();
-            if (!centerBlocked && occBox.clip(camPos, center).isPresent()) {
-                centerBlocked = true;
-            }
-            if (!headBlocked && occBox.clip(camPos, head).isPresent()) {
-                headBlocked = true;
-            }
-            if (!feetBlocked && occBox.clip(camPos, feet).isPresent()) {
-                feetBlocked = true;
-            }
-            if (centerBlocked && headBlocked && feetBlocked) {
-                return true; // All key sightlines blocked by closer entities
             }
         }
 
