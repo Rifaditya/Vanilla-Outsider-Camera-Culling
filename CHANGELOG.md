@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.0+26.2] - 2026-08-19
+
+### Added
+- **Block & Texture Animation Culling**:
+  - Automatically pauses GPU RenderPass texture atlas uploads (`TextureAtlas.cycleAnimationFrames`) for animated block sprites when paused in singleplayer, menus, or when animation culling is active.
+  - Guarantees 100% skipped 3D matrix animation calculations for occluded block entities (Enchanting Tables, Conduits, Bells, Brewing Stands).
+- **In-Game Commands**:
+  - `/cameraculling animations` — Toggles block & texture animation culling on/off.
+  - `/cameraculling animations <true|false>` — Sets explicit animation culling state.
+  - `/cameraculling status` — Now displays active animation culling status.
+
+---
+
 ## [1.6.0+26.2] - 2026-08-19
 
 ### Added
