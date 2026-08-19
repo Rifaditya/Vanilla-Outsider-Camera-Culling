@@ -1,5 +1,8 @@
 # Release Queue: Camera Culling (MC 26.1.2)
 
+## [1.9.0+26.1.2] - 2026-08-19
+- Added optional graphical configuration GUI (YetAnotherConfigLib v3 & ModMenu).
+
 ## [1.8.4+26.1.2] - 2026-08-19
 - Restored active leaves occlusion culling (`BlockTags.LEAVES`).
 - Implemented distance-scaled temporal hysteresis (4 / 8 / 12 frames).

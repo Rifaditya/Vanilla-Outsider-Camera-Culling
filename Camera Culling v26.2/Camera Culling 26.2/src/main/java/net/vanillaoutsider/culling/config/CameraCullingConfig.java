@@ -263,8 +263,21 @@ public final class CameraCullingConfig {
         return distanceTextureLodStart;
     }
 
+    public static void setDistanceTextureLodStart(double start) {
+        distanceTextureLodStart = Math.max(1.0, start);
+        if (distanceTextureLodFar <= distanceTextureLodStart) {
+            distanceTextureLodFar = distanceTextureLodStart + 1.0;
+        }
+        save();
+    }
+
     public static double getDistanceTextureLodFar() {
         return distanceTextureLodFar;
+    }
+
+    public static void setDistanceTextureLodFar(double far) {
+        distanceTextureLodFar = Math.max(distanceTextureLodStart + 1.0, far);
+        save();
     }
 
     public static void setDistanceTextureLodRange(double start, double far) {

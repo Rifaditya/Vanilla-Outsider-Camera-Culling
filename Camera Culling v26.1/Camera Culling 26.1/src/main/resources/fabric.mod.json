@@ -17,14 +17,21 @@
   "entrypoints": {
     "client": [
       "net.vanillaoutsider.culling.CameraCullingClient"
+    ],
+    "modmenu": [
+      "net.vanillaoutsider.culling.config.ModMenuIntegration"
     ]
   },
   "mixins": [
     "camera-culling.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.16.10",
+    "fabricloader": ">=0.19.3",
     "minecraft": ">=26.1.2-",
     "fabric-api": "*"
+  },
+  "suggests": {
+    "yet_another_config_lib_v3": "*",
+    "modmenu": "*"
   }
 }

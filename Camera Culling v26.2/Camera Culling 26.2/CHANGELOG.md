@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.9.0+26.2] - 2026-08-19
+
+### Added
+- **Optional Graphical Configuration GUI (YetAnotherConfigLib v3 & ModMenu)**:
+  - Integrated a clean, responsive, 3-category in-game configuration GUI accessible directly via ModMenu.
+  - Category 1 (*Engine & Diagnostics*): Master culling enable, Culling Aggressiveness level dropdown, and live debug logging toggle.
+  - Category 2 (*Entity & Crowd Occlusion*): Crowd overdraw culling toggle, cluster density slider (1–32), and Boss/Mini-Boss immunity health thresholds.
+  - Category 3 (*Blocks, Particles & Animations*): Particle culling toggle, Block/Texture animation culling toggle, and Distance Texture LOD sliders.
+  - Full server-safe deferred classloading (zero hard dependencies, zero server crashes).
+
+---
+
 ## [1.8.4+26.2] - 2026-08-19
 
 ### Added & Refined

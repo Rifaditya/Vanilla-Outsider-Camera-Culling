@@ -14,6 +14,7 @@ repositories {
     mavenCentral()
 	maven { url "https://maven.shedaniel.me/" }
 	maven { url "https://maven.terraformersmc.com/releases/" }
+	maven { url "https://maven.isxander.dev/releases" }
     mavenLocal()
 }
 
@@ -23,8 +24,13 @@ dependencies {
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+	// Optional GUI Dependencies (compileOnly: zero runtime bloat, zero server crashes)
+	compileOnly "dev.isxander:yet-another-config-lib:3.9.5+26.2-fabric"
+	compileOnly "com.terraformersmc:modmenu:18.0.0-beta.1"
+
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'net.fabricmc.fabric-api:fabric-lifecycle-events-v1:4.1.1+9d6daa9756'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
