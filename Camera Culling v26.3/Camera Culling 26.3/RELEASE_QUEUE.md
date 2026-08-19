@@ -1,5 +1,10 @@
 # Release Queue: Camera Culling (MC 26.3)
 
+## [1.8.2+26.3] - 2026-08-19
+- Fixed open-air view bobbing ground grazing false occlusion with floor hit recognition.
+- Elevated ray sampling (head crown, eyes, upper torso).
+- Dual OpenGL and Vulkan stability optimizations.
+
 ## [1.8.0+26.3] - 2026-08-19
 - 2-Frame Temporal Hysteresis Anti-Flicker Architecture.
 - Anatomical Multi-Vector Sampling (Eyes, center, pelvis, feet, deflated perimeter).

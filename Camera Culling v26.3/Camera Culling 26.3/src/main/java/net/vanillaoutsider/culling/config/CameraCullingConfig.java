@@ -29,7 +29,7 @@ public final class CameraCullingConfig {
     private static CullingLevel level = CullingLevel.MEDIUM;
     private static Boolean cullEntitiesBehindEntities = null; // null = use level default
     private static int maxEntitiesPerCluster = 8;
-    private static boolean distanceTextureLod = true;
+    private static boolean distanceTextureLod = false;
     private static double distanceTextureLodStart = 16.0;
     private static double distanceTextureLodFar = 32.0;
     private static boolean bossImmunity = true;

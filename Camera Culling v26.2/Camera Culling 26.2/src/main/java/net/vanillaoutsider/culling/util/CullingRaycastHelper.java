@@ -44,8 +44,8 @@ public final class CullingRaycastHelper {
             OCCLUDED_STREAK.clear();
         }
         int streak = OCCLUDED_STREAK.addTo(entity.getId(), 1) + 1;
-        if (streak < 2) {
-            // 1-frame grace decay: prevent 1-frame edge grazing flicker
+        if (streak < 4) {
+            // 4-frame grace decay: prevent walking view bobbing and edge grazing flicker
             CameraCullingClient.incrementRenderedEntities();
             return false;
         }
@@ -120,7 +120,18 @@ public final class CullingRaycastHelper {
         Vec3 center = box.getCenter();
         int samplePoints = cullingLevel.getSamplePoints();
 
-        // Sample 1: Anatomical Eye Position (Highest priority)
+        // Sample 1: Top of Entity Head / Bounding Box (Highest priority, completely above ground plane)
+        Vec3 top = new Vec3(center.x, box.maxY - 0.05, center.z);
+        if (hasLineOfSight(level, camPos, top)) {
+            if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
+                if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
+                    return recordOccluded(entity);
+                }
+            }
+            return recordVisible(entity);
+        }
+
+        // Sample 2: Anatomical Eye Position
         Vec3 eyePos = entity.getEyePosition();
         if (hasLineOfSight(level, camPos, eyePos)) {
             if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
@@ -131,20 +142,10 @@ public final class CullingRaycastHelper {
             return recordVisible(entity);
         }
 
-        // Sample 2: Torso Center
-        if (hasLineOfSight(level, camPos, center)) {
-            if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
-                if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                    return recordOccluded(entity);
-                }
-            }
-            return recordVisible(entity);
-        }
-
-        // Sample 3: Lower / Feet
+        // Sample 3: Upper Torso / Chest (above ground-grazing threshold)
         if (samplePoints >= 3) {
-            Vec3 feet = new Vec3(center.x, Math.min(box.maxY, box.minY + 0.15), center.z);
-            if (hasLineOfSight(level, camPos, feet)) {
+            Vec3 upperTorso = new Vec3(center.x, box.minY + box.getYsize() * 0.70, center.z);
+            if (hasLineOfSight(level, camPos, upperTorso)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
                         return recordOccluded(entity);
@@ -154,10 +155,9 @@ public final class CullingRaycastHelper {
             }
         }
 
-        // Sample 4: Elevated Pelvis
+        // Sample 4: Center of Mass
         if (samplePoints >= 4) {
-            Vec3 pelvis = new Vec3(center.x, box.minY + box.getYsize() * 0.45, center.z);
-            if (hasLineOfSight(level, camPos, pelvis)) {
+            if (hasLineOfSight(level, camPos, center)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
                         return recordOccluded(entity);
@@ -167,12 +167,13 @@ public final class CullingRaycastHelper {
             }
         }
 
-        // Sample 5-8: Deflated Perimeter Flanks (for wide entities or high precision)
+        // Sample 5-8: Elevated Perimeter Flanks (for wide entities or high precision)
         if (samplePoints >= 5 || box.getXsize() > 1.0 || box.getZsize() > 1.0) {
-            Vec3 c1 = new Vec3(box.minX + 0.15, center.y, box.minZ + 0.15);
-            Vec3 c2 = new Vec3(box.maxX - 0.15, center.y, box.minZ + 0.15);
-            Vec3 c3 = new Vec3(box.minX + 0.15, center.y, box.maxZ - 0.15);
-            Vec3 c4 = new Vec3(box.maxX - 0.15, center.y, box.maxZ - 0.15);
+            double flankY = box.minY + box.getYsize() * 0.60;
+            Vec3 c1 = new Vec3(box.minX + 0.15, flankY, box.minZ + 0.15);
+            Vec3 c2 = new Vec3(box.maxX - 0.15, flankY, box.minZ + 0.15);
+            Vec3 c3 = new Vec3(box.minX + 0.15, flankY, box.maxZ - 0.15);
+            Vec3 c4 = new Vec3(box.maxX - 0.15, flankY, box.maxZ - 0.15);
             if (hasLineOfSight(level, camPos, c1) || hasLineOfSight(level, camPos, c2)
                 || hasLineOfSight(level, camPos, c3) || hasLineOfSight(level, camPos, c4)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
@@ -310,18 +311,30 @@ public final class CullingRaycastHelper {
     }
 
     public static boolean hasLineOfSight(Level level, Vec3 from, Vec3 to) {
-        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, CollisionContext.empty());
+        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
         BlockHitResult hit = level.clip(ctx);
         if (hit.getType() == HitResult.Type.MISS) {
             return true;
         }
+
+        // Floor / Ground hit recognition: hitting top face of a block at target base height is ground, not a wall
+        if (hit.getDirection() == net.minecraft.core.Direction.UP && hit.getLocation().y <= to.y + 0.15) {
+            return true;
+        }
+
+        // Transparent / non-opaque blocks (glass, leaves, fences, iron bars, torches) never occlude
+        BlockState hitState = level.getBlockState(hit.getBlockPos());
+        if (!hitState.canOcclude() || !hitState.isSolidRender()) {
+            return true;
+        }
+
         double hitDistSq = from.distanceToSqr(hit.getLocation());
         double targetDistSq = from.distanceToSqr(to);
         return hitDistSq >= (targetDistSq - 0.25);
     }
 
     public static boolean hasLineOfSightToBlock(Level level, Vec3 from, Vec3 to, BlockPos targetPos) {
-        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, CollisionContext.empty());
+        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
         BlockHitResult hit = level.clip(ctx);
         if (hit.getType() == HitResult.Type.MISS) {
             return true;

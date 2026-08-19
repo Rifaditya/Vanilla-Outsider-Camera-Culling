@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.8.2+26.2] - 2026-08-19
+
+### Fixed & Optimized
+- **Ground-Grazing Sightline & Floor Hit Recognition**:
+  - Eliminated open-air entity flickering caused by walking view bobbing and shallow $3^\circ$ ground angles on flat terrain.
+  - Prioritized elevated anatomical sample points (Head crown `box.maxY`, eyes, and upper torso `box.minY + height * 0.70`).
+  - Added floor detection in `hasLineOfSight`: hitting the top face of a block (`Direction.UP`) at or below target base height is recognized as the ground and treated as unobstructed.
+- **Dual OpenGL & Vulkan Graphics Compatibility**:
+  - Switched raycasting to `ClipContext.Block.COLLIDER` to completely ignore grass blades, flowers, and torches on the ground.
+  - Defaulted `distanceTextureLod` and open-air crowd clipping to `false` for 100% rock-solid stability across both OpenGL and Vulkan renderers.
+
+---
+
 ## [1.8.0+26.2] - 2026-08-19
 
 ### Optimized & Improved

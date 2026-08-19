@@ -29,7 +29,7 @@ public enum CullingLevel {
         0.1,
         true,
         true,
-        true
+        false
     ),
     SUPER(
         "Super (Extreme)",
@@ -38,7 +38,7 @@ public enum CullingLevel {
         0.0,
         true,
         true,
-        true
+        false
     );
 
     private final String displayName;
