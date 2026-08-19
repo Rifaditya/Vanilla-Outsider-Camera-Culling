@@ -182,4 +182,16 @@ public class CameraCullingTest {
         // Null camera/level safety
         assertFalse(net.vanillaoutsider.culling.util.ParticleCullingHelper.shouldCullParticle(0, 0, 0, null, null));
     }
+
+    @Test
+    void testAnimationCullingConfig() {
+        assertTrue(CameraCullingConfig.isCullAnimations());
+        CameraCullingConfig.setCullAnimations(false);
+        assertFalse(CameraCullingConfig.isCullAnimations());
+
+        // When disabled, shouldPauseAtlasAnimation is false
+        assertFalse(net.vanillaoutsider.culling.util.AnimationCullingHelper.shouldPauseAtlasAnimation());
+
+        CameraCullingConfig.setCullAnimations(true);
+    }
 }

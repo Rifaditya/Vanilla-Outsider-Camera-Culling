@@ -1,5 +1,9 @@
 # Release Queue: Camera Culling (MC 26.1.2)
 
+## [1.7.0+26.1.2] - 2026-08-19
+- Added Block & Texture Animation Culling.
+- Added `/cameraculling animations [true|false]` command and `cullAnimations` config option.
+
 ## [1.6.0+26.1.2] - 2026-08-19
 - Added Particle Occlusion Culling with 4m proximity safety bubble.
 - Added `/cameraculling particles [true|false]` command and `cullParticles` config option.
