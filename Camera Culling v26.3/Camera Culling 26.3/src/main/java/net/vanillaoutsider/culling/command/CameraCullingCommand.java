@@ -46,6 +46,7 @@ public final class CameraCullingCommand {
                             : "§cDisabled")));
                         src.sendFeedback(Component.literal("§7Particle Culling: " + (CameraCullingConfig.isCullParticles() ? "§aEnabled" : "§cDisabled")));
                         src.sendFeedback(Component.literal("§7Animation Culling: " + (CameraCullingConfig.isCullAnimations() ? "§aEnabled" : "§cDisabled")));
+                        src.sendFeedback(Component.literal("§7Debug Mode: " + (CameraCullingConfig.isDebugMode() ? "§aEnabled (Real-Time Tracing)" : "§cDisabled")));
                         src.sendFeedback(Component.literal("§7Client Blacklist: §e" + CameraCullingConfig.getClientBlacklist().size() + " entities§7 | Server Blacklist: §e" + CameraCullingConfig.getServerBlacklist().size() + " entities"));
                         src.sendFeedback(Component.literal("§7Culled Entities: §b" + CameraCullingClient.getCulledEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedEntitiesCount()));
                         src.sendFeedback(Component.literal("§7Culled Block Entities: §b" + CameraCullingClient.getCulledBlockEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedBlockEntitiesCount()));
@@ -60,6 +61,22 @@ public final class CameraCullingCommand {
                         ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Culling is now " + (newState ? "§aEnabled" : "§cDisabled")));
                         return 1;
                     })
+                )
+                .then(ClientCommands.literal("debug")
+                    .executes(ctx -> {
+                        boolean newState = !CameraCullingConfig.isDebugMode();
+                        CameraCullingConfig.setDebugMode(newState);
+                        ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Real-Time Debug Logging is now " + (newState ? "§aEnabled" : "§cDisabled")));
+                        return 1;
+                    })
+                    .then(ClientCommands.argument("enabled", BoolArgumentType.bool())
+                        .executes(ctx -> {
+                            boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
+                            CameraCullingConfig.setDebugMode(enabled);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Real-Time Debug Logging set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
+                            return 1;
+                        })
+                    )
                 )
                 .then(ClientCommands.literal("particles")
                     .executes(ctx -> {

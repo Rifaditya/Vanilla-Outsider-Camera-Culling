@@ -33,13 +33,16 @@ public final class CullingRaycastHelper {
         OCCLUDED_STREAK.clear();
     }
 
-    private static boolean recordVisible(Entity entity) {
-        OCCLUDED_STREAK.remove(entity.getId());
+    private static boolean recordVisible(Entity entity, Vec3 camPos, String reason) {
+        int prev = OCCLUDED_STREAK.remove(entity.getId());
+        if (prev >= 4) {
+            CullingDiagnosticsHelper.logStateTransition(entity, camPos, false, reason);
+        }
         CameraCullingClient.incrementRenderedEntities();
         return false;
     }
 
-    private static boolean recordOccluded(Entity entity) {
+    private static boolean recordOccluded(Entity entity, Vec3 camPos, String reason) {
         if (OCCLUDED_STREAK.size() > 2048) {
             OCCLUDED_STREAK.clear();
         }
@@ -48,6 +51,9 @@ public final class CullingRaycastHelper {
             // 4-frame grace decay: prevent walking view bobbing and edge grazing flicker
             CameraCullingClient.incrementRenderedEntities();
             return false;
+        }
+        if (streak == 4) {
+            CullingDiagnosticsHelper.logStateTransition(entity, camPos, true, reason);
         }
         CameraCullingClient.incrementCulledEntities();
         return true;
@@ -74,42 +80,43 @@ public final class CullingRaycastHelper {
             return false;
         }
 
+        Vec3 camPos = new Vec3(camX, camY, camZ);
+
         // 1. Local player and mounted vehicles are never culled
         if (mc.player == entity || mc.player.getVehicle() == entity || entity.hasPassenger(mc.player)) {
-            return recordVisible(entity);
+            return recordVisible(entity, camPos, "Player / Vehicle Immunity");
         }
 
         // 2. Glowing entities must remain visible through blocks
         if (mc.shouldEntityAppearGlowing(entity)) {
-            return recordVisible(entity);
+            return recordVisible(entity, camPos, "Glowing Immunity");
         }
 
         // 3. Boss & Mini-Boss immunity: Ender Dragon, Wither, Warden, modded bosses & elites
         if (BossDetectionHelper.isBossOrMiniBoss(entity)) {
-            return recordVisible(entity);
+            return recordVisible(entity, camPos, "Boss Immunity");
         }
 
         // 4. Client & Server Blacklist immunity (Wolf, Allay, custom mobs)
         if (BlacklistHelper.isBlacklisted(entity)) {
-            return recordVisible(entity);
+            return recordVisible(entity, camPos, "Blacklist Immunity");
         }
 
         CullingLevel cullingLevel = CameraCullingConfig.getLevel();
 
         // 5. Decorative entity check (e.g. Armor stands / Item frames)
         if (!cullingLevel.shouldCullDecorativeEntities() && (entity instanceof ArmorStand || entity instanceof ItemFrame)) {
-            return recordVisible(entity);
+            return recordVisible(entity, camPos, "Decorative Entity Immunity");
         }
 
-        Vec3 camPos = new Vec3(camX, camY, camZ);
         double distSq = camPos.distanceToSqr(entity.getX(), entity.getY(), entity.getZ());
         if (distSq < cullingLevel.getMinDistanceSq()) {
-            return recordVisible(entity);
+            return recordVisible(entity, camPos, "Proximity Safety Bubble");
         }
 
         AABB box = entity.getBoundingBox();
         if (box.getSize() <= 0.0 || box.hasNaN()) {
-            return recordVisible(entity);
+            return recordVisible(entity, camPos, "Invalid Bounding Box");
         }
 
         double padding = cullingLevel.getPadding();
@@ -125,10 +132,10 @@ public final class CullingRaycastHelper {
         if (hasLineOfSight(level, camPos, top)) {
             if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                 if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                    return recordOccluded(entity);
+                    return recordOccluded(entity, camPos, "Crowd / Mob Overdraw Occlusion");
                 }
             }
-            return recordVisible(entity);
+            return recordVisible(entity, camPos, "Sightline (Head Top)");
         }
 
         // Sample 2: Anatomical Eye Position
@@ -136,10 +143,10 @@ public final class CullingRaycastHelper {
         if (hasLineOfSight(level, camPos, eyePos)) {
             if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                 if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                    return recordOccluded(entity);
+                    return recordOccluded(entity, camPos, "Crowd / Mob Overdraw Occlusion");
                 }
             }
-            return recordVisible(entity);
+            return recordVisible(entity, camPos, "Sightline (Eyes)");
         }
 
         // Sample 3: Upper Torso / Chest (above ground-grazing threshold)
@@ -148,10 +155,10 @@ public final class CullingRaycastHelper {
             if (hasLineOfSight(level, camPos, upperTorso)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                        return recordOccluded(entity);
+                        return recordOccluded(entity, camPos, "Crowd / Mob Overdraw Occlusion");
                     }
                 }
-                return recordVisible(entity);
+                return recordVisible(entity, camPos, "Sightline (Upper Torso)");
             }
         }
 
@@ -160,10 +167,10 @@ public final class CullingRaycastHelper {
             if (hasLineOfSight(level, camPos, center)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                        return recordOccluded(entity);
+                        return recordOccluded(entity, camPos, "Crowd / Mob Overdraw Occlusion");
                     }
                 }
-                return recordVisible(entity);
+                return recordVisible(entity, camPos, "Sightline (Center)");
             }
         }
 
@@ -178,14 +185,14 @@ public final class CullingRaycastHelper {
                 || hasLineOfSight(level, camPos, c3) || hasLineOfSight(level, camPos, c4)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                        return recordOccluded(entity);
+                        return recordOccluded(entity, camPos, "Crowd / Mob Overdraw Occlusion");
                     }
                 }
-                return recordVisible(entity);
+                return recordVisible(entity, camPos, "Sightline (Flank)");
             }
         }
 
-        return recordOccluded(entity);
+        return recordOccluded(entity, camPos, "Block Occlusion");
     }
 
     /**

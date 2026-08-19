@@ -1,5 +1,9 @@
 # Release Queue: Camera Culling (MC 26.1.2)
 
+## [1.8.3+26.1.2] - 2026-08-19
+- Added toggleable real-time diagnostic logger suite.
+- Added `/cameraculling debug [true|false]` command.
+
 ## [1.8.2+26.1.2] - 2026-08-19
 - Fixed open-air view bobbing ground grazing false occlusion with floor hit recognition.
 - Elevated ray sampling (head crown, eyes, upper torso).

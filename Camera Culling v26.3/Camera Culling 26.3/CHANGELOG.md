@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.8.3+26.3] - 2026-08-19
+
+### Added
+- **Toggleable Real-Time Diagnostic Logger Suite (`/cameraculling debug`)**:
+  - Live in-game toggleable diagnostics logging state transitions (`[VISIBLE]` $\leftrightarrow$ `[CULLED]`) directly to chat and `latest.log`.
+  - Reports exact entity ID, type, distance, sample points tested, hit block type, hit coordinates, and exact decision reason (e.g. `Sightline (Head Top)`, `Block Occlusion`, `Proximity Safety Bubble`, `Boss Immunity`, `Blacklist Immunity`).
+  - Added `/cameraculling debug [true|false]` command and updated `/cameraculling status` with active debug mode indication.
+
+---
+
 ## [1.8.2+26.3] - 2026-08-19
 
 ### Fixed & Optimized
