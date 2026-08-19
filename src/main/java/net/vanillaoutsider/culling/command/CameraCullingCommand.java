@@ -44,9 +44,11 @@ public final class CameraCullingCommand {
                         src.sendFeedback(Component.literal("§7Boss & Mini-Boss Immunity: " + (CameraCullingConfig.isBossImmunity()
                             ? "§aActive §7(Boss: §e" + bossHp + " HP§7/§c" + (bossHp / 2.0) + "♥§7 | Mini-Boss: §e" + miniHp + " HP§7/§c" + (miniHp / 2.0) + "♥§7)"
                             : "§cDisabled")));
+                        src.sendFeedback(Component.literal("§7Particle Culling: " + (CameraCullingConfig.isCullParticles() ? "§aEnabled" : "§cDisabled")));
                         src.sendFeedback(Component.literal("§7Client Blacklist: §e" + CameraCullingConfig.getClientBlacklist().size() + " entities§7 | Server Blacklist: §e" + CameraCullingConfig.getServerBlacklist().size() + " entities"));
                         src.sendFeedback(Component.literal("§7Culled Entities: §b" + CameraCullingClient.getCulledEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedEntitiesCount()));
                         src.sendFeedback(Component.literal("§7Culled Block Entities: §b" + CameraCullingClient.getCulledBlockEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedBlockEntitiesCount()));
+                        src.sendFeedback(Component.literal("§7Culled Particles: §b" + CameraCullingClient.getCulledParticlesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedParticlesCount()));
                         return 1;
                     })
                 )
@@ -57,6 +59,22 @@ public final class CameraCullingCommand {
                         ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Culling is now " + (newState ? "§aEnabled" : "§cDisabled")));
                         return 1;
                     })
+                )
+                .then(ClientCommands.literal("particles")
+                    .executes(ctx -> {
+                        boolean newState = !CameraCullingConfig.isCullParticles();
+                        CameraCullingConfig.setCullParticles(newState);
+                        ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Particle Culling is now " + (newState ? "§aEnabled" : "§cDisabled")));
+                        return 1;
+                    })
+                    .then(ClientCommands.argument("enabled", BoolArgumentType.bool())
+                        .executes(ctx -> {
+                            boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
+                            CameraCullingConfig.setCullParticles(enabled);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Particle Culling set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
+                            return 1;
+                        })
+                    )
                 )
                 .then(ClientCommands.literal("blacklist")
                     .then(ClientCommands.literal("add")
@@ -113,9 +131,9 @@ public final class CameraCullingCommand {
                                 String id = StringArgumentType.getString(ctx, "entity_id");
                                 boolean added = CameraCullingConfig.addServerBlacklist(id);
                                 if (added) {
-                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§r Added §e" + id + "§r to server-wide immunity blacklist."));
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Added §e" + id + "§r to server-enforced immunity blacklist."));
                                 } else {
-                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§c " + id + " is already on server blacklist."));
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§c " + id + " is already on the server blacklist."));
                                 }
                                 return 1;
                             })
@@ -127,9 +145,9 @@ public final class CameraCullingCommand {
                                 String id = StringArgumentType.getString(ctx, "entity_id");
                                 boolean removed = CameraCullingConfig.removeServerBlacklist(id);
                                 if (removed) {
-                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§r Removed §e" + id + "§r from server-wide immunity blacklist."));
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Removed §e" + id + "§r from server-enforced immunity blacklist."));
                                 } else {
-                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§c " + id + " was not found on server blacklist."));
+                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§c " + id + " was not found on the server blacklist."));
                                 }
                                 return 1;
                             })
@@ -139,9 +157,9 @@ public final class CameraCullingCommand {
                         .executes(ctx -> {
                             Set<String> list = CameraCullingConfig.getServerBlacklist();
                             if (list.isEmpty()) {
-                                ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§7 Server immunity blacklist is currently empty."));
+                                ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§7 The server-enforced immunity blacklist is currently empty."));
                             } else {
-                                ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§e Server Blacklisted Entities (" + list.size() + "):§r " + String.join(", ", list)));
+                                ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§e Server-Enforced Blacklisted Entities (" + list.size() + "):§r " + String.join(", ", list)));
                             }
                             return 1;
                         })
@@ -149,39 +167,32 @@ public final class CameraCullingCommand {
                     .then(ClientCommands.literal("clear")
                         .executes(ctx -> {
                             CameraCullingConfig.clearServerBlacklist();
-                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling Admin]§a Server immunity blacklist cleared."));
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§a Server-enforced immunity blacklist cleared."));
                             return 1;
                         })
                     )
                 )
-                .then(ClientCommands.literal("entityculling")
+                .then(ClientCommands.literal("cluster")
+                    .then(ClientCommands.argument("max_entities", IntegerArgumentType.integer(1, 128))
+                        .executes(ctx -> {
+                            int limit = IntegerArgumentType.getInteger(ctx, "max_entities");
+                            CameraCullingConfig.setMaxEntitiesPerCluster(limit);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Cluster density cap set to: §e" + limit + " mobs / 1.5 blocks§r"));
+                            return 1;
+                        })
+                    )
+                )
+                .then(ClientCommands.literal("crowdculling")
                     .then(ClientCommands.argument("enabled", BoolArgumentType.bool())
                         .executes(ctx -> {
                             boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
                             CameraCullingConfig.setCullEntitiesBehindEntities(enabled);
-                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Entity-Behind-Entity culling set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
-                            return 1;
-                        })
-                    )
-                    .then(ClientCommands.literal("auto")
-                        .executes(ctx -> {
-                            CameraCullingConfig.setCullEntitiesBehindEntities(null);
-                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Entity-Behind-Entity culling reset to §eAuto (Level Default: " + CameraCullingConfig.getLevel().isDefaultCullEntitiesBehindEntities() + ")§r"));
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Entity-Behind-Entity culling override set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
                             return 1;
                         })
                     )
                 )
-                .then(ClientCommands.literal("maxcluster")
-                    .then(ClientCommands.argument("limit", IntegerArgumentType.integer(1, 128))
-                        .executes(ctx -> {
-                            int limit = IntegerArgumentType.getInteger(ctx, "limit");
-                            CameraCullingConfig.setMaxEntitiesPerCluster(limit);
-                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Cluster density cap set to: §e" + limit + " mobs / 1.5 blocks"));
-                            return 1;
-                        })
-                    )
-                )
-                .then(ClientCommands.literal("texturlod")
+                .then(ClientCommands.literal("texturelod")
                     .then(ClientCommands.argument("enabled", BoolArgumentType.bool())
                         .executes(ctx -> {
                             boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
@@ -191,12 +202,16 @@ public final class CameraCullingCommand {
                         })
                     )
                     .then(ClientCommands.literal("range")
-                        .then(ClientCommands.argument("near", DoubleArgumentType.doubleArg(1.0, 512.0))
-                            .then(ClientCommands.argument("far", DoubleArgumentType.doubleArg(2.0, 1024.0))
+                        .then(ClientCommands.argument("start_dist", DoubleArgumentType.doubleArg(1.0, 256.0))
+                            .then(ClientCommands.argument("far_dist", DoubleArgumentType.doubleArg(2.0, 512.0))
                                 .executes(ctx -> {
-                                    double near = DoubleArgumentType.getDouble(ctx, "near");
-                                    double far = DoubleArgumentType.getDouble(ctx, "far");
-                                    CameraCullingConfig.setDistanceTextureLodRange(near, far);
+                                    double start = DoubleArgumentType.getDouble(ctx, "start_dist");
+                                    double far = DoubleArgumentType.getDouble(ctx, "far_dist");
+                                    if (start >= far) {
+                                        ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§c Error: Start distance must be strictly less than Far distance."));
+                                        return 0;
+                                    }
+                                    CameraCullingConfig.setDistanceTextureLodRange(start, far);
                                     ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Distance Texture LOD range set to: §e" + CameraCullingConfig.getDistanceTextureLodStart() + "m (Half) / " + CameraCullingConfig.getDistanceTextureLodFar() + "m (Quarter)§r"));
                                     return 1;
                                 })

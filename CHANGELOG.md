@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0+26.1.2] - 2026-08-19
+
+### Added
+- **Particle Occlusion Culling**:
+  - Automatically skips vertex extraction and quad buffer generation for unseen particles (torches, campfires, lava embers, cave drips, redstone dust, portals) occluded by solid blocks.
+  - **4.0m Proximity Safety Bubble**: Particles within 4m of the player camera are never culled, ensuring 100% immediacy for local combat, splash potions, and tool interactions.
+  - **Fast Solid Enclosure Check**: Subterranean particles spawning inside solid blocks are skipped in $O(1)$.
+  - **Dedicated Particle Toggle**: Fully controllable via `cullParticles: true/false` in `config/camera-culling.json` and in-game commands.
+- **In-Game Commands**:
+  - `/cameraculling particles` — Toggles particle occlusion culling on/off.
+  - `/cameraculling particles <true|false>` — Sets explicit particle culling state.
+  - `/cameraculling status` — Now displays particle culling status and live counter of culled vs. rendered particles.
+
+---
+
 ## [1.5.0+26.1.2] - 2026-08-18
 
 ### Added
