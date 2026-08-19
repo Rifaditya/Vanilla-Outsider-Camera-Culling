@@ -45,6 +45,7 @@ public final class CameraCullingCommand {
                             ? "§aActive §7(Boss: §e" + bossHp + " HP§7/§c" + (bossHp / 2.0) + "♥§7 | Mini-Boss: §e" + miniHp + " HP§7/§c" + (miniHp / 2.0) + "♥§7)"
                             : "§cDisabled")));
                         src.sendFeedback(Component.literal("§7Particle Culling: " + (CameraCullingConfig.isCullParticles() ? "§aEnabled" : "§cDisabled")));
+                        src.sendFeedback(Component.literal("§7Animation Culling: " + (CameraCullingConfig.isCullAnimations() ? "§aEnabled" : "§cDisabled")));
                         src.sendFeedback(Component.literal("§7Client Blacklist: §e" + CameraCullingConfig.getClientBlacklist().size() + " entities§7 | Server Blacklist: §e" + CameraCullingConfig.getServerBlacklist().size() + " entities"));
                         src.sendFeedback(Component.literal("§7Culled Entities: §b" + CameraCullingClient.getCulledEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedEntitiesCount()));
                         src.sendFeedback(Component.literal("§7Culled Block Entities: §b" + CameraCullingClient.getCulledBlockEntitiesCount() + "§7 | Rendered: §b" + CameraCullingClient.getRenderedBlockEntitiesCount()));
@@ -72,6 +73,22 @@ public final class CameraCullingCommand {
                             boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
                             CameraCullingConfig.setCullParticles(enabled);
                             ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Particle Culling set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
+                            return 1;
+                        })
+                    )
+                )
+                .then(ClientCommands.literal("animations")
+                    .executes(ctx -> {
+                        boolean newState = !CameraCullingConfig.isCullAnimations();
+                        CameraCullingConfig.setCullAnimations(newState);
+                        ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Block & Texture Animation Culling is now " + (newState ? "§aEnabled" : "§cDisabled")));
+                        return 1;
+                    })
+                    .then(ClientCommands.argument("enabled", BoolArgumentType.bool())
+                        .executes(ctx -> {
+                            boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
+                            CameraCullingConfig.setCullAnimations(enabled);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Block & Texture Animation Culling set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
                             return 1;
                         })
                     )
