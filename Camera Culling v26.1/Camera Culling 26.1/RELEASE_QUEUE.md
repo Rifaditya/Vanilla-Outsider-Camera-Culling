@@ -1,5 +1,9 @@
 # Release Queue: Camera Culling (MC 26.1.2)
 
+## [1.8.4+26.1.2] - 2026-08-19
+- Restored active leaves occlusion culling (`BlockTags.LEAVES`).
+- Implemented distance-scaled temporal hysteresis (4 / 8 / 12 frames).
+
 ## [1.8.3+26.1.2] - 2026-08-19
 - Added toggleable real-time diagnostic logger suite.
 - Added `/cameraculling debug [true|false]` command.

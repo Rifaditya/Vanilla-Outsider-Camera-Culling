@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.8.4+26.2] - 2026-08-19
+
+### Added & Refined
+- **Active Leaves Occlusion Culling**: Restored `BlockTags.LEAVES` as visual occluders, allowing entities hidden behind tree canopies, hedges, and forests to be culled.
+- **Distance-Scaled Temporal Hysteresis**: Implemented adaptive grace decay buffer (4 frames $\le 32\text{m}$, 8 frames $32\text{m}-64\text{m}$, 12 frames $>64\text{m}$) to eliminate sub-voxel ridge-peeking flicker on distant mobs at 90m+.
+
+---
+
 ## [1.8.3+26.2] - 2026-08-19
 
 ### Added

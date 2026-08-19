@@ -33,26 +33,37 @@ public final class CullingRaycastHelper {
         OCCLUDED_STREAK.clear();
     }
 
-    private static boolean recordVisible(Entity entity, Vec3 camPos, String reason) {
+    private static int getRequiredGraceStreak(double distSq) {
+        if (distSq > 64.0 * 64.0) {
+            return 12; // Far distance (>64m): 12-frame buffer absorbs sub-voxel ridge-peeking jitter
+        } else if (distSq > 32.0 * 32.0) {
+            return 8; // Medium distance (32-64m): 8-frame buffer
+        }
+        return 4; // Near distance (<=32m): 4-frame buffer
+    }
+
+    private static boolean recordVisible(Entity entity, Vec3 camPos, double distSq, String reason) {
         int prev = OCCLUDED_STREAK.remove(entity.getId());
-        if (prev >= 4) {
+        int required = getRequiredGraceStreak(distSq);
+        if (prev >= required) {
             CullingDiagnosticsHelper.logStateTransition(entity, camPos, false, reason);
         }
         CameraCullingClient.incrementRenderedEntities();
         return false;
     }
 
-    private static boolean recordOccluded(Entity entity, Vec3 camPos, String reason) {
+    private static boolean recordOccluded(Entity entity, Vec3 camPos, double distSq, String reason) {
         if (OCCLUDED_STREAK.size() > 2048) {
             OCCLUDED_STREAK.clear();
         }
         int streak = OCCLUDED_STREAK.addTo(entity.getId(), 1) + 1;
-        if (streak < 4) {
-            // 4-frame grace decay: prevent walking view bobbing and edge grazing flicker
+        int required = getRequiredGraceStreak(distSq);
+        if (streak < required) {
+            // Distance-scaled grace decay: prevent walking view bobbing and edge grazing flicker
             CameraCullingClient.incrementRenderedEntities();
             return false;
         }
-        if (streak == 4) {
+        if (streak == required) {
             CullingDiagnosticsHelper.logStateTransition(entity, camPos, true, reason);
         }
         CameraCullingClient.incrementCulledEntities();
@@ -81,42 +92,42 @@ public final class CullingRaycastHelper {
         }
 
         Vec3 camPos = new Vec3(camX, camY, camZ);
+        double distSq = camPos.distanceToSqr(entity.getX(), entity.getY(), entity.getZ());
 
         // 1. Local player and mounted vehicles are never culled
         if (mc.player == entity || mc.player.getVehicle() == entity || entity.hasPassenger(mc.player)) {
-            return recordVisible(entity, camPos, "Player / Vehicle Immunity");
+            return recordVisible(entity, camPos, distSq, "Player / Vehicle Immunity");
         }
 
         // 2. Glowing entities must remain visible through blocks
         if (mc.shouldEntityAppearGlowing(entity)) {
-            return recordVisible(entity, camPos, "Glowing Immunity");
+            return recordVisible(entity, camPos, distSq, "Glowing Immunity");
         }
 
         // 3. Boss & Mini-Boss immunity: Ender Dragon, Wither, Warden, modded bosses & elites
         if (BossDetectionHelper.isBossOrMiniBoss(entity)) {
-            return recordVisible(entity, camPos, "Boss Immunity");
+            return recordVisible(entity, camPos, distSq, "Boss Immunity");
         }
 
         // 4. Client & Server Blacklist immunity (Wolf, Allay, custom mobs)
         if (BlacklistHelper.isBlacklisted(entity)) {
-            return recordVisible(entity, camPos, "Blacklist Immunity");
+            return recordVisible(entity, camPos, distSq, "Blacklist Immunity");
         }
 
         CullingLevel cullingLevel = CameraCullingConfig.getLevel();
 
         // 5. Decorative entity check (e.g. Armor stands / Item frames)
         if (!cullingLevel.shouldCullDecorativeEntities() && (entity instanceof ArmorStand || entity instanceof ItemFrame)) {
-            return recordVisible(entity, camPos, "Decorative Entity Immunity");
+            return recordVisible(entity, camPos, distSq, "Decorative Entity Immunity");
         }
 
-        double distSq = camPos.distanceToSqr(entity.getX(), entity.getY(), entity.getZ());
         if (distSq < cullingLevel.getMinDistanceSq()) {
-            return recordVisible(entity, camPos, "Proximity Safety Bubble");
+            return recordVisible(entity, camPos, distSq, "Proximity Safety Bubble");
         }
 
         AABB box = entity.getBoundingBox();
         if (box.getSize() <= 0.0 || box.hasNaN()) {
-            return recordVisible(entity, camPos, "Invalid Bounding Box");
+            return recordVisible(entity, camPos, distSq, "Invalid Bounding Box");
         }
 
         double padding = cullingLevel.getPadding();
@@ -132,10 +143,10 @@ public final class CullingRaycastHelper {
         if (hasLineOfSight(level, camPos, top)) {
             if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                 if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                    return recordOccluded(entity, camPos, "Crowd / Mob Overdraw Occlusion");
+                    return recordOccluded(entity, camPos, distSq, "Crowd / Mob Overdraw Occlusion");
                 }
             }
-            return recordVisible(entity, camPos, "Sightline (Head Top)");
+            return recordVisible(entity, camPos, distSq, "Sightline (Head Top)");
         }
 
         // Sample 2: Anatomical Eye Position
@@ -143,10 +154,10 @@ public final class CullingRaycastHelper {
         if (hasLineOfSight(level, camPos, eyePos)) {
             if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                 if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                    return recordOccluded(entity, camPos, "Crowd / Mob Overdraw Occlusion");
+                    return recordOccluded(entity, camPos, distSq, "Crowd / Mob Overdraw Occlusion");
                 }
             }
-            return recordVisible(entity, camPos, "Sightline (Eyes)");
+            return recordVisible(entity, camPos, distSq, "Sightline (Eyes)");
         }
 
         // Sample 3: Upper Torso / Chest (above ground-grazing threshold)
@@ -155,10 +166,10 @@ public final class CullingRaycastHelper {
             if (hasLineOfSight(level, camPos, upperTorso)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                        return recordOccluded(entity, camPos, "Crowd / Mob Overdraw Occlusion");
+                        return recordOccluded(entity, camPos, distSq, "Crowd / Mob Overdraw Occlusion");
                     }
                 }
-                return recordVisible(entity, camPos, "Sightline (Upper Torso)");
+                return recordVisible(entity, camPos, distSq, "Sightline (Upper Torso)");
             }
         }
 
@@ -167,10 +178,10 @@ public final class CullingRaycastHelper {
             if (hasLineOfSight(level, camPos, center)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                        return recordOccluded(entity, camPos, "Crowd / Mob Overdraw Occlusion");
+                        return recordOccluded(entity, camPos, distSq, "Crowd / Mob Overdraw Occlusion");
                     }
                 }
-                return recordVisible(entity, camPos, "Sightline (Center)");
+                return recordVisible(entity, camPos, distSq, "Sightline (Center)");
             }
         }
 
@@ -185,14 +196,14 @@ public final class CullingRaycastHelper {
                 || hasLineOfSight(level, camPos, c3) || hasLineOfSight(level, camPos, c4)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
-                        return recordOccluded(entity, camPos, "Crowd / Mob Overdraw Occlusion");
+                        return recordOccluded(entity, camPos, distSq, "Crowd / Mob Overdraw Occlusion");
                     }
                 }
-                return recordVisible(entity, camPos, "Sightline (Flank)");
+                return recordVisible(entity, camPos, distSq, "Sightline (Flank)");
             }
         }
 
-        return recordOccluded(entity, camPos, "Block Occlusion");
+        return recordOccluded(entity, camPos, distSq, "Block Occlusion");
     }
 
     /**
@@ -329,9 +340,11 @@ public final class CullingRaycastHelper {
             return true;
         }
 
-        // Transparent / non-opaque blocks (glass, leaves, fences, iron bars, torches) never occlude
+        // Active Leaves Culling: tree leaves and solid blocks DO occlude; non-solid deco does not
         BlockState hitState = level.getBlockState(hit.getBlockPos());
-        if (!hitState.canOcclude() || !hitState.isSolidRender()) {
+        boolean isLeaves = hitState.is(net.minecraft.tags.BlockTags.LEAVES);
+        boolean isSolid = hitState.canOcclude() && hitState.isSolidRender();
+        if (!isLeaves && !isSolid) {
             return true;
         }
 
