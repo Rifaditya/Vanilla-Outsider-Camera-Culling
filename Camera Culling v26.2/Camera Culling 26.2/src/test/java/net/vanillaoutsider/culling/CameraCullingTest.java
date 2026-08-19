@@ -196,6 +196,25 @@ public class CameraCullingTest {
     }
 
     @Test
+    void testSignTextCullingConfigAndNullSafety() {
+        assertTrue(CameraCullingConfig.isCullSignText());
+        CameraCullingConfig.setCullSignText(false);
+        assertFalse(CameraCullingConfig.isCullSignText());
+
+        // When disabled, returns false
+        assertFalse(net.vanillaoutsider.culling.util.SignTextCullingHelper.shouldCullSignTextSide(null, null, true));
+        assertFalse(net.vanillaoutsider.culling.util.SignTextCullingHelper.shouldCullFace(null, null, null, true));
+
+        CameraCullingConfig.setCullSignText(true);
+        // Null safety
+        assertFalse(net.vanillaoutsider.culling.util.SignTextCullingHelper.shouldCullSignTextSide(null, null, true));
+        assertFalse(net.vanillaoutsider.culling.util.SignTextCullingHelper.shouldCullFace(null, null, null, true));
+
+        // Empty text detection
+        assertTrue(net.vanillaoutsider.culling.util.SignTextCullingHelper.isTextEmpty(null));
+    }
+
+    @Test
     void testHysteresisResetState() {
         assertDoesNotThrow(net.vanillaoutsider.culling.util.CullingRaycastHelper::resetState);
     }

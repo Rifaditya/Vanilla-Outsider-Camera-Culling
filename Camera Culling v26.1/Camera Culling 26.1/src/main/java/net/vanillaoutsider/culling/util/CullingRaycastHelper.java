@@ -45,7 +45,7 @@ public final class CullingRaycastHelper {
     private static boolean recordVisible(Entity entity, Vec3 camPos, double distSq, String reason) {
         int prev = OCCLUDED_STREAK.remove(entity.getId());
         int required = getRequiredGraceStreak(distSq);
-        if (prev >= required) {
+        if (prev >= required && CullingDiagnosticsHelper.isDebugEnabled()) {
             CullingDiagnosticsHelper.logStateTransition(entity, camPos, false, reason);
         }
         CameraCullingClient.incrementRenderedEntities();
@@ -63,7 +63,7 @@ public final class CullingRaycastHelper {
             CameraCullingClient.incrementRenderedEntities();
             return false;
         }
-        if (streak == required) {
+        if (streak == required && CullingDiagnosticsHelper.isDebugEnabled()) {
             CullingDiagnosticsHelper.logStateTransition(entity, camPos, true, reason);
         }
         CameraCullingClient.incrementCulledEntities();
@@ -92,7 +92,10 @@ public final class CullingRaycastHelper {
         }
 
         Vec3 camPos = new Vec3(camX, camY, camZ);
-        double distSq = camPos.distanceToSqr(entity.getX(), entity.getY(), entity.getZ());
+        double dx = camX - entity.getX();
+        double dy = camY - entity.getY();
+        double dz = camZ - entity.getZ();
+        double distSq = dx * dx + dy * dy + dz * dz;
 
         // 1. Local player and mounted vehicles are never culled
         if (mc.player == entity || mc.player.getVehicle() == entity || entity.hasPassenger(mc.player)) {
@@ -135,12 +138,14 @@ public final class CullingRaycastHelper {
             box = box.inflate(padding);
         }
 
-        Vec3 center = box.getCenter();
+        double centerX = (box.minX + box.maxX) * 0.5;
+        double centerY = (box.minY + box.maxY) * 0.5;
+        double centerZ = (box.minZ + box.maxZ) * 0.5;
         int samplePoints = cullingLevel.getSamplePoints();
 
         // Sample 1: Top of Entity Head / Bounding Box (Highest priority, completely above ground plane)
-        Vec3 top = new Vec3(center.x, box.maxY - 0.05, center.z);
-        if (hasLineOfSight(level, camPos, top)) {
+        double topY = box.maxY - 0.05;
+        if (hasLineOfSight(level, camPos, centerX, topY, centerZ)) {
             if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                 if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
                     return recordOccluded(entity, camPos, distSq, "Crowd / Mob Overdraw Occlusion");
@@ -150,8 +155,7 @@ public final class CullingRaycastHelper {
         }
 
         // Sample 2: Anatomical Eye Position
-        Vec3 eyePos = entity.getEyePosition();
-        if (hasLineOfSight(level, camPos, eyePos)) {
+        if (hasLineOfSight(level, camPos, entity.getX(), entity.getEyeY(), entity.getZ())) {
             if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                 if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
                     return recordOccluded(entity, camPos, distSq, "Crowd / Mob Overdraw Occlusion");
@@ -162,8 +166,8 @@ public final class CullingRaycastHelper {
 
         // Sample 3: Upper Torso / Chest (above ground-grazing threshold)
         if (samplePoints >= 3) {
-            Vec3 upperTorso = new Vec3(center.x, box.minY + box.getYsize() * 0.70, center.z);
-            if (hasLineOfSight(level, camPos, upperTorso)) {
+            double torsoY = box.minY + box.getYsize() * 0.70;
+            if (hasLineOfSight(level, camPos, centerX, torsoY, centerZ)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
                         return recordOccluded(entity, camPos, distSq, "Crowd / Mob Overdraw Occlusion");
@@ -175,7 +179,7 @@ public final class CullingRaycastHelper {
 
         // Sample 4: Center of Mass
         if (samplePoints >= 4) {
-            if (hasLineOfSight(level, camPos, center)) {
+            if (hasLineOfSight(level, camPos, centerX, centerY, centerZ)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
                         return recordOccluded(entity, camPos, distSq, "Crowd / Mob Overdraw Occlusion");
@@ -188,12 +192,12 @@ public final class CullingRaycastHelper {
         // Sample 5-8: Elevated Perimeter Flanks (for wide entities or high precision)
         if (samplePoints >= 5 || box.getXsize() > 1.0 || box.getZsize() > 1.0) {
             double flankY = box.minY + box.getYsize() * 0.60;
-            Vec3 c1 = new Vec3(box.minX + 0.15, flankY, box.minZ + 0.15);
-            Vec3 c2 = new Vec3(box.maxX - 0.15, flankY, box.minZ + 0.15);
-            Vec3 c3 = new Vec3(box.minX + 0.15, flankY, box.maxZ - 0.15);
-            Vec3 c4 = new Vec3(box.maxX - 0.15, flankY, box.maxZ - 0.15);
-            if (hasLineOfSight(level, camPos, c1) || hasLineOfSight(level, camPos, c2)
-                || hasLineOfSight(level, camPos, c3) || hasLineOfSight(level, camPos, c4)) {
+            double minX = box.minX + 0.15;
+            double maxX = box.maxX - 0.15;
+            double minZ = box.minZ + 0.15;
+            double maxZ = box.maxZ - 0.15;
+            if (hasLineOfSight(level, camPos, minX, flankY, minZ) || hasLineOfSight(level, camPos, maxX, flankY, minZ)
+                || hasLineOfSight(level, camPos, minX, flankY, maxZ) || hasLineOfSight(level, camPos, maxX, flankY, maxZ)) {
                 if (CameraCullingConfig.isCullEntitiesBehindEntities()) {
                     if (isEntityOccludedByCloserEntities(entity, level, camPos, box, distSq)) {
                         return recordOccluded(entity, camPos, distSq, "Crowd / Mob Overdraw Occlusion");
@@ -230,7 +234,10 @@ public final class CullingRaycastHelper {
 
         int closerInCluster = 0;
         for (Entity e : clusterEntities) {
-            double distSq = camPos.distanceToSqr(e.getX(), e.getY(), e.getZ());
+            double dx = camPos.x - e.getX();
+            double dy = camPos.y - e.getY();
+            double dz = camPos.z - e.getZ();
+            double distSq = dx * dx + dy * dy + dz * dz;
             if (distSq < targetDistSq) {
                 closerInCluster++;
                 if (closerInCluster >= maxCluster) {
@@ -268,8 +275,16 @@ public final class CullingRaycastHelper {
 
         CullingLevel cullingLevel = CameraCullingConfig.getLevel();
         BlockPos pos = blockEntity.getBlockPos();
-        Vec3 center = Vec3.atCenterOf(pos);
-        if (cameraPos.distanceToSqr(center) < cullingLevel.getMinDistanceSq()) {
+        double centerX = pos.getX() + 0.5;
+        double centerY = pos.getY() + 0.5;
+        double centerZ = pos.getZ() + 0.5;
+
+        double dx = cameraPos.x - centerX;
+        double dy = cameraPos.y - centerY;
+        double dz = cameraPos.z - centerZ;
+        double distSq = dx * dx + dy * dy + dz * dz;
+
+        if (distSq < cullingLevel.getMinDistanceSq()) {
             return false;
         }
 
@@ -292,7 +307,7 @@ public final class CullingRaycastHelper {
         }
 
         // Raycast check to center
-        if (hasLineOfSightToBlock(level, cameraPos, center, pos)) {
+        if (hasLineOfSightToBlock(level, cameraPos, centerX, centerY, centerZ, pos)) {
             CameraCullingClient.incrementRenderedBlockEntities();
             return false;
         }
@@ -301,7 +316,8 @@ public final class CullingRaycastHelper {
         return true;
     }
 
-    public static boolean hasLineOfSight(Level level, Vec3 from, Vec3 to) {
+    public static boolean hasLineOfSight(Level level, Vec3 from, double toX, double toY, double toZ) {
+        Vec3 to = new Vec3(toX, toY, toZ);
         ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
         BlockHitResult hit = level.clip(ctx);
         if (hit.getType() == HitResult.Type.MISS) {
@@ -309,7 +325,7 @@ public final class CullingRaycastHelper {
         }
 
         // Floor / Ground hit recognition: hitting top face of a block at target base height is ground, not a wall
-        if (hit.getDirection() == net.minecraft.core.Direction.UP && hit.getLocation().y <= to.y + 0.15) {
+        if (hit.getDirection() == net.minecraft.core.Direction.UP && hit.getLocation().y <= toY + 0.15) {
             return true;
         }
 
@@ -322,11 +338,15 @@ public final class CullingRaycastHelper {
         }
 
         double hitDistSq = from.distanceToSqr(hit.getLocation());
-        double targetDistSq = from.distanceToSqr(to);
+        double dx = from.x - toX;
+        double dy = from.y - toY;
+        double dz = from.z - toZ;
+        double targetDistSq = dx * dx + dy * dy + dz * dz;
         return hitDistSq >= (targetDistSq - 0.25);
     }
 
-    public static boolean hasLineOfSightToBlock(Level level, Vec3 from, Vec3 to, BlockPos targetPos) {
+    public static boolean hasLineOfSightToBlock(Level level, Vec3 from, double toX, double toY, double toZ, BlockPos targetPos) {
+        Vec3 to = new Vec3(toX, toY, toZ);
         ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
         BlockHitResult hit = level.clip(ctx);
         if (hit.getType() == HitResult.Type.MISS) {

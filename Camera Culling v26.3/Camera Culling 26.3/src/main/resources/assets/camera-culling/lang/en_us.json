@@ -28,6 +28,8 @@
   "config.cameraculling.cullParticles.desc": "Culls particles located behind solid blocks and outside the camera view frustum.",
   "config.cameraculling.cullAnimations": "Block & Texture Animation Culling",
   "config.cameraculling.cullAnimations.desc": "Freezes 3D block animations and skips off-screen texture atlas animation uploads.",
+  "config.cameraculling.cullSignText": "2-Sided Sign Text Culling",
+  "config.cameraculling.cullSignText.desc": "Skips font rendering for the back/occluded side and unwritten blank faces of signs.",
   "config.cameraculling.distanceTextureLod": "Distance Texture LOD",
   "config.cameraculling.distanceTextureLod.desc": "Optional mipmap texture bias reduction for very far distant entities.",
   "config.cameraculling.distanceTextureLodStart": "LOD Start Distance",

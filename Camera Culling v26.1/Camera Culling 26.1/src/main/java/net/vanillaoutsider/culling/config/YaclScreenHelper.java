@@ -124,6 +124,14 @@ public final class YaclScreenHelper {
                     .controller(TickBoxControllerBuilder::create)
                     .build())
 
+                // 2-Sided Sign Text Culling
+                .option(Option.<Boolean>createBuilder()
+                    .name(Component.translatable("config.cameraculling.cullSignText"))
+                    .description(OptionDescription.of(Component.translatable("config.cameraculling.cullSignText.desc")))
+                    .binding(true, CameraCullingConfig::isCullSignText, CameraCullingConfig::setCullSignText)
+                    .controller(TickBoxControllerBuilder::create)
+                    .build())
+
                 // Distance Texture LOD
                 .option(Option.<Boolean>createBuilder()
                     .name(Component.translatable("config.cameraculling.distanceTextureLod"))

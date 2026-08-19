@@ -1,5 +1,8 @@
 # Release Queue: Camera Culling (MC 26.1.2)
 
+## [1.10.0+26.1.2] - 2026-08-19
+- Zero-Allocation Hot-Path Raycast Engine (eliminating unculling GC spikes) + 2-Sided Sign & Hanging Sign Back-Face/Blank Text Culling with YACL GUI integration.
+
 ## [1.9.2+26.1.2] - 2026-08-19
 - Set Crowd Overdraw Culling to false by default; added 16m distance gating & local cluster filtering to eliminate open-field CPU lag.
 

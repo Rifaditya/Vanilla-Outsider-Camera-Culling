@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.0+26.1.2] - 2026-08-19
+
+### Added & Optimized
+- **Zero-Allocation Hot-Path Engine**:
+  - Completely refactored `CullingRaycastHelper` to eliminate all per-frame `new Vec3()` and intermediate heap allocations during continuous raycasting, removing JVM garbage collection stutter spikes when turning the camera across dense entity herds.
+  - Added smooth temporal hysteresis decay to eliminate burst uncull frametime hitches.
+- **2-Sided Sign & Hanging Sign Back-Face Text Culling**:
+  - Added `SignTextCullingHelper` calculating vector normal dot products ($\vec{N} \cdot \vec{V}$) across Wall Signs, Standing Signs, and Hanging Signs to automatically skip font rendering, kerning, and glow effects for the invisible back side of signs.
+  - Added Empty-Side Fast-Pass to immediately skip unwritten/blank sign faces.
+  - Added `cullSignText` configuration toggle (default `true` / ON) with full YACL v3 GUI integration and localization.
+
+---
+
 ## [1.9.2+26.1.2] - 2026-08-19
 
 ### Changed & Optimized
