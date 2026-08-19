@@ -29,7 +29,7 @@ public enum CullingLevel {
         0.1,
         true,
         true,
-        false
+        true
     ),
     SUPER(
         "Super (Extreme)",
@@ -38,7 +38,7 @@ public enum CullingLevel {
         0.0,
         true,
         true,
-        false
+        true
     );
 
     private final String displayName;
@@ -96,11 +96,11 @@ public enum CullingLevel {
     }
 
     public static CullingLevel fromString(String name) {
-        if (name == null) return MEDIUM;
+        if (name == null) return SUPER;
         try {
             return CullingLevel.valueOf(name.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
-            return MEDIUM;
+            return SUPER;
         }
     }
 }

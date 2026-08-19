@@ -1,5 +1,8 @@
 # Release Queue: Camera Culling (MC 26.2)
 
+## [1.9.1+26.2] - 2026-08-19
+- Configured all culling features to ON and default culling level to SUPER (Extreme) for maximum optimization.
+
 ## [1.9.0+26.2] - 2026-08-19
 - Added optional graphical configuration GUI (YetAnotherConfigLib v3 & ModMenu).
 

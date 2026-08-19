@@ -44,7 +44,7 @@ public final class YaclScreenHelper {
                 .option(Option.<CullingLevel>createBuilder()
                     .name(Component.translatable("config.cameraculling.level"))
                     .description(OptionDescription.of(Component.translatable("config.cameraculling.level.desc")))
-                    .binding(CullingLevel.MEDIUM, CameraCullingConfig::getLevel, CameraCullingConfig::setLevel)
+                    .binding(CullingLevel.SUPER, CameraCullingConfig::getLevel, CameraCullingConfig::setLevel)
                     .controller(EnumDropdownControllerBuilder::create)
                     .build())
                 
@@ -66,7 +66,7 @@ public final class YaclScreenHelper {
                 .option(Option.<Boolean>createBuilder()
                     .name(Component.translatable("config.cameraculling.cullEntitiesBehindEntities"))
                     .description(OptionDescription.of(Component.translatable("config.cameraculling.cullEntitiesBehindEntities.desc")))
-                    .binding(false, CameraCullingConfig::isCullEntitiesBehindEntities, CameraCullingConfig::setCullEntitiesBehindEntities)
+                    .binding(true, CameraCullingConfig::isCullEntitiesBehindEntities, CameraCullingConfig::setCullEntitiesBehindEntities)
                     .controller(TickBoxControllerBuilder::create)
                     .build())
 
@@ -128,7 +128,7 @@ public final class YaclScreenHelper {
                 .option(Option.<Boolean>createBuilder()
                     .name(Component.translatable("config.cameraculling.distanceTextureLod"))
                     .description(OptionDescription.of(Component.translatable("config.cameraculling.distanceTextureLod.desc")))
-                    .binding(false, CameraCullingConfig::isDistanceTextureLod, CameraCullingConfig::setDistanceTextureLod)
+                    .binding(true, CameraCullingConfig::isDistanceTextureLod, CameraCullingConfig::setDistanceTextureLod)
                     .controller(TickBoxControllerBuilder::create)
                     .build())
 

@@ -146,7 +146,7 @@ public class CameraCullingTest {
         assertEquals(CullingLevel.MEDIUM, CullingLevel.fromString("medium"));
         assertEquals(CullingLevel.HIGH, CullingLevel.fromString("high"));
         assertEquals(CullingLevel.SUPER, CullingLevel.fromString("super"));
-        assertEquals(CullingLevel.MEDIUM, CullingLevel.fromString("invalid"));
+        assertEquals(CullingLevel.SUPER, CullingLevel.fromString("invalid"));
 
         assertEquals(25.0, CullingLevel.LOW.getMinDistanceSq());
         assertEquals(12.25, CullingLevel.MEDIUM.getMinDistanceSq());

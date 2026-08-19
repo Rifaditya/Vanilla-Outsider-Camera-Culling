@@ -26,10 +26,10 @@ public final class CameraCullingConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static boolean enabled = true;
-    private static CullingLevel level = CullingLevel.MEDIUM;
-    private static Boolean cullEntitiesBehindEntities = null; // null = use level default
+    private static CullingLevel level = CullingLevel.SUPER;
+    private static Boolean cullEntitiesBehindEntities = true;
     private static int maxEntitiesPerCluster = 8;
-    private static boolean distanceTextureLod = false;
+    private static boolean distanceTextureLod = true;
     private static double distanceTextureLodStart = 16.0;
     private static double distanceTextureLodFar = 32.0;
     private static boolean bossImmunity = true;

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.9.1+26.3] - 2026-08-19
+
+### Changed & Refined
+- **Maximum Optimization Defaults Out-of-the-Box**:
+  - Configured baseline culling profile to **`SUPER (Extreme)`** (2.0m proximity bubble, 0.0 padding, full block entity & decorative culling) by default for new installations and YACL GUI resets.
+  - Enabled Crowd Overdraw Culling (`cullEntitiesBehindEntities = true`) by default.
+  - Enabled Distance Texture LOD (`distanceTextureLod = true`) by default.
+  - Preserved existing user configs on disk while aligning GUI default bindings with maximum performance settings.
+
+---
+
 ## [1.9.0+26.3] - 2026-08-19
 
 ### Added
