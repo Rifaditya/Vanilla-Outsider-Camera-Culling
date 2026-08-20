@@ -10,9 +10,9 @@ This document outlines the active multi-era release matrix, dependency bounds, J
 
 | Minecraft Anchor Era | Target MC Version | Current Release Version | Java Requirement | Fabric Loader Bound | Fabric API Bound | Release Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Modern Sovereign (26.3)** | `26.3` | `1.10.0+26.3` | Java 25 (`release = 25`) | `>=0.18.4` | `0.145.4+26.3` | 🟢 Active Release |
-| **Modern Sovereign (26.2)** | `26.2` | `1.10.0+26.2` | Java 25 (`release = 25`) | `>=0.18.4` | `0.145.4+26.2` | 🟢 Active Release |
-| **Modern Sovereign (26.1.2)** | `26.1.2` | `1.10.1+26.1.2` | Java 25 (`release = 25`) | `>=0.18.4` | `0.145.4+26.1.2` | 🟢 Active Release |
+| **Modern Sovereign (26.3)** | `26.3` | `1.10.1+26.3` | Java 25 (`release = 25`) | `>=0.18.4` | `0.156.1+26.3` | 🟢 Active Release |
+| **Modern Sovereign (26.2)** | `26.2` | `1.10.1+26.2` | Java 25 (`release = 25`) | `>=0.18.4` | `0.145.4+26.2` | 🟢 Active Release |
+| **Modern Sovereign (26.1.2)** | `26.1.2` | `1.10.2+26.1.2` | Java 25 (`release = 25`) | `>=0.18.4` | `0.145.4+26.1.2` | 🟢 Active Release |
 
 ---
 

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.1+26.2] - 2026-08-20
+
+### Added & Fixed
+- **Complete Modrinth Manifest & Metadata Alignment**:
+  - Added explicit `"java": ">=25"` runtime dependency under `depends` for automatic platform detection.
+  - Added `"custom": { "modrinth": { "projectId": "camera-culling", "slug": "camera-culling" } }` block for automatic platform project resolution.
+  - Updated SPDX license to `"GPL-3.0-or-later"` and unified repository issue tracker URLs.
+  - Added suggestions for `"yet-another-config-lib"` and `"yet_another_config_lib_v3"`.
+
+---
+
 ## [1.10.0+26.2] - 2026-08-19
 
 ### Added & Optimized

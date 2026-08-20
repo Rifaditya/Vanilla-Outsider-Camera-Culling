@@ -1,5 +1,8 @@
 # Release Queue: Camera Culling (MC 26.1.2)
 
+## [1.10.2+26.1.2] - 2026-08-20
+- Complete Modrinth manifest & metadata alignment (Java 25 runtime dependency, Modrinth custom block, SPDX license, issue tracker links).
+
 ## [1.10.1+26.1.2] - 2026-08-19
 - Fix tryExtractRenderState Mixin descriptor (3 arguments) resolving startup crash on 26.1.2.
 

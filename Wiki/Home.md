@@ -12,9 +12,9 @@ Camera Culling is developed under the strict **1 JAR 1 Version** law. Select you
 
 | Targeted Minecraft Version | Mod Release Version | Java Runtime | Build Tooling | Dedicated Wiki Portal |
 | :--- | :--- | :--- | :--- | :--- |
-| **Minecraft 26.1.2** | `1.10.1+26.1.2` | Java 25+ | Fabric Loom 1.15.5 | [[👉 Enter MC 26.1.2 Wiki|26.1.2-Home]] |
-| **Minecraft 26.2** | `1.10.0+26.2` | Java 25+ | Fabric Loom 1.15.5 | [[👉 Enter MC 26.2 Wiki|26.2-Home]] |
-| **Minecraft 26.3** | `1.10.0+26.3` | Java 25+ | Fabric Loom 1.15.5 | [[👉 Enter MC 26.3 Wiki|26.3-Home]] |
+| **Minecraft 26.1.2** | `1.10.2+26.1.2` | Java 25+ | Fabric Loom 1.15.5 | [[👉 Enter MC 26.1.2 Wiki|26.1.2-Home]] |
+| **Minecraft 26.2** | `1.10.1+26.2` | Java 25+ | Fabric Loom 1.15.5 | [[👉 Enter MC 26.2 Wiki|26.2-Home]] |
+| **Minecraft 26.3** | `1.10.1+26.3` | Java 25+ | Fabric Loom 1.15.5 | [[👉 Enter MC 26.3 Wiki|26.3-Home]] |
 
 ---
 

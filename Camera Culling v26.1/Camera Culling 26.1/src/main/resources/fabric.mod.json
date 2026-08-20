@@ -3,15 +3,16 @@
   "id": "camera-culling",
   "version": "${version}",
   "name": "Camera Culling",
-  "description": "Client-side entity and block entity camera frustum & occlusion culling prototype.",
+  "description": "Lightweight, zero-allocation camera occlusion culling, 2-sided sign text culling & distance texture LOD.",
   "authors": [
     "Dasik (Rifaditya)"
   ],
   "contact": {
     "homepage": "https://modrinth.com/mod/camera-culling",
-    "sources": "https://github.com/rifaditya/camera-culling"
+    "sources": "https://github.com/Rifaditya/Vanilla-Outsider-Camera-Culling",
+    "issues": "https://github.com/Rifaditya/Vanilla-Outsider-Camera-Culling/issues"
   },
-  "license": "GPL-3.0-only",
+  "license": "GPL-3.0-or-later",
   "icon": "assets/camera-culling/icon.png",
   "environment": "client",
   "entrypoints": {
@@ -26,12 +27,20 @@
     "camera-culling.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.19.3",
+    "fabricloader": ">=0.18.4",
     "minecraft": ">=26.1.2-",
+    "java": ">=25",
     "fabric-api": "*"
   },
   "suggests": {
+    "yet-another-config-lib": "*",
     "yet_another_config_lib_v3": "*",
     "modmenu": "*"
+  },
+  "custom": {
+    "modrinth": {
+      "projectId": "camera-culling",
+      "slug": "camera-culling"
+    }
   }
 }

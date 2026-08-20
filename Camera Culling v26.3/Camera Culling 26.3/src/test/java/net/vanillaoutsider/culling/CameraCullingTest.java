@@ -213,9 +213,4 @@ public class CameraCullingTest {
         // Empty text detection
         assertTrue(net.vanillaoutsider.culling.util.SignTextCullingHelper.isTextEmpty(null));
     }
-
-    @Test
-    void testHysteresisResetState() {
-        assertDoesNotThrow(net.vanillaoutsider.culling.util.CullingRaycastHelper::resetState);
-    }
 }

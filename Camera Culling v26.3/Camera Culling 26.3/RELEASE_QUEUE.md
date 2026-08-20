@@ -1,5 +1,8 @@
 # Release Queue: Camera Culling (MC 26.3)
 
+## [1.10.1+26.3] - 2026-08-20
+- Complete Modrinth manifest & metadata alignment (Java 25 runtime dependency, Modrinth custom block, SPDX license, issue tracker links).
+
 ## [1.10.0+26.3] - 2026-08-19
 - Zero-Allocation Hot-Path Raycast Engine (eliminating unculling GC spikes) + 2-Sided Sign & Hanging Sign Back-Face/Blank Text Culling with YACL GUI integration.
 
