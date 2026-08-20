@@ -1,60 +1,80 @@
-<div align="center">
-
-<img src="https://raw.githubusercontent.com/Rifaditya/Vanilla-Outsider-Camera-Culling/main/Doc/Media/icon.png" alt="Camera Culling Mod Icon" width="180">
-
-</div>
 <p align="center">
-    <a href="https://www.curseforge.com/minecraft/mc-mods/fabric-api"><img src="https://img.shields.io/badge/Requires-Fabric_API-blue?style=for-the-badge&logo=fabric" alt="Requires Fabric API"></a>
-    <img src="https://img.shields.io/badge/Language-Java_25-orange?style=for-the-badge&logo=java" alt="Java 25">
-    <img src="https://img.shields.io/badge/License-GPLv3-green?style=for-the-badge" alt="License">
-    <img src="https://img.shields.io/badge/Minecraft-26.1+-brightgreen?style=for-the-badge" alt="Minecraft 26.1+">
+  <img src="https://raw.githubusercontent.com/Rifaditya/Vanilla-Outsider-Camera-Culling/main/Doc/Media/icon.png" alt="Camera Culling Mod Icon" width="180">
+</p>
+<p align="center">
+  <a href="https://www.curseforge.com/minecraft/mc-mods/fabric-api"><img src="https://img.shields.io/badge/Requires-Fabric_API-blue?style=for-the-badge&amp;logo=fabric" alt="Requires Fabric API"></a>
+  <img src="https://img.shields.io/badge/Language-Java_25-orange?style=for-the-badge&amp;logo=java" alt="Java 25">
+  <img src="https://img.shields.io/badge/License-GPLv3-green?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/Minecraft-26.1+-brightgreen?style=for-the-badge" alt="Minecraft 26.1+">
 </p>
 
 <h1>📷 Camera Culling</h1>
 
-<p><strong>Active Version Policy:</strong> I build <strong>1 JAR for 1 Version</strong>. I only update and maintain the latest active Minecraft version (e.g. when 26.3 is released, 26.2 is retired). No backports or legacy version maintenance. Please do not ask.</p>
+<p><strong>Active Version Policy:</strong> I build <strong>1 JAR for 1 Version</strong>. I support active Minecraft versions (<strong>26.1.2</strong>, <strong>26.2</strong>, and <strong>26.3</strong>). Each version is compiled natively with zero compromises.</p>
 
-<blockquote><strong>Unrender the unseen. Lightweight, high-performance camera occlusion culling &amp; distance texture LOD.</strong></blockquote>
+<blockquote><strong>Unrender the unseen. Lightweight, zero-allocation camera occlusion culling, 2-sided sign text culling &amp; distance texture LOD.</strong></blockquote>
 
-<p><strong>The Vanilla Problem:</strong> In vanilla Minecraft, the game's renderer extracts render states and draws thousands of entities and block entities even when they are completely hidden behind solid walls, buried in deep underground caves, or smothered behind dense walls of other mobs. Furthermore, rendering fully-resolved textures on distant mobs consumes precious GPU fillrate and VRAM bandwidth.</p>
+<h2>The Vanilla Problem</h2>
+<p>In vanilla Minecraft, the game's renderer extracts render states and draws thousands of entities, block entities, particle quads, and sign text glyphs even when they are hidden behind solid walls, underground in caves, or obscured from your field of view. Furthermore, rendering fully-resolved textures on distant mobs consumes precious GPU fillrate and memory bandwidth.</p>
 
-<p><strong>Camera Culling</strong> solves this at the rendering root. It performs lightning-fast client-side raycasting and frustum occlusion checks against block collisions to dynamically unrender occluded entities and block entities. Combined with a smart mob crowd overdraw defense, distance-based texture LOD mipmap scaling, dynamic boss/mini-boss protections, and a two-tier immunity blacklist, Camera Culling drastically increases frame rates without altering world simulation or network packets.</p>
+<h2>What Camera Culling Does</h2>
+<p><strong>Camera Culling</strong> solves this at the rendering root. It performs lightning-fast client-side raycasting and frustum occlusion checks against block collisions to dynamically unrender occluded entities, block entities, particles, and sign text faces. Combined with a smart crowd overdraw defense, distance-based texture LOD mipmap scaling, dynamic boss/mini-boss protections, zero per-frame heap allocations, and an anti-flicker temporal hysteresis buffer, Camera Culling drastically increases frame rates without altering world simulation or network packets.</p>
 
-<p>Part of the <strong>Vanilla Outsider Collection</strong> — mods that refine the vanilla experience with modern standards.</p>
+<p>Part of the <strong>Vanilla Outsider Collection</strong> &mdash; mods that refine the vanilla experience with modern standards.</p>
+
+<p>🔗 <strong>Official GitHub Wiki</strong>: <a href="https://github.com/Rifaditya/Vanilla-Outsider-Camera-Culling/wiki" target="_blank" rel="noopener">https://github.com/Rifaditya/Vanilla-Outsider-Camera-Culling/wiki</a></p>
 
 <hr>
 
-<h2>✨ Features</h2>
+<h2>✨ Key Optimization Features</h2>
 
-<h3>🧱 Entity Occlusion Culling (Solid Block Sightlines)</h3>
+<h3>🧱 Entity Occlusion Culling (Zero-Allocation Raycast Engine)</h3>
 <p>Never waste GPU cycles rendering mobs you cannot see. Fast multi-point raytracing against solid block collision geometry unrenders entities hidden behind walls, cave ceilings, and terrain.</p>
 <ul>
-  <li><strong>Multi-Point Precision:</strong> Evaluates key entity sightlines (center, head, feet, and bounding box corners) to guarantee mobs are never culled prematurely when partially visible around corners.</li>
-  <li><strong>Safety Buffers:</strong> Incorporates a proximity safety margin so mobs near your crosshairs or close to your camera are always rendered smoothly.</li>
+  <li><strong>Zero-Allocation Hot-Path Engine:</strong> Passing primitive coordinates directly eliminates intermediate <code>Vec3</code> heap allocations in continuous frame rendering, removing JVM Young-Gen garbage collection stutter spikes when panning the camera across dense entity herds.</li>
+  <li><strong>Multi-Point Precision:</strong> Evaluates key entity sightlines (head top, anatomical eye height, upper torso, center, and elevated flanks) to guarantee mobs are never culled prematurely when partially visible around corners.</li>
+  <li><strong>Directional Floor Filtering:</strong> Ignores upward block normal collisions (<code>Direction.UP</code>) at entity base level, preventing ground-grazing false culling on slopes and hills.</li>
+  <li><strong>Proximity Safety Margin:</strong> Mobs within your close proximity safety bubble are always rendered smoothly without delay.</li>
 </ul>
 
 <blockquote><strong>Zero Simulation Impact:</strong> Culling operates strictly on client-side render submission. Entity ticks, server synchronization, sound events, and physics remain 100% active.</blockquote>
 
+<h3>🛡️ Anti-Flicker Temporal Hysteresis</h3>
+<ul>
+  <li><strong>Distance-Scaled Grace Buffer:</strong> Implements an adaptive frame debounce decay (4 frames near &le; 32m, 8 frames medium 32&ndash;64m, 12 frames far &gt; 64m) that absorbs camera rotation and walking view-bobbing jitter without sudden pop-in.</li>
+  <li><strong>Instant Unculling:</strong> Mobs becoming visible are rendered immediately with 0-frame latency as soon as a single sightline sample connects.</li>
+</ul>
+
+<h3>🪧 2-Sided Sign &amp; Hanging Sign Back-Face Text Culling</h3>
+<p>Signs with text on both sides render font glyphs, kerning tables, and glow outlines on both faces simultaneously &mdash; even when looking at only one side.</p>
+<ul>
+  <li><strong>Normal Vector Dot-Product Math:</strong> Calculates the sign face normal vector across Wall Signs, Standing Signs, and Hanging Signs to automatically skip font rendering passes for whichever side faces away from the camera.</li>
+  <li><strong>Empty-Side Fast-Pass:</strong> Automatically detects blank/unwritten sign faces and skips text layout immediately with zero math overhead.</li>
+  <li><strong>50% to 100% Draw Call Reduction</strong> on signs in storage warehouses and multiplayer towns.</li>
+</ul>
+
+<h3>✨ Particle &amp; Animation Occlusion Culling</h3>
+<ul>
+  <li><strong>Particle Occlusion:</strong> Raycasts particle sightlines against visual collision shapes with a 4.0-meter proximity safety bubble around the player's camera.</li>
+  <li><strong>TextureAtlas Animation Freezing:</strong> Freezes 3D block animations and skips off-screen texture atlas frame cycling when the game is paused or modal menus are open.</li>
+</ul>
+
 <h3>👥 Entity-Behind-Entity Culling (Crowd Overdraw Defense)</h3>
 <p>Dense mob farms and crowded pens are major FPS killers. Camera Culling detects when mobs are completely obscured behind closer, opaque mobs in front of them.</p>
 <ul>
-  <li><strong>Geometric Raycast AABB Clipping:</strong> Projects sightlines through candidate foreground mobs to cull entities entirely hidden in the crowd.</li>
   <li><strong>Cluster Density Cap:</strong> Automatically caps rendered entities in tight 1.5-block clusters (default: 8 mobs per cluster), preventing rendering lag in cramming farms.</li>
+  <li><strong>16-Meter Distance Fast-Fail:</strong> Completely bypasses crowd queries beyond 16 meters, ensuring zero CPU overhead in large open-field herds.</li>
   <li><strong>Decorative &amp; Small Mob Bypass:</strong> Transparent or small entities (Slimes, Magma Cubes, Vexes, Armor Stands) never block sightlines or occlude other mobs.</li>
 </ul>
 
-<blockquote>💡 <strong>Profile Linking:</strong> Entity-behind-entity culling is active by default on <code>HIGH</code> and <code>SUPER</code> presets, and can be toggled independently via <code>/cameraculling entityculling &lt;true|false|auto&gt;</code>.</blockquote>
-
-<h3>🎨 Distance-Based Mob Texture LOD (Texture Resolution Reduction)</h3>
+<h3>🎨 Distance-Based Mob Texture LOD</h3>
 <p>Distant mobs don't need 4K-level crisp textures. Camera Culling features a decoupled, 3-tier OpenGL Mipmap LOD biasing engine that dynamically reduces texture resolution on distant mobs:</p>
 <ul>
   <li><strong>Near (&lt; 16 blocks):</strong> 100% Native Full-Resolution crisp textures (0.0 LOD bias).</li>
-  <li><strong>Medium (16 – 32 blocks):</strong> Half-Resolution texture sampling (1.0 LOD bias).</li>
+  <li><strong>Medium (16 &ndash; 32 blocks):</strong> Half-Resolution texture sampling (1.0 LOD bias).</li>
   <li><strong>Far (&gt; 32 blocks):</strong> Quarter-Resolution low-res mipmap sampling (2.5 LOD bias).</li>
   <li><strong>GPU Fillrate Optimization:</strong> Drastically reduces VRAM fillrate and memory bandwidth on large herds of distant mobs without degrading close-up visual fidelity.</li>
 </ul>
-
-<blockquote>💡 <strong>Standalone Setting:</strong> Texture LOD operates independently of culling presets. Configure custom thresholds anytime via <code>/cameraculling texturlod range &lt;near&gt; &lt;far&gt;</code>.</blockquote>
 
 <h3>🛡️ Two-Tier Entity Immunity Blacklist</h3>
 <p>Want specific entities to never be culled under any circumstances? Camera Culling provides a robust two-tier blacklist system:</p>
@@ -63,8 +83,6 @@
   <li><strong>Server Admin Blacklist:</strong> Configured in <code>config/camera-culling-server.json</code>. Server operators can enforce server-wide entity immunity across all connected clients.</li>
   <li><strong>Full Immunity:</strong> Blacklisted entities are 100% exempt from block occlusion culling, crowd overdraw culling, and texture LOD downscaling.</li>
 </ul>
-
-<blockquote>💡 <strong>Command Management:</strong> Add or remove entities in-game using <code>/cameraculling blacklist &lt;add|remove|list|clear&gt; &lt;id&gt;</code> or <code>/cameraculling serverblacklist &lt;add|remove|list|clear&gt; &lt;id&gt;</code>.</blockquote>
 
 <h3>👑 Dynamic Boss &amp; Mini-Boss Immunity</h3>
 <p>Never lose sight of dangerous foes. Camera Culling automatically identifies both vanilla and modded bosses &amp; mini-bosses:</p>
@@ -79,47 +97,74 @@
   <li><strong>Absolute Sightline Protection:</strong> Bosses and mini-bosses are never culled behind solid blocks, never culled by crowd caps, and never downscaled by texture LOD.</li>
 </ul>
 
-<blockquote>💡 <strong>Heart Conversion Display:</strong> Adjust thresholds in-game with instant heart feedback via <code>/cameraculling bosshealth &lt;hp&gt;</code> and <code>/cameraculling minibosshealth &lt;hp&gt;</code>.</blockquote>
-
 <h3>📦 Block Entity Occlusion Culling</h3>
-<p>Skips render extraction for block entities that are completely encased or occluded:</p>
 <ul>
   <li><strong>Enclosure Check:</strong> Automatically unrenders chests, signs, banners, skulls, and decorated pots that are fully surrounded on all 6 faces by solid opaque blocks.</li>
   <li><strong>Line-of-Sight Check:</strong> Skips rendering when blocked from camera view on aggressive culling profiles.</li>
 </ul>
 
 <h3>⚙️ 4 Culling Intensity Profiles</h3>
-<p>Choose the ideal balance of performance and visual fidelity:</p>
 <ul>
   <li><strong>LOW (Conservative):</strong> 4.0-block safety buffer, 7-point sampling, padded hitboxes.</li>
-  <li><strong>MEDIUM (Balanced - Default):</strong> 2.0-block safety buffer, 3-point sampling + corner checks.</li>
-  <li><strong>HIGH (Aggressive):</strong> 1.0-block safety buffer, fast 2-point sampling, entity-behind-entity culling active, aggressive block entity culling.</li>
-  <li><strong>SUPER (Extreme / Potato PC):</strong> 0.25-block safety buffer, ultra-fast 1-point center check for maximum FPS on low-end hardware.</li>
+  <li><strong>MEDIUM (Balanced):</strong> 2.0-block safety buffer, 5-point sampling.</li>
+  <li><strong>HIGH (Aggressive):</strong> 1.0-block safety buffer, fast 3-point sampling, aggressive block entity culling.</li>
+  <li><strong>SUPER (Extreme &mdash; Default):</strong> 0.25-block safety buffer, ultra-fast 2-point check for maximum FPS on modern systems.</li>
 </ul>
-
-<h3>🎮 Zero Multiplayer Desync (100% Client-Side)</h3>
-<p>Camera Culling hooks strictly into the client render pipeline (<code>EntityRenderer</code>, <code>BlockEntityRenderDispatcher</code>, <code>LivingEntityRenderer</code>). It sends zero network packets, requires no server-side installation, and never interferes with mob AI, spawning, or physics.</p>
 
 <hr>
 
 <h2>📋 Quick Command Reference</h2>
 <p>All settings can be inspected and adjusted in-game via the <code>/cameraculling</code> command suite:</p>
 
-<pre><code>/cameraculling status                               → View live statistics, active level, and thresholds
-/cameraculling toggle                               → Toggle culling on or off
-/cameraculling set &lt;low|medium|high|super&gt;          → Change culling intensity preset
-/cameraculling blacklist add &lt;entity_id&gt;            → Add mob to personal client immunity list (e.g. minecraft:wolf)
-/cameraculling blacklist remove &lt;entity_id&gt;         → Remove mob from personal immunity list
-/cameraculling blacklist list                       → List all personal blacklisted entities
-/cameraculling serverblacklist add &lt;entity_id&gt;      → Add mob to server-wide admin immunity list (OP)
-/cameraculling texturlod &lt;true|false&gt;               → Toggle distance texture LOD independently
-/cameraculling texturlod range &lt;near&gt; &lt;far&gt;         → Set custom texture LOD distances (e.g. 16.0 32.0)
-/cameraculling bossimmunity &lt;true|false&gt;            → Toggle boss &amp; mini-boss immunity
-/cameraculling bosshealth &lt;hp&gt;                      → Set major boss health threshold (e.g. 150)
-/cameraculling minibosshealth &lt;hp&gt;                  → Set mini-boss health threshold (e.g. 50)
-/cameraculling entityculling &lt;true|false|auto&gt;      → Toggle entity-behind-entity crowd culling
-/cameraculling maxcluster &lt;1-128&gt;                   → Set cluster density cap for packed mob pens
-/cameraculling reload                               → Reload configuration from disk</code></pre>
+<pre>
+/cameraculling status                               &rarr; View live statistics, active level, and thresholds
+/cameraculling toggle                               &rarr; Toggle culling on or off
+/cameraculling set &lt;low|medium|high|super&gt;          &rarr; Change culling intensity preset
+/cameraculling particles [true|false]               &rarr; Toggle particle occlusion culling
+/cameraculling animations [true|false]              &rarr; Toggle block &amp; texture atlas animation culling
+/cameraculling crowdculling &lt;true|false&gt;            &rarr; Toggle crowd overdraw / entity-behind-entity culling
+/cameraculling cluster &lt;1-128&gt;                      &rarr; Set cluster density cap for packed mob pens
+/cameraculling texturlod &lt;true|false&gt;               &rarr; Toggle distance texture LOD independently
+/cameraculling texturlod range &lt;near&gt; &lt;far&gt;         &rarr; Set custom texture LOD distances (e.g. 16.0 32.0)
+/cameraculling bossimmunity &lt;true|false&gt;            &rarr; Toggle boss &amp; mini-boss immunity
+/cameraculling bosshealth &lt;hp&gt;                      &rarr; Set major boss health threshold (e.g. 150)
+/cameraculling minibosshealth &lt;hp&gt;                  &rarr; Set mini-boss health threshold (e.g. 50)
+/cameraculling blacklist add &lt;entity_id&gt;            &rarr; Add mob to personal client immunity list (e.g. minecraft:wolf)
+/cameraculling blacklist remove &lt;entity_id&gt;         &rarr; Remove mob from personal immunity list
+/cameraculling blacklist list                       &rarr; List all personal blacklisted entities
+/cameraculling blacklist clear                      &rarr; Clear personal immunity blacklist
+/cameraculling serverblacklist add &lt;entity_id&gt;      &rarr; Add mob to server-wide admin immunity list (OP)
+/cameraculling serverblacklist remove &lt;entity_id&gt;   &rarr; Remove mob from server admin immunity list
+/cameraculling serverblacklist list                 &rarr; List all server blacklisted entities
+/cameraculling serverblacklist clear                &rarr; Clear server admin blacklist
+/cameraculling debug [true|false]                   &rarr; Toggle real-time diagnostic tracing in chat &amp; logs
+/cameraculling reload                               &rarr; Reload configuration from disk
+</pre>
+
+<hr>
+
+<h2>⚙️ Configuration File</h2>
+<p>Settings are saved directly to <code>config/camera-culling.json</code>:</p>
+
+<pre>
+{
+  "enabled": true,
+  "level": "SUPER",
+  "cullEntitiesBehindEntities": false,
+  "maxEntitiesPerCluster": 8,
+  "distanceTextureLod": true,
+  "distanceTextureLodStart": 16.0,
+  "distanceTextureLodFar": 32.0,
+  "bossImmunity": true,
+  "bossHealthThreshold": 150.0,
+  "miniBossHealthThreshold": 50.0,
+  "cullParticles": true,
+  "cullAnimations": true,
+  "cullSignText": true,
+  "clientBlacklist": [],
+  "debugMode": false
+}
+</pre>
 
 <hr>
 
@@ -139,30 +184,26 @@
 
 <h3>📥 Install Instructions</h3>
 <ol>
-  <li>Install <a href="https://www.curseforge.com/minecraft/mc-mods/fabric-api"><strong>Fabric API</strong></a>.</li>
+  <li>Install <a href="https://www.curseforge.com/minecraft/mc-mods/fabric-api" target="_blank" rel="noopener"><strong>Fabric API</strong></a>.</li>
+  <li>(Optional) Install <a href="https://www.curseforge.com/minecraft/mc-mods/modmenu" target="_blank" rel="noopener"><strong>ModMenu</strong></a> and <a href="https://www.curseforge.com/minecraft/mc-mods/yacl" target="_blank" rel="noopener"><strong>YetAnotherConfigLib (YACL)</strong></a> for graphical settings.</li>
   <li>Download the latest <strong>Camera Culling</strong> JAR for your Minecraft version and place it in your <code>.minecraft/mods</code> folder.</li>
-  <li>Launch Minecraft and enjoy smoother frame rates!</li>
+  <li>Launch Minecraft and enjoy smooth, optimized frame rates!</li>
 </ol>
 
 <hr>
 
 <h2>☕ Support</h2>
-
 <p>If you enjoy <strong>Camera Culling</strong> and the <strong>Vanilla Outsider</strong> philosophy, consider fueling the next update!</p>
-
-<p align="center">
-  <a href="https://ko-fi.com/dasikigaijin/tip"><img src="https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
-  <a href="https://sociabuzz.com/dasikigaijin/tribe"><img src="https://img.shields.io/badge/SocioBuzz-Local_Support-7BB32E?style=for-the-badge" alt="SocioBuzz"></a>
-  <a href="https://saweria.co/DasikIgaijinn"><img src="https://img.shields.io/badge/Saweria-Local_Support-FFA500?style=for-the-badge" alt="Saweria"></a>
+<p>
+  <a href="https://ko-fi.com/dasikigaijin/tip" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?style=for-the-badge&amp;logo=ko-fi&amp;logoColor=white" alt="Ko-fi"></a>
+  <a href="https://sociabuzz.com/dasikigaijin/tribe" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/SocioBuzz-Local_Support-7BB32E?style=for-the-badge" alt="SocioBuzz"></a>
+  <a href="https://saweria.co/DasikIgaijinn" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Saweria-Local_Support-FFA500?style=for-the-badge" alt="Saweria"></a>
 </p>
-
-<blockquote><strong>🇮🇩 Indonesian Users:</strong> SocioBuzz and Saweria support local payment methods (Gopay, OVO, Dana, etc.) if you want to support me without using PayPal/Ko-fi!</blockquote>
 
 <hr>
 
 <h2>📜 Credits</h2>
-
-<table>
+<table border="1" cellpadding="6" cellspacing="0">
   <thead>
     <tr>
       <th align="left">Role</th>
@@ -188,16 +229,13 @@
 <hr>
 
 <blockquote>
-  <strong>📦 Modpack Permissions &amp; Distribution:</strong><br>
-  You are free to include this mod in any modpack on any platform. However, the mod itself must be downloaded from its official distribution pages on <strong>Modrinth</strong> or <strong>CurseForge</strong>. Re-uploading or redistributing the mod jar file to third-party sites is strictly prohibited unless explicitly permitted by the creator.
-  <br><br>
-  <strong>License &amp; Forks:</strong><br>
-  Since the source code is licensed under <strong>GNU GPLv3</strong>, you are fully permitted to fork the repository, make modifications, build your own versions, and distribute them under the terms of the GPLv3. The prohibition on third-party redistribution applies exclusively to the official compiled releases/jars published by the original creator (Dasik/Rifaditya). Forks must be published as distinct projects, not direct re-uploads of official builds.
+  <strong>📦 Modpack Permissions &amp; Distribution:</strong> You are free to include this mod in any modpack on any platform. However, the mod itself must be downloaded from its official distribution pages on <strong>Modrinth</strong> or <strong>CurseForge</strong>. Re-uploading or redistributing official JAR files to third-party sites is strictly prohibited.<br><br>
+  <strong>License &amp; Forks:</strong> Since the source code is licensed under <strong>GNU GPLv3</strong>, you are fully permitted to fork the repository, make modifications, build your own versions, and distribute them under the terms of the GPLv3 as distinct projects.
 </blockquote>
 
 <hr>
 
-<div align="center">
-  <p><strong>Made with ❤️ for the Minecraft community</strong></p>
-  <p><em>Part of the Vanilla Outsider Collection</em></p>
-</div>
+<p align="center">
+  <strong>Made with ❤️ for the Minecraft community</strong><br>
+  <em>Part of the Vanilla Outsider Collection</em>
+</p>
