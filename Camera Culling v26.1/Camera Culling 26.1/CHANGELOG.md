@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.4+26.1.2] - 2026-08-24
+
+### Changed & Removed
+- **Core Entity LOD Engine & Placebo Purge**:
+  - Completely purged defunct `TextureLodHelper` OpenGL mipmap bias utility.
+  - Implemented single-purpose `EntityLodHelper` supporting secondary layer rendering gating (`shouldRenderSecondaryLayers`) and linear distance-scaled terrain shadow fading (`getLodShadowRadius`).
+  - Added full immunity for player models, glowing mobs, bosses, and blacklisted entities.
+  - Added unit test suite verifying shadow scaling math and distance boundary conditions.
+
+---
+
 ## [1.10.3+26.1.2] - 2026-08-24
 
 ### Changed

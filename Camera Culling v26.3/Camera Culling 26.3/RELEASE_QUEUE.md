@@ -1,5 +1,8 @@
 # Release Queue: Camera Culling (MC 26.3)
 
+## [1.10.3+26.3] - 2026-08-24
+- Purged legacy `TextureLodHelper`; implemented single-purpose `EntityLodHelper` (secondary layer culling + distance shadow fade) and unit tests.
+
 ## [1.10.2+26.3] - 2026-08-24
 - Entity Detail LOD configuration schema migration (`entityDetailLod`, `entityLodDistance`) and command updates (`/cameraculling entitylod`).
 

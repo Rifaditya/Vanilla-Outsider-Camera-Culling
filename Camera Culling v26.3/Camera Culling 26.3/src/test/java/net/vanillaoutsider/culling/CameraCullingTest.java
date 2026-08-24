@@ -7,7 +7,7 @@ import net.vanillaoutsider.culling.config.CameraCullingConfig;
 import net.vanillaoutsider.culling.config.CullingLevel;
 import net.vanillaoutsider.culling.util.BlacklistHelper;
 import net.vanillaoutsider.culling.util.BossDetectionHelper;
-import net.vanillaoutsider.culling.util.TextureLodHelper;
+import net.vanillaoutsider.culling.util.EntityLodHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,8 +21,8 @@ public class CameraCullingTest {
         CameraCullingConfig.setLevel(CullingLevel.MEDIUM);
         CameraCullingConfig.setCullEntitiesBehindEntities(null);
         CameraCullingConfig.setMaxEntitiesPerCluster(8);
-        CameraCullingConfig.setDistanceTextureLod(true);
-        CameraCullingConfig.setDistanceTextureLodRange(16.0, 32.0);
+        CameraCullingConfig.setEntityDetailLod(true);
+        CameraCullingConfig.setEntityLodDistance(32.0);
         CameraCullingConfig.setBossImmunity(true);
         CameraCullingConfig.setBossHealthThreshold(150.0);
         CameraCullingConfig.setMiniBossHealthThreshold(50.0);
@@ -92,7 +92,7 @@ public class CameraCullingTest {
     }
 
     @Test
-    void testBossHealthThresholdsAndClamping() {
+    void testBossHealthHealthThresholdsAndClamping() {
         assertEquals(150.0, CameraCullingConfig.getBossHealthThreshold());
         assertEquals(50.0, CameraCullingConfig.getMiniBossHealthThreshold());
 
@@ -129,15 +129,35 @@ public class CameraCullingTest {
     }
 
     @Test
-    void testTextureLodBiasCalculation() {
-        // Distance < 16m (e.g. 10m -> 100 sq dist) -> 0.0f
-        assertEquals(0.0f, TextureLodHelper.calculateLodBias(100.0, 16.0, 32.0));
+    void testEntityLodShadowScaleCalculation() {
+        // Distance < 32m (e.g. 10m -> 100 sq dist) -> 1.0f (Full shadow)
+        assertEquals(1.0f, EntityLodHelper.calculateShadowScale(100.0, 32.0, 16.0));
 
-        // Distance 16m - 32m (e.g. 20m -> 400 sq dist) -> 1.0f (Half resolution)
-        assertEquals(1.0f, TextureLodHelper.calculateLodBias(400.0, 16.0, 32.0));
+        // Distance = 32m -> 1.0f
+        assertEquals(1.0f, EntityLodHelper.calculateShadowScale(1024.0, 32.0, 16.0));
 
-        // Distance > 32m (e.g. 40m -> 1600 sq dist) -> 2.5f (Quarter resolution)
-        assertEquals(2.5f, TextureLodHelper.calculateLodBias(1600.0, 16.0, 32.0));
+        // Distance = 40m (halfway between 32m and 48m -> 1600 sq dist) -> 0.5f
+        assertEquals(0.5f, EntityLodHelper.calculateShadowScale(1600.0, 32.0, 16.0), 0.001f);
+
+        // Distance >= 48m (e.g. 50m -> 2500 sq dist) -> 0.0f (Completely culled shadow)
+        assertEquals(0.0f, EntityLodHelper.calculateShadowScale(2500.0, 32.0, 16.0));
+
+        // Null / Zero distance safety
+        assertEquals(1.0f, EntityLodHelper.calculateShadowScale(0.0, 32.0, 16.0));
+        assertEquals(1.0f, EntityLodHelper.calculateShadowScale(-10.0, 32.0, 16.0));
+    }
+
+    @Test
+    void testEntityDetailLodConfigToggle() {
+        assertTrue(CameraCullingConfig.isEntityDetailLod());
+        CameraCullingConfig.setEntityDetailLod(false);
+        assertFalse(CameraCullingConfig.isEntityDetailLod());
+        CameraCullingConfig.setEntityDetailLod(true);
+
+        assertEquals(32.0, CameraCullingConfig.getEntityLodDistance());
+        CameraCullingConfig.setEntityLodDistance(48.0);
+        assertEquals(48.0, CameraCullingConfig.getEntityLodDistance());
+        CameraCullingConfig.setEntityLodDistance(32.0);
     }
 
     @Test
