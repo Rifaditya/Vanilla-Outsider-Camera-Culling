@@ -29,9 +29,8 @@ public final class CameraCullingConfig {
     private static CullingLevel level = CullingLevel.SUPER;
     private static Boolean cullEntitiesBehindEntities = false;
     private static int maxEntitiesPerCluster = 8;
-    private static boolean distanceTextureLod = true;
-    private static double distanceTextureLodStart = 16.0;
-    private static double distanceTextureLodFar = 32.0;
+    private static boolean entityDetailLod = true;
+    private static double entityLodDistance = 32.0;
     private static boolean bossImmunity = true;
     private static double bossHealthThreshold = 150.0;
     private static double miniBossHealthThreshold = 50.0;
@@ -87,14 +86,15 @@ public final class CameraCullingConfig {
                 if (json.has("maxEntitiesPerCluster")) {
                     maxEntitiesPerCluster = Math.max(1, Math.min(128, json.get("maxEntitiesPerCluster").getAsInt()));
                 }
-                if (json.has("distanceTextureLod")) {
-                    distanceTextureLod = json.get("distanceTextureLod").getAsBoolean();
+                if (json.has("entityDetailLod")) {
+                    entityDetailLod = json.get("entityDetailLod").getAsBoolean();
+                } else if (json.has("distanceTextureLod")) {
+                    entityDetailLod = json.get("distanceTextureLod").getAsBoolean();
                 }
-                if (json.has("distanceTextureLodStart")) {
-                    distanceTextureLodStart = Math.max(1.0, json.get("distanceTextureLodStart").getAsDouble());
-                }
-                if (json.has("distanceTextureLodFar")) {
-                    distanceTextureLodFar = Math.max(distanceTextureLodStart + 1.0, json.get("distanceTextureLodFar").getAsDouble());
+                if (json.has("entityLodDistance")) {
+                    entityLodDistance = Math.max(1.0, json.get("entityLodDistance").getAsDouble());
+                } else if (json.has("distanceTextureLodStart")) {
+                    entityLodDistance = Math.max(1.0, json.get("distanceTextureLodStart").getAsDouble());
                 }
                 if (json.has("bossImmunity")) {
                     bossImmunity = json.get("bossImmunity").getAsBoolean();
@@ -130,8 +130,8 @@ public final class CameraCullingConfig {
         }
 
         loadServerConfig();
-        LOGGER.info("[Camera Culling] Configuration loaded. Active Level: {}, Entity Culling: {}, Texture LOD: {}, Boss Immunity: {}, Particle Culling: {}, Animation Culling: {}, Sign Text Culling: {} (Client Blacklist: {}, Server Blacklist: {})",
-                level.getDisplayName(), isCullEntitiesBehindEntities(), distanceTextureLod, bossImmunity, cullParticles, cullAnimations, cullSignText, clientBlacklist.size(), serverBlacklist.size());
+        LOGGER.info("[Camera Culling] Configuration loaded. Active Level: {}, Entity Culling: {}, Entity Detail LOD: {} ({}m), Boss Immunity: {}, Particle Culling: {}, Animation Culling: {}, Sign Text Culling: {} (Client Blacklist: {}, Server Blacklist: {})",
+                level.getDisplayName(), isCullEntitiesBehindEntities(), entityDetailLod, entityLodDistance, bossImmunity, cullParticles, cullAnimations, cullSignText, clientBlacklist.size(), serverBlacklist.size());
     }
 
     public static void loadServerConfig() {
@@ -168,9 +168,8 @@ public final class CameraCullingConfig {
                 json.addProperty("cullEntitiesBehindEntities", cullEntitiesBehindEntities);
             }
             json.addProperty("maxEntitiesPerCluster", maxEntitiesPerCluster);
-            json.addProperty("distanceTextureLod", distanceTextureLod);
-            json.addProperty("distanceTextureLodStart", distanceTextureLodStart);
-            json.addProperty("distanceTextureLodFar", distanceTextureLodFar);
+            json.addProperty("entityDetailLod", entityDetailLod);
+            json.addProperty("entityLodDistance", entityLodDistance);
             json.addProperty("bossImmunity", bossImmunity);
             json.addProperty("bossHealthThreshold", bossHealthThreshold);
             json.addProperty("miniBossHealthThreshold", miniBossHealthThreshold);
@@ -255,40 +254,51 @@ public final class CameraCullingConfig {
         save();
     }
 
+    public static boolean isEntityDetailLod() {
+        return entityDetailLod;
+    }
+
+    public static void setEntityDetailLod(boolean enabled) {
+        entityDetailLod = enabled;
+        save();
+    }
+
+    public static double getEntityLodDistance() {
+        return entityLodDistance;
+    }
+
+    public static void setEntityLodDistance(double distance) {
+        entityLodDistance = Math.max(1.0, distance);
+        save();
+    }
+
+    // Deprecated bridge methods for backwards compatibility during migration
     public static boolean isDistanceTextureLod() {
-        return distanceTextureLod;
+        return entityDetailLod;
     }
 
     public static void setDistanceTextureLod(boolean enabled) {
-        distanceTextureLod = enabled;
-        save();
+        setEntityDetailLod(enabled);
     }
 
     public static double getDistanceTextureLodStart() {
-        return distanceTextureLodStart;
+        return entityLodDistance;
     }
 
     public static void setDistanceTextureLodStart(double start) {
-        distanceTextureLodStart = Math.max(1.0, start);
-        if (distanceTextureLodFar <= distanceTextureLodStart) {
-            distanceTextureLodFar = distanceTextureLodStart + 1.0;
-        }
-        save();
+        setEntityLodDistance(start);
     }
 
     public static double getDistanceTextureLodFar() {
-        return distanceTextureLodFar;
+        return entityLodDistance + 16.0;
     }
 
     public static void setDistanceTextureLodFar(double far) {
-        distanceTextureLodFar = Math.max(distanceTextureLodStart + 1.0, far);
-        save();
+        setEntityLodDistance(Math.max(1.0, far - 16.0));
     }
 
     public static void setDistanceTextureLodRange(double start, double far) {
-        distanceTextureLodStart = Math.max(1.0, Math.min(start, far - 1.0));
-        distanceTextureLodFar = Math.max(distanceTextureLodStart + 1.0, far);
-        save();
+        setEntityLodDistance(start);
     }
 
     public static boolean isBossImmunity() {

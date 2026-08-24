@@ -35,9 +35,8 @@ public final class CameraCullingCommand {
                         src.sendFeedback(Component.literal("§7Status: " + (CameraCullingConfig.isEnabled() ? "§aEnabled" : "§cDisabled")));
                         src.sendFeedback(Component.literal("§7Current Level: §e" + CameraCullingConfig.getLevel().getDisplayName()));
                         src.sendFeedback(Component.literal("§7Entity-Behind-Entity Culling: " + (CameraCullingConfig.isCullEntitiesBehindEntities() ? "§aActive" : "§7Inactive")));
-                        src.sendFeedback(Component.literal("§7Cluster Density Cap: §e" + CameraCullingConfig.getMaxEntitiesPerCluster() + " mobs / 1.5 blocks"));
-                        src.sendFeedback(Component.literal("§7Distance Texture LOD: " + (CameraCullingConfig.isDistanceTextureLod()
-                            ? "§aEnabled §7(" + CameraCullingConfig.getDistanceTextureLodStart() + "m - " + CameraCullingConfig.getDistanceTextureLodFar() + "m)"
+                        src.sendFeedback(Component.literal("§7Entity Detail & Layer LOD: " + (CameraCullingConfig.isEntityDetailLod()
+                            ? "§aEnabled §7(> " + CameraCullingConfig.getEntityLodDistance() + "m)"
                             : "§cDisabled")));
                         double bossHp = CameraCullingConfig.getBossHealthThreshold();
                         double miniHp = CameraCullingConfig.getMiniBossHealthThreshold();
@@ -226,31 +225,40 @@ public final class CameraCullingCommand {
                         })
                     )
                 )
-                .then(ClientCommands.literal("texturelod")
+                .then(ClientCommands.literal("entitylod")
+                    .executes(ctx -> {
+                        boolean newState = !CameraCullingConfig.isEntityDetailLod();
+                        CameraCullingConfig.setEntityDetailLod(newState);
+                        ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Entity Detail & Layer LOD is now " + (newState ? "§aEnabled" : "§cDisabled")));
+                        return 1;
+                    })
                     .then(ClientCommands.argument("enabled", BoolArgumentType.bool())
                         .executes(ctx -> {
                             boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
-                            CameraCullingConfig.setDistanceTextureLod(enabled);
-                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Distance Texture LOD set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
+                            CameraCullingConfig.setEntityDetailLod(enabled);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Entity Detail & Layer LOD set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
                             return 1;
                         })
                     )
-                    .then(ClientCommands.literal("range")
-                        .then(ClientCommands.argument("start_dist", DoubleArgumentType.doubleArg(1.0, 256.0))
-                            .then(ClientCommands.argument("far_dist", DoubleArgumentType.doubleArg(2.0, 512.0))
-                                .executes(ctx -> {
-                                    double start = DoubleArgumentType.getDouble(ctx, "start_dist");
-                                    double far = DoubleArgumentType.getDouble(ctx, "far_dist");
-                                    if (start >= far) {
-                                        ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§c Error: Start distance must be strictly less than Far distance."));
-                                        return 0;
-                                    }
-                                    CameraCullingConfig.setDistanceTextureLodRange(start, far);
-                                    ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Distance Texture LOD range set to: §e" + CameraCullingConfig.getDistanceTextureLodStart() + "m (Half) / " + CameraCullingConfig.getDistanceTextureLodFar() + "m (Quarter)§r"));
-                                    return 1;
-                                })
-                            )
+                    .then(ClientCommands.literal("distance")
+                        .then(ClientCommands.argument("blocks", DoubleArgumentType.doubleArg(4.0, 256.0))
+                            .executes(ctx -> {
+                                double dist = DoubleArgumentType.getDouble(ctx, "blocks");
+                                CameraCullingConfig.setEntityLodDistance(dist);
+                                ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Entity Detail LOD distance threshold set to: §e" + dist + "m§r"));
+                                return 1;
+                            })
                         )
+                    )
+                )
+                .then(ClientCommands.literal("texturlod")
+                    .then(ClientCommands.argument("enabled", BoolArgumentType.bool())
+                        .executes(ctx -> {
+                            boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
+                            CameraCullingConfig.setEntityDetailLod(enabled);
+                            ctx.getSource().sendFeedback(Component.literal("§6[Camera Culling]§r Entity Detail & Layer LOD set to: " + (enabled ? "§aEnabled" : "§cDisabled")));
+                            return 1;
+                        })
                     )
                 )
                 .then(ClientCommands.literal("bossimmunity")

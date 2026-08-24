@@ -30,10 +30,14 @@
   "config.cameraculling.cullAnimations.desc": "Freezes 3D block animations and skips off-screen texture atlas animation uploads.",
   "config.cameraculling.cullSignText": "2-Sided Sign Text Culling",
   "config.cameraculling.cullSignText.desc": "Skips font rendering for the back/occluded side and unwritten blank faces of signs.",
-  "config.cameraculling.distanceTextureLod": "Distance Texture LOD",
-  "config.cameraculling.distanceTextureLod.desc": "Optional mipmap texture bias reduction for very far distant entities.",
-  "config.cameraculling.distanceTextureLodStart": "LOD Start Distance",
-  "config.cameraculling.distanceTextureLodStart.desc": "Distance in blocks where texture LOD transitions begin.",
+  "config.cameraculling.entityDetailLod": "Entity Detail & Layer LOD",
+  "config.cameraculling.entityDetailLod.desc": "Optimizes distant mobs by culling secondary render layers and terrain shadows.",
+  "config.cameraculling.entityLodDistance": "Entity LOD Distance",
+  "config.cameraculling.entityLodDistance.desc": "Distance in blocks where secondary layers and shadows simplify.",
+  "config.cameraculling.distanceTextureLod": "Entity Detail & Layer LOD",
+  "config.cameraculling.distanceTextureLod.desc": "Optimizes distant mobs by culling secondary render layers and terrain shadows.",
+  "config.cameraculling.distanceTextureLodStart": "Entity LOD Distance",
+  "config.cameraculling.distanceTextureLodStart.desc": "Distance in blocks where secondary layers and shadows simplify.",
   "config.cameraculling.distanceTextureLodFar": "LOD Far Distance",
-  "config.cameraculling.distanceTextureLodFar.desc": "Distance in blocks where full texture LOD is reached."
+  "config.cameraculling.distanceTextureLodFar.desc": "Distance in blocks where full entity LOD is reached."
 }

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.2+26.2] - 2026-08-24
+
+### Changed
+- **Entity Detail LOD Config & Command Migration**:
+  - Migrated configuration schema from legacy texture LOD to `entityDetailLod` (boolean) and `entityLodDistance` (double, default 32.0 blocks) with automatic backward compatibility for older configuration files.
+  - Added `/cameraculling entitylod <true|false>` and `/cameraculling entitylod distance <blocks>` Brigadier client commands.
+  - Updated status diagnostics and `en_us.json` localization strings.
+
+---
+
 ## [1.10.1+26.2] - 2026-08-20
 
 ### Added & Fixed

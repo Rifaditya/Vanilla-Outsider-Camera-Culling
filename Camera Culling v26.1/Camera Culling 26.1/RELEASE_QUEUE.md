@@ -1,5 +1,8 @@
 # Release Queue: Camera Culling (MC 26.1.2)
 
+## [1.10.3+26.1.2] - 2026-08-24
+- Entity Detail LOD configuration schema migration (`entityDetailLod`, `entityLodDistance`) and command updates (`/cameraculling entitylod`).
+
 ## [1.10.2+26.1.2] - 2026-08-20
 - Complete Modrinth manifest & metadata alignment (Java 25 runtime dependency, Modrinth custom block, SPDX license, issue tracker links).
 
