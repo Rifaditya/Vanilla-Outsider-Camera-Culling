@@ -2,6 +2,7 @@
 package net.vanillaoutsider.culling.config;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
+import dev.isxander.yacl3.api.ButtonOption;
 import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
@@ -11,6 +12,7 @@ import dev.isxander.yacl3.api.controller.DoubleSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumDropdownControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -23,39 +25,46 @@ public final class YaclScreenHelper {
     }
 
     public static Screen createScreen(Screen parent) {
+        ConfigCategory.Builder generalCategory = ConfigCategory.createBuilder()
+            .name(Component.translatable("config.cameraculling.category.general"))
+            .tooltip(Component.translatable("config.cameraculling.category.general.tooltip"));
+
+        Option<?> supportButton = createSupportButton();
+        if (supportButton != null) {
+            generalCategory.option(supportButton);
+        }
+
+        generalCategory
+            // Master Enable
+            .option(Option.<Boolean>createBuilder()
+                .name(Component.translatable("config.cameraculling.enabled"))
+                .description(OptionDescription.of(Component.translatable("config.cameraculling.enabled.desc")))
+                .binding(true, CameraCullingConfig::isEnabled, CameraCullingConfig::setEnabled)
+                .controller(TickBoxControllerBuilder::create)
+                .build())
+            
+            // Culling Level
+            .option(Option.<CullingLevel>createBuilder()
+                .name(Component.translatable("config.cameraculling.level"))
+                .description(OptionDescription.of(Component.translatable("config.cameraculling.level.desc")))
+                .binding(CullingLevel.SUPER, CameraCullingConfig::getLevel, CameraCullingConfig::setLevel)
+                .controller(EnumDropdownControllerBuilder::create)
+                .build())
+            
+            // Real-Time Debug Logging
+            .option(Option.<Boolean>createBuilder()
+                .name(Component.translatable("config.cameraculling.debugMode"))
+                .description(OptionDescription.of(Component.translatable("config.cameraculling.debugMode.desc")))
+                .binding(false, CameraCullingConfig::isDebugMode, CameraCullingConfig::setDebugMode)
+                .controller(TickBoxControllerBuilder::create)
+                .build());
+
         return YetAnotherConfigLib.createBuilder()
             .title(Component.translatable("config.cameraculling.title"))
             .save(CameraCullingConfig::save)
 
             // === 1. ENGINE & DIAGNOSTICS ===
-            .category(ConfigCategory.createBuilder()
-                .name(Component.translatable("config.cameraculling.category.general"))
-                .tooltip(Component.translatable("config.cameraculling.category.general.tooltip"))
-                
-                // Master Enable
-                .option(Option.<Boolean>createBuilder()
-                    .name(Component.translatable("config.cameraculling.enabled"))
-                    .description(OptionDescription.of(Component.translatable("config.cameraculling.enabled.desc")))
-                    .binding(true, CameraCullingConfig::isEnabled, CameraCullingConfig::setEnabled)
-                    .controller(TickBoxControllerBuilder::create)
-                    .build())
-                
-                // Culling Level
-                .option(Option.<CullingLevel>createBuilder()
-                    .name(Component.translatable("config.cameraculling.level"))
-                    .description(OptionDescription.of(Component.translatable("config.cameraculling.level.desc")))
-                    .binding(CullingLevel.SUPER, CameraCullingConfig::getLevel, CameraCullingConfig::setLevel)
-                    .controller(EnumDropdownControllerBuilder::create)
-                    .build())
-                
-                // Real-Time Debug Logging
-                .option(Option.<Boolean>createBuilder()
-                    .name(Component.translatable("config.cameraculling.debugMode"))
-                    .description(OptionDescription.of(Component.translatable("config.cameraculling.debugMode.desc")))
-                    .binding(false, CameraCullingConfig::isDebugMode, CameraCullingConfig::setDebugMode)
-                    .controller(TickBoxControllerBuilder::create)
-                    .build())
-                .build())
+            .category(generalCategory.build())
 
             // === 2. ENTITY & CROWD OCCLUSION ===
             .category(ConfigCategory.createBuilder()
@@ -158,5 +167,25 @@ public final class YaclScreenHelper {
                 .build())
             .build()
             .generateScreen(parent);
+    }
+
+    private static Option<?> createSupportButton() {
+        try {
+            Class<?> helperClass = Class.forName("net.dasik.social.api.config.DasikSupportHelper");
+            Object button = helperClass.getMethod("createYaclButton").invoke(null);
+            if (button instanceof Option<?>) {
+                return (Option<?>) button;
+            }
+        } catch (Throwable ignored) {}
+
+        try {
+            return ButtonOption.createBuilder()
+                .name(Component.translatable("dasiklibrary.support.kofi.button"))
+                .description(OptionDescription.of(Component.translatable("dasiklibrary.support.kofi.tooltip")))
+                .action((screen, opt) -> ConfirmLinkScreen.confirmLinkNow(screen, "https://ko-fi.com/dasikigaijin"))
+                .build();
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 }
