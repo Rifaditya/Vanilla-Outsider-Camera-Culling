@@ -39,5 +39,8 @@
   "config.cameraculling.distanceTextureLodStart": "Entity LOD Distance",
   "config.cameraculling.distanceTextureLodStart.desc": "Distance in blocks where secondary layers and shadows simplify.",
   "config.cameraculling.distanceTextureLodFar": "LOD Far Distance",
-  "config.cameraculling.distanceTextureLodFar.desc": "Distance in blocks where full entity LOD is reached."
+  "config.cameraculling.distanceTextureLodFar.desc": "Distance in blocks where full entity LOD is reached.",
+
+  "dasiklibrary.support.kofi.button": "☕ Support Solo Dev on Ko-fi",
+  "dasiklibrary.support.kofi.tooltip": "Opens https://ko-fi.com/dasikigaijin in your default browser. Thank you for your support!"
 }
