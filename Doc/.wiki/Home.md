@@ -1,4 +1,6 @@
-﻿# 📷 Camera Culling Wiki
+# 📷 Camera Culling Wiki
+
+🌐 **Languages**: [[🇺🇸 English|Home]] | [[🇨🇳 简体中文|zh_cn-Home]] | [[🇭🇰 繁體中文|zh_tw-Home]] | [[🇷🇺 Русский|ru_ru-Home]] | [[🇪🇸 Español|es_es-Home]] | [[🇩🇪 Deutsch|de_de-Home]] | [[🇫🇷 Français|fr_fr-Home]] | [[🇧🇷 Português|pt_br-Home]] | [[🇯🇵 日本語|ja_jp-Home]] | [[🇮🇩 Bahasa Indonesia|id_id-Home]] | [[🇰🇷 한국어|ko_kr-Home]]
 
 Welcome to the official **Camera Culling** documentation portal. Camera Culling is a high-performance, client-side rendering optimization mod for Minecraft **26.1.2**, **26.2**, and **26.3** developed under the **Vanilla Outsider** philosophy.
 
