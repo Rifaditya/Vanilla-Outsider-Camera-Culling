@@ -2,7 +2,7 @@
 
 > **Mod Project Master Ground-Truth Document**  
 > *Last Synchronized: 2026-09-01*  
-> **Modrinth ID**: *Unregistered* | **CurseForge ID**: *Unregistered* | **Lead SemVer**: `1.10.4`
+> **Modrinth ID**: `ATX2NaJR` (`vo-camera-culling`) | **CurseForge ID**: `1700558` (`vo-camera-culling`) | **Lead SemVer**: `1.10.4`
 
 ---
 
@@ -10,9 +10,9 @@
 
 | Target MC | Generational Era | Live on Platforms | Next Queued Version | Status & Cadence Action | Feature Highlights / Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **MC 26.3** | Modern Lead | *(Unreleased)* | `1.10.4+26.3` | 🛠️ **Local Development** | In-Game Creator Support Button (YACL Category 1 top-pinned Ko-fi button). |
-| **MC 26.2** | Modern Predecessor | *(Unreleased)* | `1.10.4+26.2` | 🛠️ **Local Development** | In-Game Creator Support Button (YACL Category 1 top-pinned Ko-fi button). |
-| **MC 26.1** | Modern Predecessor | *(Unreleased)* | `1.10.4+26.1.2` | 🛠️ **Local Development** | Initial workspace build ready for first public deployment. |
+| **MC 26.3** | Modern Lead | — | `1.0.0+26.3` | ⏸️ **Parity Hold** | Compiled modern lead build held in archive pending MC 26.2 reaching 1.10.1. |
+| **MC 26.2** | Modern Predecessor | MR: `1.10.1+26.2` / CF: `1.0.0+26.2` | `1.1.0+26.2` | 🔄 **Catch-Up Phase** | CurseForge sequential catch-up towards 1.10.1+26.2 (1 release per day). |
+| **MC 26.1** | Modern Predecessor | — | `1.0.0+26.1.2` | ⏸️ **Parity Hold** | Initial workspace build held in archive pending MC 26.2 reaching 1.10.1. |
 
 ---
 
