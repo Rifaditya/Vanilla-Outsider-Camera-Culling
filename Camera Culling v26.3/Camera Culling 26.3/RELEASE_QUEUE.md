@@ -2,6 +2,8 @@
 
 ## 🚀 Published & Backlog Queue
 
+- [ ] **1.10.5+26.3** (2026-10-03) - Universal Dasik Library Alignment: Wired `dasik-library` 1.9.2 runtime dependency and aligned Modrinth manifest metadata.
+- [ ] **1.10.4+26.3** (2026-09-05) - Ko-fi Support Integration: Injected top-pinned Ko-fi creator support button into YACL in-game configuration screen with native fallback.
 - [ ] **1.10.3+26.3** (2026-08-24) - Purged legacy `TextureLodHelper`; implemented single-purpose `EntityLodHelper` (secondary layer culling + distance shadow fade) and unit tests.
 - [ ] **1.10.2+26.3** (2026-08-24) - Entity Detail LOD configuration schema migration (`entityDetailLod`, `entityLodDistance`) and command updates (`/cameraculling entitylod`).
 - [ ] **1.10.1+26.3** (2026-08-20) - Complete Modrinth manifest & metadata alignment (Java 25 runtime dependency, Modrinth custom block, SPDX license, issue tracker links).

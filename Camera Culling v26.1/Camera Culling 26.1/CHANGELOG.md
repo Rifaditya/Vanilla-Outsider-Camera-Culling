@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.5+26.1.2] - 2026-09-05
+
+### Added & Changed
+- **Ko-fi Creator Support & Dasik Library Alignment**:
+  - Added top-pinned Ko-fi creator support button to the YACL in-game configuration screen with native fallback.
+  - Wired `dasik-library` 1.9.2 runtime dependency across build toolchain and runtime manifests.
+
+---
+
 ## [1.10.4+26.1.2] - 2026-08-24
 
 ### Changed & Removed

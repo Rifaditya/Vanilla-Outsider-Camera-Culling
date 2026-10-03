@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.5+26.2] - 2026-10-03
+
+### Changed
+- **Universal Dasik Library Alignment**:
+  - Wired `dasik-library` 1.9.2 runtime dependency across build toolchain and runtime manifests.
+  - Aligned Modrinth project metadata identifiers.
+
+---
+
+## [1.10.4+26.2] - 2026-09-05
+
+### Added
+- **Ko-fi Creator Support Integration**:
+  - Added top-pinned Ko-fi creator support button to the YACL in-game configuration screen with native fallback.
+
+---
+
 ## [1.10.3+26.2] - 2026-08-24
 
 ### Changed & Removed

@@ -9,7 +9,7 @@ This file tracks planned features, technical refinements, performance optimizati
 | ID | Category | Title | Priority | Target Version | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `[BL-CC-001]` | `[FEATURE]` | Multi-Era Anchor Porting: Camera Culling | `[HIGH]` | `Multi-Era` | `📌 DEFERRED` |
-| **[BL-CC-002]** | `[TECH_DEBT]` | Downstream Ecosystem & Toolchain Alignment | `[HIGH]` | All Anchors | `📌 DEFERRED` |
+| **[BL-CC-002]** | `[TECH_DEBT]` | Downstream Ecosystem & Toolchain Alignment | `[HIGH]` | All Anchors | `✅ RESOLVED` |
 | `[BL-CC-003]` | `[BUGFIX]` | Fix MC 26.3 URI Regression & Universal Dasik Library Alignment | `[HIGH]` | Modern Anchors | `✅ RESOLVED` |
 
 ---
@@ -78,7 +78,7 @@ Per Multi-Era Version Matrix and 1 Jar 1 Version Policy, port mod across all mis
 - **Category**: `[TECH_DEBT]`
 - **Priority**: `[HIGH]`
 - **Target Version**: All Anchors
-- **Status**: `📌 DEFERRED`
+- **Status**: `✅ RESOLVED`
 - **Date Added**: 2026-10-01
 - **Problem / Context**:
   Across the studio release pipeline and downstream automation tools, systemic inconsistencies exist:
@@ -93,10 +93,10 @@ Per Multi-Era Version Matrix and 1 Jar 1 Version Policy, port mod across all mis
   4. Scaffold/verify collection root `Archive Jar of all versions/` containing dedicated `MC <Version>/` folders with existing release JARs mirrored.
   5. Scaffold root `MASTER_RELEASE_QUEUE.md` multi-anchor dashboard where absent.
 - **Verification & Acceptance Criteria**:
-  - [ ] `watched_projects.json` icon path physically exists on disk and `versions` matches active anchors.
-  - [ ] `fabric.mod.json` metadata strictly aligns with `platform_projects.json`.
-  - [ ] Subproject `RELEASE_QUEUE.md` files contain strictly target-anchor release entries.
-  - [ ] Root `Archive Jar of all versions/` exists and contains release JARs discoverable by `sync_archives.py`.
+  - [x] `watched_projects.json` icon path physically exists on disk and `versions` matches active anchors.
+  - [x] `fabric.mod.json` metadata strictly aligns with `platform_projects.json`.
+  - [x] Subproject `RELEASE_QUEUE.md` files contain strictly target-anchor release entries.
+  - [x] Root `Archive Jar of all versions/` exists and contains release JARs discoverable by `sync_archives.py`.
 
 ### [BL-CC-003] Fix MC 26.3 URI Regression & Universal Dasik Library Alignment
 - **Category**: `[BUGFIX]`

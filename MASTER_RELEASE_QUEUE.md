@@ -1,8 +1,8 @@
 # 🎛️ Master Release Queue: Vanilla Outsider — Camera Culling
 
 > **Mod Project Master Ground-Truth Document**  
-> *Last Synchronized: 2026-09-01*  
-> **Modrinth ID**: `ATX2NaJR` (`vo-camera-culling`) | **CurseForge ID**: `1700558` (`vo-camera-culling`) | **Lead SemVer**: `1.10.4`
+> *Last Synchronized: 2026-10-03*  
+> **Modrinth ID**: `ATX2NaJR` (`vo-camera-culling`) | **CurseForge ID**: `1700558` (`vo-camera-culling`) | **Lead SemVer**: `1.10.5`
 
 ---
 
@@ -10,16 +10,16 @@
 
 | Target MC | Generational Era | Live on Platforms | Next Queued Version | Status & Cadence Action | Feature Highlights / Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **MC 26.3** | Modern Lead | — | `1.0.0+26.3` | ⏸️ **Parity Hold** | Compiled modern lead build held in archive pending MC 26.2 reaching 1.10.1. |
-| **MC 26.2** | Modern Predecessor | MR: `1.10.1+26.2` / CF: `1.0.0+26.2` | `1.1.0+26.2` | 🔄 **Catch-Up Phase** | CurseForge sequential catch-up towards 1.10.1+26.2 (1 release per day). |
-| **MC 26.1** | Modern Predecessor | — | `1.0.0+26.1.2` | ⏸️ **Parity Hold** | Initial workspace build held in archive pending MC 26.2 reaching 1.10.1. |
+| **MC 26.3** | Modern Lead | — | `1.0.0+26.3` | ⏸️ **Parity Hold** | Compiled modern lead build held in archive pending MC 26.2 reaching 1.10.5. |
+| **MC 26.2** | Modern Predecessor | Published up to `1.5.0+26.2` | `1.6.0+26.2` | 🔄 **Catch-Up Phase** | Sequential catch-up towards 1.10.5+26.2 (1 release per day). |
+| **MC 26.1** | Modern Predecessor | — | `1.0.0+26.1.2` | ⏸️ **Parity Hold** | Initial workspace build held in archive pending MC 26.2 reaching 1.10.5. |
 
 ---
 
 ## 🏛️ Project Operating Rules & Architectural Invariants
 
 1. **🔢 Universal Direct SemVer Inheritance**:
-   - Modern subprojects share unified SemVer milestone lineage targeting `1.10.4`.
+   - Modern subprojects share unified SemVer milestone lineage targeting `1.10.5`.
    - Each Minecraft version anchor manages its own organic progression to ensure 100% clean, verified parity.
 
 2. **📅 Daily Update Guard**:
