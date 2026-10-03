@@ -9,6 +9,8 @@ This file tracks planned features, technical refinements, performance optimizati
 | ID | Category | Title | Priority | Target Version | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `[BL-CC-001]` | `[FEATURE]` | Multi-Era Anchor Porting: Camera Culling | `[HIGH]` | `Multi-Era` | `📌 DEFERRED` |
+| **[BL-CC-002]** | `[TECH_DEBT]` | Downstream Ecosystem & Toolchain Alignment | `[HIGH]` | All Anchors | `📌 DEFERRED` |
+| `[BL-CC-003]` | `[BUGFIX]` | Fix MC 26.3 URI Regression & Universal Dasik Library Alignment | `[HIGH]` | Modern Anchors | `✅ RESOLVED` |
 
 ---
 
@@ -71,3 +73,58 @@ Per Multi-Era Version Matrix and 1 Jar 1 Version Policy, port mod across all mis
   - [ ] Clean binary compilation (`./gradlew build --no-daemon`)
   - [ ] Mandatory Universal 4-Point Distribution (Local Archive, Hub Archive, External Vault `D:\`, Launcher Test Profile)
   - [ ] Release queue registration in `RELEASE_QUEUE.md` (`- [ ]`) and `CHANGELOG.md` entry
+
+### [BL-CC-002] Downstream Ecosystem & Toolchain Alignment: watched_projects, fabric.mod.json, Queue Segregation & Archive Hierarchy
+- **Category**: `[TECH_DEBT]`
+- **Priority**: `[HIGH]`
+- **Target Version**: All Anchors
+- **Status**: `📌 DEFERRED`
+- **Date Added**: 2026-10-01
+- **Problem / Context**:
+  Across the studio release pipeline and downstream automation tools, systemic inconsistencies exist:
+  1. `dasik-mod-sync/watched_projects.json`: Many mods contain broken `icon_path` mappings (non-existent nested folder references) or stale `versions` arrays that omit active anchors.
+  2. `fabric.mod.json`: Platform metadata (`custom.modrinth.projectId`, `slug`, repository URLs) occasionally drifts from authoritative entries in `minecraft-mod-release-hub/config/platform_projects.json`.
+  3. `RELEASE_QUEUE.md`: Multi-version subproject directories often retain predecessor anchor changelog headers, violating the Subproject Queue Segregation Law.
+  4. Archive Structure: Collection roots lack standardized `Archive Jar of all versions/` hierarchies (`MC <Version>/`), preventing `sync_archives.py` from auto-discovering compiled builds for release hub and external vault distribution.
+- **Proposed Solution & Technical Specifications**:
+  1. Audit and correct `icon_path` and `versions` array in `dasik-mod-sync/watched_projects.json` for Camera Culling.
+  2. Align `fabric.mod.json` across all active subprojects with official `platform_projects.json` metadata.
+  3. Purge predecessor version headers from subproject `RELEASE_QUEUE.md` and `CHANGELOG.md` files (strict Version Anchor Exclusivity).
+  4. Scaffold/verify collection root `Archive Jar of all versions/` containing dedicated `MC <Version>/` folders with existing release JARs mirrored.
+  5. Scaffold root `MASTER_RELEASE_QUEUE.md` multi-anchor dashboard where absent.
+- **Verification & Acceptance Criteria**:
+  - [ ] `watched_projects.json` icon path physically exists on disk and `versions` matches active anchors.
+  - [ ] `fabric.mod.json` metadata strictly aligns with `platform_projects.json`.
+  - [ ] Subproject `RELEASE_QUEUE.md` files contain strictly target-anchor release entries.
+  - [ ] Root `Archive Jar of all versions/` exists and contains release JARs discoverable by `sync_archives.py`.
+
+### [BL-CC-003] Fix MC 26.3 URI Regression & Universal Dasik Library Alignment
+- **Category**: `[BUGFIX]`
+- **Priority**: `[HIGH]`
+- **Status**: `✅ RESOLVED`
+- **Target Component(s)**: `YaclScreenHelper.java`, `build.gradle`, `fabric.mod.json`, `gradle.properties` (v26.1, v26.2, v26.3)
+- **Date Added**: 2026-10-02
+
+#### ❓ Problem / Context
+Stage 1 Baseline Audit uncovered:
+1. `Camera Culling v26.3` compilation failure: `ConfirmLinkScreen.confirmLinkNow(screen, "https://...")` fails because MC 26.3 requires `java.net.URI` instead of `String`.
+2. Violation of Universal Dasik Library Law: Subprojects 26.1 and 26.2 lack `dasik-library` dependency declarations in both `build.gradle` and `fabric.mod.json`. 26.3 declares it in `gradle.properties` and `fabric.mod.json` but misses the `implementation` directive in `build.gradle`.
+3. Manifest drift: `fabric.mod.json` has dummy Modrinth IDs (`camera-culling`) instead of authoritative values (`ATX2NaJR`, `vo-camera-culling`).
+
+#### 💡 Technical Specifications & Resolution
+1. Update `YaclScreenHelper.java:185` in 26.3:
+   `ConfirmLinkScreen.confirmLinkNow(screen, java.net.URI.create("https://ko-fi.com/dasikigaijin"))`.
+2. Wire `dasik-library` in `build.gradle` across 26.1, 26.2, and 26.3:
+   - Declare `maven { url = "https://api.modrinth.com/maven" }` or studio local maven repository.
+   - Include `implementation "net.dasik:dasik-library:${project.dasik_library_version}"`.
+3. Update `fabric.mod.json` across 26.1, 26.2, 26.3:
+   - Set `"custom": { "modrinth": { "projectId": "ATX2NaJR", "slug": "vo-camera-culling" } }`.
+   - Set `"contact": { "homepage": "https://modrinth.com/mod/vo-camera-culling" }`.
+   - Ensure `"depends": { "fabricloader": ">=...", "minecraft": "...", "dasik-library": ">=1.9.0" }`.
+
+#### 🧪 Verification & Acceptance Criteria
+- [x] `YaclScreenHelper.java` compiles without error in `MC 26.3`.
+- [x] `./gradlew test --console=plain` passes across all 3 modern subprojects (26.1, 26.2, 26.3).
+- [x] `fabric.mod.json` contains exact `ATX2NaJR` and `vo-camera-culling` across all subprojects.
+- [x] `dasik-library` declared and verified in `build.gradle` and `fabric.mod.json`.
+

@@ -8,7 +8,7 @@
         "Dasik (Rifaditya)"
     ],
     "contact": {
-        "homepage": "https://modrinth.com/mod/camera-culling",
+        "homepage": "https://modrinth.com/mod/vo-camera-culling",
         "sources": "https://github.com/Rifaditya/Vanilla-Outsider-Camera-Culling",
         "issues": "https://github.com/Rifaditya/Vanilla-Outsider-Camera-Culling/issues"
     },
@@ -40,8 +40,8 @@
     },
     "custom": {
         "modrinth": {
-            "projectId": "camera-culling",
-            "slug": "camera-culling"
+            "projectId": "ATX2NaJR",
+            "slug": "vo-camera-culling"
         },
         "modmenu": {
             "links": {

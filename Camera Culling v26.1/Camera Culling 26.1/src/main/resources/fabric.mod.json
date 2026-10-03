@@ -8,7 +8,7 @@
         "Dasik (Rifaditya)"
     ],
     "contact": {
-        "homepage": "https://modrinth.com/mod/camera-culling",
+        "homepage": "https://modrinth.com/mod/vo-camera-culling",
         "sources": "https://github.com/Rifaditya/Vanilla-Outsider-Camera-Culling",
         "issues": "https://github.com/Rifaditya/Vanilla-Outsider-Camera-Culling/issues"
     },
@@ -30,7 +30,8 @@
         "fabricloader": ">=0.18.4",
         "minecraft": ">=26.1.2-",
         "java": ">=25",
-        "fabric-api": "*"
+        "fabric-api": "*",
+        "dasik-library": ">=1.9.0"
     },
     "suggests": {
         "yet-another-config-lib": "*",
@@ -39,8 +40,8 @@
     },
     "custom": {
         "modrinth": {
-            "projectId": "camera-culling",
-            "slug": "camera-culling"
+            "projectId": "ATX2NaJR",
+            "slug": "vo-camera-culling"
         },
         "modmenu": {
             "links": {
