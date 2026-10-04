@@ -1,0 +1,53 @@
+{
+    "schemaVersion": 1,
+    "id": "camera-culling",
+    "version": "${version}",
+    "name": "Camera Culling",
+    "description": "Lightweight, zero-allocation camera occlusion culling, 2-sided sign text culling & distance texture LOD.",
+    "authors": [
+        "Dasik (Rifaditya)"
+    ],
+    "contact": {
+        "homepage": "https://modrinth.com/mod/vo-camera-culling",
+        "sources": "https://github.com/Rifaditya/Vanilla-Outsider-Camera-Culling",
+        "issues": "https://github.com/Rifaditya/Vanilla-Outsider-Camera-Culling/issues"
+    },
+    "license": "GPL-3.0-or-later",
+    "icon": "assets/camera-culling/icon.png",
+    "environment": "client",
+    "entrypoints": {
+        "client": [
+            "net.vanillaoutsider.culling.CameraCullingClient"
+        ],
+        "modmenu": [
+            "net.vanillaoutsider.culling.config.ModMenuIntegration"
+        ]
+    },
+    "mixins": [
+        "camera-culling.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=0.19.3",
+        "minecraft": ">=1.21.11-",
+        "java": ">=21",
+        "fabric-api": "*",
+        "dasik-library": ">=1.1.0"
+    },
+    "suggests": {
+        "yet-another-config-lib": "*",
+        "yet_another_config_lib_v3": "*",
+        "modmenu": "*"
+    },
+    "custom": {
+        "modrinth": {
+            "projectId": "ATX2NaJR",
+            "slug": "vo-camera-culling"
+        },
+        "modmenu": {
+            "links": {
+                "modmenu.donate": "https://ko-fi.com/dasikigaijin",
+                "modmenu.kofi": "https://ko-fi.com/dasikigaijin"
+            }
+        }
+    }
+}
