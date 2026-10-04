@@ -8,7 +8,7 @@ This file tracks planned features, technical refinements, performance optimizati
 
 | ID | Category | Title | Priority | Target Version | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `[BL-CC-001]` | `[FEATURE]` | Multi-Era Anchor Porting: Camera Culling | `[HIGH]` | `Multi-Era` | `📌 DEFERRED` |
+| `[BL-CC-001]` | `[FEATURE]` | Multi-Era Anchor Porting: Camera Culling | `[HIGH]` | `Multi-Era` | `🚧 IN_PROGRESS` |
 | **[BL-CC-002]** | `[TECH_DEBT]` | Downstream Ecosystem & Toolchain Alignment | `[HIGH]` | All Anchors | `✅ RESOLVED` |
 | `[BL-CC-003]` | `[BUGFIX]` | Fix MC 26.3 URI Regression & Universal Dasik Library Alignment | `[HIGH]` | Modern Anchors | `✅ RESOLVED` |
 
@@ -26,7 +26,7 @@ This file tracks planned features, technical refinements, performance optimizati
 ### [BL-CC-001] Multi-Era Anchor Porting: Camera Culling
 - **Category**: `[FEATURE]`
 - **Priority**: `[HIGH]`
-- **Status**: `📌 DEFERRED`
+- **Status**: `🚧 IN_PROGRESS`
 - **Target Component(s)**: Multi-subproject directories, `FrustumMixin.java`, `EntityRendererMixin.java`, `BlockEntityRendererMixin.java`, `CameraCullingConfig.java`, `build.gradle`, `fabric.mod.json`, `RELEASE_QUEUE.md`
 - **Date Added**: 2026-09-25
 
