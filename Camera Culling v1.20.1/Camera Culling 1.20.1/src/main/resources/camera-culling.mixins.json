@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.vanillaoutsider.culling.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "EntityRendererMixin",
+    "BlockEntityRenderDispatcherMixin",
+    "LivingEntityRendererMixin",
+    "SingleQuadParticleMixin",
+    "TextureAtlasMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

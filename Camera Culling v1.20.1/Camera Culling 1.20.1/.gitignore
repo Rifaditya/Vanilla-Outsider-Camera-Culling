@@ -33,10 +33,7 @@ releases/
 build_log.txt
 build_log_utf8.txt
 *log*
-!*Changelogs*
-!*Changelogs*/**
 !**/CHANGELOG.md
-!**/History.md
 # Logging and archives
 *.log
 *.log.gz

@@ -1,7 +1,7 @@
 # 🎛️ Master Release Queue: Vanilla Outsider — Camera Culling
 
 > **Mod Project Master Ground-Truth Document**  
-> *Last Synchronized: 2026-10-03*  
+> *Last Synchronized: 2026-10-04*  
 > **Modrinth ID**: `ATX2NaJR` (`vo-camera-culling`) | **CurseForge ID**: `1700558` (`vo-camera-culling`) | **Lead SemVer**: `1.10.5`
 
 ---
@@ -15,6 +15,7 @@
 | **MC 26.1** | Modern Predecessor | — | `1.0.0+26.1.2` | ⏸️ **Parity Hold** | Initial workspace build held in archive pending MC 26.2 reaching 1.10.5. |
 | **MC 1.21.11** | Modern Anchor | — | `1.0.0+1.21.11` | ⏸️ **Parity Hold** | Compiled MC 1.21.11 port held in archive pending MC 26.2 reaching 1.10.5. |
 | **MC 1.21.1** | Modern Anchor | — | `1.0.0+1.21.1` | ⏸️ **Parity Hold** | Compiled MC 1.21.1 port held in archive pending MC 26.2 reaching 1.10.5. |
+| **MC 1.20.1** | Legacy Anchor | — | `1.0.0+1.20.1` | ⏸️ **Parity Hold** | Compiled MC 1.20.1 port held in archive pending MC 26.2 reaching 1.10.5. |
 
 ---
 
