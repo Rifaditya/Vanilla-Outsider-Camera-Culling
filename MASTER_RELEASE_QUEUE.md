@@ -14,6 +14,7 @@
 | **MC 26.2** | Modern Predecessor | Published up to `1.5.0+26.2` | `1.6.0+26.2` | 🔄 **Catch-Up Phase** | Sequential catch-up towards 1.10.5+26.2 (1 release per day). |
 | **MC 26.1** | Modern Predecessor | — | `1.0.0+26.1.2` | ⏸️ **Parity Hold** | Initial workspace build held in archive pending MC 26.2 reaching 1.10.5. |
 | **MC 1.21.11** | Modern Anchor | — | `1.0.0+1.21.11` | ⏸️ **Parity Hold** | Compiled MC 1.21.11 port held in archive pending MC 26.2 reaching 1.10.5. |
+| **MC 1.21.1** | Modern Anchor | — | `1.0.0+1.21.1` | ⏸️ **Parity Hold** | Compiled MC 1.21.1 port held in archive pending MC 26.2 reaching 1.10.5. |
 
 ---
 
