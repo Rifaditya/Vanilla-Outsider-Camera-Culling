@@ -25,6 +25,7 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
         double camX,
         double camY,
         double camZ,
+        float partialTicks,
         CallbackInfoReturnable<Boolean> cir
     ) {
         if (!cir.getReturnValueZ()) {

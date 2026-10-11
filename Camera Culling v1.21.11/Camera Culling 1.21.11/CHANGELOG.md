@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.1+1.21.11] - 2026-10-11
+
+### Fixed
+- **Production Knot ClassLoader Compatibility**:
+  - Purged unremapped reflection guard (`ModVersionGuard`), resolving fatal `ClassNotFoundException` during client initialization in production launchers.
+
+---
+
 ## [1.0.0+1.21.11] - 2026-10-04
 
 ### Added

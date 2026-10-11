@@ -20,7 +20,6 @@ public class CameraCullingClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ModVersionGuard.checkClass("Camera Culling", "net.minecraft.client.renderer.entity.EntityRenderer");
         CameraCullingConfig.load();
         CameraCullingCommand.register();
         LOGGER.info("[Camera Culling] Client-Side Camera Frustum & Occlusion Culling active (Profile: {}).", CameraCullingConfig.getLevel().getDisplayName());

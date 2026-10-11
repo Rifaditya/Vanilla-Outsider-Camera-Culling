@@ -2,6 +2,7 @@
 
 ## 🚀 Published & Backlog Queue
 
+- [ ] **1.10.6+26.2** (2026-10-11) - Purged unremapped ModVersionGuard reflection guard resolving Knot ClassLoader crash.
 - [ ] **1.10.5+26.2** (2026-10-03) - Universal Dasik Library Alignment: Wired `dasik-library` 1.9.2 runtime dependency and aligned Modrinth manifest metadata.
 - [ ] **1.10.4+26.2** (2026-09-05) - Ko-fi Support Integration: Injected top-pinned Ko-fi creator support button into YACL in-game configuration screen with native fallback.
 - [ ] **1.10.3+26.2** (2026-08-24) - Purged legacy `TextureLodHelper`; implemented single-purpose `EntityLodHelper` (secondary layer culling + distance shadow fade) and unit tests.

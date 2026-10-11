@@ -5,6 +5,14 @@ All notable changes to **Camera Culling** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.6+26.3] - 2026-10-11
+
+### Fixed
+- **Minecraft 26.3 EntityRenderer Signature Compatibility**:
+  - Aligned `EntityRenderer.shouldRender` injection callback signature with vanilla 26.3 (`float partialTicks`), preventing startup `InvalidInjectionException` crashes.
+- **Production Knot ClassLoader Compatibility**:
+  - Purged unremapped reflection guard (`ModVersionGuard`), resolving fatal `ClassNotFoundException` during client initialization in production launchers.
+
 ---
 
 ## [1.10.5+26.3] - 2026-10-03

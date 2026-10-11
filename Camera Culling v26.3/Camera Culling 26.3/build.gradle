@@ -140,7 +140,7 @@ afterEvaluate {
                     
                     // 2. Modrinth Profile Sync
                     def profilePaths = [
-                        "C:/Users/fmrif/AppData/Roaming/ModrinthApp/profiles/Fabric 26.3ish/mods"
+                        "C:/Users/fmrif/AppData/Roaming/ModrinthApp/profiles/26.3/mods"
                     ]
                     profilePaths.each { p ->
                         def modrinthProfileMods = file(p)
