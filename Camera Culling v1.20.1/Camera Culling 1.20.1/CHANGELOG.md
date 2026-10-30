@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.2+1.20.1] - 2026-10-30
+
+### Added & Verified
+- **Adopted 5-Pillar Testing & Sidedness Verification Harness**:
+  - Established automated client-only sidedness contract assertions verifying zero server entrypoints, 100% GPLv3 headers, and zero banned reflection.
+  - Implemented 25,000-iteration chaos boundary fuzzing on all LOD math and configuration thresholds.
+  - Added 50-thread concurrent state load simulator with mutex-guarded disk persistence (`FILE_LOCK`) and concurrent key sets.
+  - Verified headless Brigadier client command AST and translation coverage.
+  - Hardened `EntityLodHelper` against IEEE-754 NaN and Infinite calculations under Freedom Over Anti-Crash policy.
+
+---
+
 ## [1.0.1+1.20.1] - 2026-10-11
 
 ### Fixed

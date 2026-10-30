@@ -80,7 +80,10 @@ public final class EntityLodHelper {
      * Pure mathematical calculation for distance shadow fade scaling (0.0 to 1.0).
      */
     public static float calculateShadowScale(double distanceToCameraSq, double startDist, double fadeRange) {
-        if (distanceToCameraSq <= 0.0 || startDist <= 0.0 || fadeRange <= 0.0) {
+        if (Double.isNaN(distanceToCameraSq) || Double.isInfinite(distanceToCameraSq)
+                || Double.isNaN(startDist) || Double.isInfinite(startDist)
+                || Double.isNaN(fadeRange) || Double.isInfinite(fadeRange)
+                || distanceToCameraSq <= 0.0 || startDist <= 0.0 || fadeRange <= 0.0) {
             return 1.0f;
         }
         double startDistSq = startDist * startDist;
@@ -89,11 +92,12 @@ public final class EntityLodHelper {
         }
         double farDist = startDist + fadeRange;
         double farDistSq = farDist * farDist;
-        if (distanceToCameraSq >= farDistSq) {
+        if (Double.isInfinite(farDist) || distanceToCameraSq >= farDistSq) {
             return 0.0f;
         }
         double distance = Math.sqrt(distanceToCameraSq);
         double fade = 1.0 - ((distance - startDist) / fadeRange);
-        return (float) Math.max(0.0, Math.min(1.0, fade));
+        float result = (float) Math.max(0.0, Math.min(1.0, fade));
+        return Float.isNaN(result) ? 1.0f : result;
     }
 }

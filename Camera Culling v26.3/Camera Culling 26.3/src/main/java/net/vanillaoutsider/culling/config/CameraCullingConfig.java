@@ -11,6 +11,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -19,11 +20,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class CameraCullingConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CameraCullingConfig.class);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Object FILE_LOCK = new Object();
 
     private static boolean enabled = true;
     private static CullingLevel level = CullingLevel.SUPER;
@@ -37,8 +40,8 @@ public final class CameraCullingConfig {
     private static boolean cullParticles = true;
     private static boolean cullAnimations = true;
     private static boolean cullSignText = true;
-    private static final Set<String> clientBlacklist = new HashSet<>();
-    private static final Set<String> serverBlacklist = new HashSet<>();
+    private static final Set<String> clientBlacklist = ConcurrentHashMap.newKeySet();
+    private static final Set<String> serverBlacklist = ConcurrentHashMap.newKeySet();
     private static boolean debugMode = false;
 
     private CameraCullingConfig() {}
@@ -64,68 +67,70 @@ public final class CameraCullingConfig {
     }
 
     public static void load() {
-        File file = getConfigFile();
-        if (!file.exists()) {
-            save();
-        } else {
-            try (FileReader reader = new FileReader(file)) {
-                JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-                if (json.has("enabled")) {
-                    enabled = json.get("enabled").getAsBoolean();
-                }
-                if (json.has("level")) {
-                    level = CullingLevel.fromString(json.get("level").getAsString());
-                }
-                if (json.has("cullEntitiesBehindEntities")) {
-                    if (json.get("cullEntitiesBehindEntities").isJsonNull()) {
-                        cullEntitiesBehindEntities = null;
-                    } else {
-                        cullEntitiesBehindEntities = json.get("cullEntitiesBehindEntities").getAsBoolean();
-                    }
-                }
-                if (json.has("maxEntitiesPerCluster")) {
-                    maxEntitiesPerCluster = Math.max(1, Math.min(128, json.get("maxEntitiesPerCluster").getAsInt()));
-                }
-                if (json.has("entityDetailLod")) {
-                    entityDetailLod = json.get("entityDetailLod").getAsBoolean();
-                } else if (json.has("distanceTextureLod")) {
-                    entityDetailLod = json.get("distanceTextureLod").getAsBoolean();
-                }
-                if (json.has("entityLodDistance")) {
-                    entityLodDistance = Math.max(1.0, json.get("entityLodDistance").getAsDouble());
-                } else if (json.has("distanceTextureLodStart")) {
-                    entityLodDistance = Math.max(1.0, json.get("distanceTextureLodStart").getAsDouble());
-                }
-                if (json.has("bossImmunity")) {
-                    bossImmunity = json.get("bossImmunity").getAsBoolean();
-                }
-                if (json.has("bossHealthThreshold")) {
-                    bossHealthThreshold = Math.max(1.0, Math.min(10000.0, json.get("bossHealthThreshold").getAsDouble()));
-                }
-                if (json.has("miniBossHealthThreshold")) {
-                    miniBossHealthThreshold = Math.max(1.0, Math.min(10000.0, json.get("miniBossHealthThreshold").getAsDouble()));
-                }
-                if (json.has("cullParticles")) {
-                    cullParticles = json.get("cullParticles").getAsBoolean();
-                }
-                if (json.has("cullAnimations")) {
-                    cullAnimations = json.get("cullAnimations").getAsBoolean();
-                }
-                if (json.has("cullSignText")) {
-                    cullSignText = json.get("cullSignText").getAsBoolean();
-                }
-                if (json.has("clientBlacklist") && json.get("clientBlacklist").isJsonArray()) {
-                    clientBlacklist.clear();
-                    for (JsonElement el : json.getAsJsonArray("clientBlacklist")) {
-                        clientBlacklist.add(el.getAsString().toLowerCase());
-                    }
-                }
-                if (json.has("debugMode")) {
-                    debugMode = json.get("debugMode").getAsBoolean();
-                }
-            } catch (Exception e) {
-                LOGGER.error("[Camera Culling] Failed to load client config, restoring defaults: {}", e.getMessage());
+        synchronized (FILE_LOCK) {
+            File file = getConfigFile();
+            if (!file.exists()) {
                 save();
+            } else {
+                try (FileReader reader = new FileReader(file)) {
+                    JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+                    if (json.has("enabled")) {
+                        enabled = json.get("enabled").getAsBoolean();
+                    }
+                    if (json.has("level")) {
+                        level = CullingLevel.fromString(json.get("level").getAsString());
+                    }
+                    if (json.has("cullEntitiesBehindEntities")) {
+                        if (json.get("cullEntitiesBehindEntities").isJsonNull()) {
+                            cullEntitiesBehindEntities = null;
+                        } else {
+                            cullEntitiesBehindEntities = json.get("cullEntitiesBehindEntities").getAsBoolean();
+                        }
+                    }
+                    if (json.has("maxEntitiesPerCluster")) {
+                        maxEntitiesPerCluster = Math.max(1, Math.min(128, json.get("maxEntitiesPerCluster").getAsInt()));
+                    }
+                    if (json.has("entityDetailLod")) {
+                        entityDetailLod = json.get("entityDetailLod").getAsBoolean();
+                    } else if (json.has("distanceTextureLod")) {
+                        entityDetailLod = json.get("distanceTextureLod").getAsBoolean();
+                    }
+                    if (json.has("entityLodDistance")) {
+                        entityLodDistance = Math.max(1.0, json.get("entityLodDistance").getAsDouble());
+                    } else if (json.has("distanceTextureLodStart")) {
+                        entityLodDistance = Math.max(1.0, json.get("distanceTextureLodStart").getAsDouble());
+                    }
+                    if (json.has("bossImmunity")) {
+                        bossImmunity = json.get("bossImmunity").getAsBoolean();
+                    }
+                    if (json.has("bossHealthThreshold")) {
+                        bossHealthThreshold = Math.max(1.0, Math.min(10000.0, json.get("bossHealthThreshold").getAsDouble()));
+                    }
+                    if (json.has("miniBossHealthThreshold")) {
+                        miniBossHealthThreshold = Math.max(1.0, Math.min(10000.0, json.get("miniBossHealthThreshold").getAsDouble()));
+                    }
+                    if (json.has("cullParticles")) {
+                        cullParticles = json.get("cullParticles").getAsBoolean();
+                    }
+                    if (json.has("cullAnimations")) {
+                        cullAnimations = json.get("cullAnimations").getAsBoolean();
+                    }
+                    if (json.has("cullSignText")) {
+                        cullSignText = json.get("cullSignText").getAsBoolean();
+                    }
+                    if (json.has("clientBlacklist") && json.get("clientBlacklist").isJsonArray()) {
+                        clientBlacklist.clear();
+                        for (JsonElement el : json.getAsJsonArray("clientBlacklist")) {
+                            clientBlacklist.add(el.getAsString().toLowerCase());
+                        }
+                    }
+                    if (json.has("debugMode")) {
+                        debugMode = json.get("debugMode").getAsBoolean();
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("[Camera Culling] Failed to load client config, restoring defaults: {}", e.getMessage());
+                    save();
+                }
             }
         }
 
@@ -135,81 +140,87 @@ public final class CameraCullingConfig {
     }
 
     public static void loadServerConfig() {
-        File serverFile = getServerConfigFile();
-        if (!serverFile.exists()) {
-            saveServerConfig();
-            return;
-        }
-        try (FileReader reader = new FileReader(serverFile)) {
-            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-            if (json.has("serverBlacklist") && json.get("serverBlacklist").isJsonArray()) {
-                serverBlacklist.clear();
-                for (JsonElement el : json.getAsJsonArray("serverBlacklist")) {
-                    serverBlacklist.add(el.getAsString().toLowerCase());
-                }
+        synchronized (FILE_LOCK) {
+            File serverFile = getServerConfigFile();
+            if (!serverFile.exists()) {
+                saveServerConfig();
+                return;
             }
-        } catch (Exception e) {
-            LOGGER.error("[Camera Culling] Failed to load server config: {}", e.getMessage());
+            try (FileReader reader = new FileReader(serverFile)) {
+                JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+                if (json.has("serverBlacklist") && json.get("serverBlacklist").isJsonArray()) {
+                    serverBlacklist.clear();
+                    for (JsonElement el : json.getAsJsonArray("serverBlacklist")) {
+                        serverBlacklist.add(el.getAsString().toLowerCase());
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.error("[Camera Culling] Failed to load server config: {}", e.getMessage());
+            }
         }
     }
 
     public static void save() {
-        File file = getConfigFile();
-        try {
-            if (file.getParentFile() != null && !file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-            JsonObject json = new JsonObject();
-            json.addProperty("enabled", enabled);
-            json.addProperty("level", level.name());
-            if (cullEntitiesBehindEntities == null) {
-                json.add("cullEntitiesBehindEntities", null);
-            } else {
-                json.addProperty("cullEntitiesBehindEntities", cullEntitiesBehindEntities);
-            }
-            json.addProperty("maxEntitiesPerCluster", maxEntitiesPerCluster);
-            json.addProperty("entityDetailLod", entityDetailLod);
-            json.addProperty("entityLodDistance", entityLodDistance);
-            json.addProperty("bossImmunity", bossImmunity);
-            json.addProperty("bossHealthThreshold", bossHealthThreshold);
-            json.addProperty("miniBossHealthThreshold", miniBossHealthThreshold);
-            json.addProperty("cullParticles", cullParticles);
-            json.addProperty("cullAnimations", cullAnimations);
-            json.addProperty("cullSignText", cullSignText);
+        synchronized (FILE_LOCK) {
+            File file = getConfigFile();
+            try {
+                if (file.getParentFile() != null && !file.getParentFile().exists()) {
+                    file.getParentFile().mkdirs();
+                }
+                JsonObject json = new JsonObject();
+                json.addProperty("enabled", enabled);
+                json.addProperty("level", level.name());
+                if (cullEntitiesBehindEntities == null) {
+                    json.add("cullEntitiesBehindEntities", null);
+                } else {
+                    json.addProperty("cullEntitiesBehindEntities", cullEntitiesBehindEntities);
+                }
+                json.addProperty("maxEntitiesPerCluster", maxEntitiesPerCluster);
+                json.addProperty("entityDetailLod", entityDetailLod);
+                json.addProperty("entityLodDistance", entityLodDistance);
+                json.addProperty("bossImmunity", bossImmunity);
+                json.addProperty("bossHealthThreshold", bossHealthThreshold);
+                json.addProperty("miniBossHealthThreshold", miniBossHealthThreshold);
+                json.addProperty("cullParticles", cullParticles);
+                json.addProperty("cullAnimations", cullAnimations);
+                json.addProperty("cullSignText", cullSignText);
 
-            JsonArray blacklistArray = new JsonArray();
-            for (String id : clientBlacklist) {
-                blacklistArray.add(id);
-            }
-            json.add("clientBlacklist", blacklistArray);
-            json.addProperty("debugMode", debugMode);
+                JsonArray blacklistArray = new JsonArray();
+                for (String id : clientBlacklist) {
+                    blacklistArray.add(id);
+                }
+                json.add("clientBlacklist", blacklistArray);
+                json.addProperty("debugMode", debugMode);
 
-            try (FileWriter writer = new FileWriter(file)) {
-                GSON.toJson(json, writer);
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                    GSON.toJson(json, writer);
+                }
+            } catch (IOException e) {
+                LOGGER.error("[Camera Culling] Failed to save config: {}", e.getMessage());
             }
-        } catch (IOException e) {
-            LOGGER.error("[Camera Culling] Failed to save config: {}", e.getMessage());
         }
     }
 
     public static void saveServerConfig() {
-        File serverFile = getServerConfigFile();
-        try {
-            if (serverFile.getParentFile() != null && !serverFile.getParentFile().exists()) {
-                serverFile.getParentFile().mkdirs();
-            }
-            JsonObject json = new JsonObject();
-            JsonArray array = new JsonArray();
-            for (String id : serverBlacklist) {
-                array.add(id);
-            }
-            json.add("serverBlacklist", array);
+        synchronized (FILE_LOCK) {
+            File serverFile = getServerConfigFile();
+            try {
+                if (serverFile.getParentFile() != null && !serverFile.getParentFile().exists()) {
+                    serverFile.getParentFile().mkdirs();
+                }
+                JsonObject json = new JsonObject();
+                JsonArray array = new JsonArray();
+                for (String id : serverBlacklist) {
+                    array.add(id);
+                }
+                json.add("serverBlacklist", array);
 
-            try (FileWriter writer = new FileWriter(serverFile)) {
-                GSON.toJson(json, writer);
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(serverFile))) {
+                    GSON.toJson(json, writer);
+                }
+            } catch (IOException e) {
+                LOGGER.error("[Camera Culling] Failed to save server config: {}", e.getMessage());
             }
-        } catch (IOException e) {
-            LOGGER.error("[Camera Culling] Failed to save server config: {}", e.getMessage());
         }
     }
 
@@ -218,8 +229,10 @@ public final class CameraCullingConfig {
     }
 
     public static void setEnabled(boolean value) {
-        enabled = value;
-        save();
+        if (enabled != value) {
+            enabled = value;
+            save();
+        }
     }
 
     public static CullingLevel getLevel() {
@@ -227,7 +240,7 @@ public final class CameraCullingConfig {
     }
 
     public static void setLevel(CullingLevel newLevel) {
-        if (newLevel != null) {
+        if (newLevel != null && level != newLevel) {
             level = newLevel;
             save();
         }
@@ -250,8 +263,11 @@ public final class CameraCullingConfig {
     }
 
     public static void setMaxEntitiesPerCluster(int limit) {
-        maxEntitiesPerCluster = Math.max(1, Math.min(128, limit));
-        save();
+        int clamped = Math.max(1, Math.min(128, limit));
+        if (maxEntitiesPerCluster != clamped) {
+            maxEntitiesPerCluster = clamped;
+            save();
+        }
     }
 
     public static boolean isEntityDetailLod() {
@@ -259,8 +275,10 @@ public final class CameraCullingConfig {
     }
 
     public static void setEntityDetailLod(boolean enabled) {
-        entityDetailLod = enabled;
-        save();
+        if (entityDetailLod != enabled) {
+            entityDetailLod = enabled;
+            save();
+        }
     }
 
     public static double getEntityLodDistance() {
@@ -268,8 +286,11 @@ public final class CameraCullingConfig {
     }
 
     public static void setEntityLodDistance(double distance) {
-        entityLodDistance = Math.max(1.0, distance);
-        save();
+        double clamped = Math.max(1.0, distance);
+        if (entityLodDistance != clamped) {
+            entityLodDistance = clamped;
+            save();
+        }
     }
 
     // Deprecated bridge methods for backwards compatibility during migration
@@ -306,8 +327,10 @@ public final class CameraCullingConfig {
     }
 
     public static void setBossImmunity(boolean enabled) {
-        bossImmunity = enabled;
-        save();
+        if (bossImmunity != enabled) {
+            bossImmunity = enabled;
+            save();
+        }
     }
 
     public static double getBossHealthThreshold() {
@@ -315,8 +338,11 @@ public final class CameraCullingConfig {
     }
 
     public static void setBossHealthThreshold(double threshold) {
-        bossHealthThreshold = Math.max(1.0, Math.min(10000.0, threshold));
-        save();
+        double clamped = Math.max(1.0, Math.min(10000.0, threshold));
+        if (bossHealthThreshold != clamped) {
+            bossHealthThreshold = clamped;
+            save();
+        }
     }
 
     public static double getMiniBossHealthThreshold() {
@@ -324,8 +350,11 @@ public final class CameraCullingConfig {
     }
 
     public static void setMiniBossHealthThreshold(double threshold) {
-        miniBossHealthThreshold = Math.max(1.0, Math.min(10000.0, threshold));
-        save();
+        double clamped = Math.max(1.0, Math.min(10000.0, threshold));
+        if (miniBossHealthThreshold != clamped) {
+            miniBossHealthThreshold = clamped;
+            save();
+        }
     }
 
     public static boolean isCullParticles() {
@@ -333,8 +362,10 @@ public final class CameraCullingConfig {
     }
 
     public static void setCullParticles(boolean value) {
-        cullParticles = value;
-        save();
+        if (cullParticles != value) {
+            cullParticles = value;
+            save();
+        }
     }
 
     public static boolean isCullAnimations() {
@@ -342,8 +373,10 @@ public final class CameraCullingConfig {
     }
 
     public static void setCullAnimations(boolean value) {
-        cullAnimations = value;
-        save();
+        if (cullAnimations != value) {
+            cullAnimations = value;
+            save();
+        }
     }
 
     public static boolean isCullSignText() {
@@ -351,14 +384,16 @@ public final class CameraCullingConfig {
     }
 
     public static void setCullSignText(boolean value) {
-        cullSignText = value;
-        save();
+        if (cullSignText != value) {
+            cullSignText = value;
+            save();
+        }
     }
 
     // --- Blacklist Management ---
 
     public static Set<String> getClientBlacklist() {
-        return Collections.unmodifiableSet(clientBlacklist);
+        return Collections.unmodifiableSet(new HashSet<>(clientBlacklist));
     }
 
     public static boolean addClientBlacklist(String id) {
@@ -381,7 +416,7 @@ public final class CameraCullingConfig {
     }
 
     public static Set<String> getServerBlacklist() {
-        return Collections.unmodifiableSet(serverBlacklist);
+        return Collections.unmodifiableSet(new HashSet<>(serverBlacklist));
     }
 
     public static boolean addServerBlacklist(String id) {
@@ -404,11 +439,13 @@ public final class CameraCullingConfig {
     }
 
     public static void setServerBlacklist(Collection<String> ids) {
-        serverBlacklist.clear();
-        if (ids != null) {
-            for (String id : ids) {
-                if (id != null && !id.isEmpty()) {
-                    serverBlacklist.add(id.toLowerCase());
+        synchronized (FILE_LOCK) {
+            serverBlacklist.clear();
+            if (ids != null) {
+                for (String id : ids) {
+                    if (id != null && !id.isEmpty()) {
+                        serverBlacklist.add(id.toLowerCase());
+                    }
                 }
             }
         }
@@ -425,7 +462,9 @@ public final class CameraCullingConfig {
     }
 
     public static void setDebugMode(boolean value) {
-        debugMode = value;
-        save();
+        if (debugMode != value) {
+            debugMode = value;
+            save();
+        }
     }
 }

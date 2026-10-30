@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.7+26.1.2] - 2026-10-30
+
+### Added & Verified
+- **Adopted 5-Pillar Testing & Sidedness Verification Harness**:
+  - Established automated client-only sidedness contract assertions verifying zero server entrypoints, 100% GPLv3 headers, and zero banned reflection.
+  - Implemented 25,000-iteration chaos boundary fuzzing on all LOD math and configuration thresholds.
+  - Added 50-thread concurrent state load simulator with mutex-guarded disk persistence (`FILE_LOCK`) and concurrent key sets.
+  - Verified headless Brigadier client command AST and translation coverage.
+  - Hardened `EntityLodHelper` against IEEE-754 NaN and Infinite calculations under Freedom Over Anti-Crash policy.
+
+---
+
 ## [1.10.6+26.1.2] - 2026-10-11
 
 ### Fixed
@@ -73,7 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Completely refactored `CullingRaycastHelper` to eliminate all per-frame `new Vec3()` and intermediate heap allocations during continuous raycasting, removing JVM garbage collection stutter spikes when turning the camera across dense entity herds.
   - Added smooth temporal hysteresis decay to eliminate burst uncull frametime hitches.
 - **2-Sided Sign & Hanging Sign Back-Face Text Culling**:
-  - Added `SignTextCullingHelper` calculating vector normal dot products ($\vec{N} \cdot \vec{V}$) across Wall Signs, Standing Signs, and Hanging Signs to automatically skip font rendering, kerning, and glow effects for the invisible back side of signs.
+  - Added `SignTextCullingHelper` calculating vector normal dot products (N · V) across Wall Signs, Standing Signs, and Hanging Signs to automatically skip font rendering, kerning, and glow effects for the invisible back side of signs.
   - Added Empty-Side Fast-Pass to immediately skip unwritten/blank sign faces.
   - Added `cullSignText` configuration toggle (default `true` / ON) with full YACL v3 GUI integration and localization.
 
@@ -84,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed & Optimized
 - **Open-Field Herd CPU Bottleneck Elimination**:
   - Set Crowd Overdraw Culling (`cullEntitiesBehindEntities = false`) to `false` by default, delegating open-field mob overlapping directly to GPU hardware Early-Z depth rasterization for maximum framerates (60–140+ FPS).
-  - Added $16\text{m}$ distance fast-fail gating and tight $1.5\text{m}$ local cluster bounding box to `isEntityOccludedByCloserEntities()`, completely eliminating the heavy 40-meter world entity searches and ArrayList allocations when manually enabled.
+  - Added 16m distance fast-fail gating and tight 1.5m local cluster bounding box to `isEntityOccludedByCloserEntities()`, completely eliminating the heavy 40-meter world entity searches and ArrayList allocations when manually enabled.
 
 ---
 
@@ -115,15 +127,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added & Refined
 - **Active Leaves Occlusion Culling**: Restored `BlockTags.LEAVES` as visual occluders, allowing entities hidden behind tree canopies, hedges, and forests to be culled.
-- **Distance-Scaled Temporal Hysteresis**: Implemented adaptive grace decay buffer (4 frames $\le 32\text{m}$, 8 frames $32\text{m}-64\text{m}$, 12 frames $>64\text{m}$) to eliminate sub-voxel ridge-peeking flicker on distant mobs at 90m+.
+- **Distance-Scaled Temporal Hysteresis**: Implemented adaptive grace decay buffer (4 frames ≤ 32m, 8 frames 32m-64m, 12 frames >64m) to eliminate sub-voxel ridge-peeking flicker on distant mobs at 90m+.
 
 ---
 
 ## [1.8.3+26.1.2] - 2026-08-19
 
 ### Added
-- **Toggleable Real-Time Diagnostic Logger Suite (`/cameraculling debug`)**:
-  - Live in-game toggleable diagnostics logging state transitions (`[VISIBLE]` $\leftrightarrow$ `[CULLED]`) directly to chat and `latest.log`.
+- **Toggleable Real-Time Diagnostic Logger Suite** (`/cameraculling debug`):
+  - Live in-game toggleable diagnostics logging state transitions (`[VISIBLE]` ≤ftrightarrow `[CULLED]`) directly to chat and `latest.log`.
   - Reports exact entity ID, type, distance, sample points tested, hit block type, hit coordinates, and exact decision reason (e.g. `Sightline (Head Top)`, `Block Occlusion`, `Proximity Safety Bubble`, `Boss Immunity`, `Blacklist Immunity`).
   - Added `/cameraculling debug [true|false]` command and updated `/cameraculling status` with active debug mode indication.
 
@@ -133,7 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed & Optimized
 - **Ground-Grazing Sightline & Floor Hit Recognition**:
-  - Eliminated open-air entity flickering caused by walking view bobbing and shallow $3^\circ$ ground angles on flat terrain.
+  - Eliminated open-air entity flickering caused by walking view bobbing and shallow 3° ground angles on flat terrain.
   - Prioritized elevated anatomical sample points (Head crown `box.maxY`, eyes, and upper torso `box.minY + height * 0.70`).
   - Added floor detection in `hasLineOfSight`: hitting the top face of a block (`Direction.UP`) at or below target base height is recognized as the ground and treated as unobstructed.
 - **Dual OpenGL & Vulkan Graphics Compatibility**:
@@ -152,8 +164,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Anatomical Multi-Vector Sampling**:
   - Prioritized eye position (`entity.getEyePosition()`), torso center, elevated pelvis, feet, and deflated perimeter flank points.
 - **Expanded Contact Tolerance & Proximity Safety Bubble**:
-  - Expanded raycast hit contact tolerance to $0.25\text{m}^2$ ($0.50\text{m}$ margin) to eliminate false-positive culling on block edges.
-  - Expanded proximity bubble thresholds: `LOW` $\rightarrow 5.0\text{m}$, `MEDIUM` $\rightarrow 3.5\text{m}$, `HIGH` $\rightarrow 3.0\text{m}$, `SUPER` $\rightarrow 2.0\text{m}$.
+  - Expanded raycast hit contact tolerance to 0.25m² (0.50m margin) to eliminate false-positive culling on block edges.
+  - Expanded proximity bubble thresholds: `LOW` → 5.0m, `MEDIUM` → 3.5m, `HIGH` → 3.0m, `SUPER` → 2.0m.
 
 ---
 
@@ -176,7 +188,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Particle Occlusion Culling**:
   - Automatically skips vertex extraction and quad buffer generation for unseen particles (torches, campfires, lava embers, cave drips, redstone dust, portals) occluded by solid blocks.
   - **4.0m Proximity Safety Bubble**: Particles within 4m of the player camera are never culled, ensuring 100% immediacy for local combat, splash potions, and tool interactions.
-  - **Fast Solid Enclosure Check**: Subterranean particles spawning inside solid blocks are skipped in $O(1)$.
+  - **Fast Solid Enclosure Check**: Subterranean particles spawning inside solid blocks are skipped in O(1).
   - **Dedicated Particle Toggle**: Fully controllable via `cullParticles: true/false` in `config/camera-culling.json` and in-game commands.
 - **In-Game Commands**:
   - `/cameraculling particles` — Toggles particle occlusion culling on/off.

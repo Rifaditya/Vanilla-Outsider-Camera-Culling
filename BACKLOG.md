@@ -1,7 +1,7 @@
 # 📌 Camera Culling Backlog
 
-<!-- Highest Historical ID: BL-CC-009 (Next Ticket Must Start at BL-CC-010) -->
-> **Next Available Ticket ID**: `[BL-CC-010]`
+<!-- Highest Historical ID: BL-CC-010 (Next Ticket Must Start at BL-CC-011) -->
+> **Next Available Ticket ID**: `[BL-CC-011]`
 
 This file tracks planned features, technical refinements, performance optimizations, and deferred improvements for **Camera Culling**.
 
@@ -16,6 +16,7 @@ This file tracks planned features, technical refinements, performance optimizati
 | [`BL-CC-008`](tickets/BL-CC-008.md) | `[TECH_DEBT]` | Migrate Command Suite to Universal Brigadier Command Framework | `[MEDIUM]` | All Anchors | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-008.md) |
 
 | [`BL-CC-009`](tickets/BL-CC-009.md) | `[TECH_DEBT]` | Migrate Client Configuration GUI to UniversalConfigScreen | `[MEDIUM]` | All Anchors | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-009.md) |
+| [`BL-CC-010`](tickets/BL-CC-010.md) | `[GOVERNANCE]` | Storefront Reconciliation: Align Mod Pages with Current Public Release | `[HIGH]` | `Platform Pages` | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-010.md) |
 ---
 
 ## 🏷 Legend & Status Tags

@@ -1,4 +1,5 @@
 {
+  "cameraculling.title": "Camera Culling",
   "config.cameraculling.title": "Camera Culling Configuration",
   "config.cameraculling.category.general": "Engine & Diagnostics",
   "config.cameraculling.category.general.tooltip": "Core culling engine settings and live diagnostics.",
@@ -6,6 +7,10 @@
   "config.cameraculling.enabled.desc": "Master toggle to enable or disable all frustum and occlusion culling.",
   "config.cameraculling.level": "Culling Aggressiveness",
   "config.cameraculling.level.desc": "Controls sampling density, proximity safety bubble, and bounding box padding.",
+  "config.cameraculling.level.low": "Low (Conservative)",
+  "config.cameraculling.level.medium": "Medium (Balanced)",
+  "config.cameraculling.level.high": "High (Aggressive)",
+  "config.cameraculling.level.super": "Super (Extreme)",
   "config.cameraculling.debugMode": "Real-Time Debug Logging",
   "config.cameraculling.debugMode.desc": "Logs live culling state transitions and sightline reasons directly to chat and latest.log.",
 
@@ -42,5 +47,5 @@
   "config.cameraculling.distanceTextureLodFar.desc": "Distance in blocks where full entity LOD is reached.",
 
   "dasiklibrary.support.kofi.button": "☕ Support Solo Dev on Ko-fi",
-  "dasiklibrary.support.kofi.tooltip": "Open Ko-fi to support the solo developer behind this mod. Thank you for playing!"
+  "dasiklibrary.support.kofi.tooltip": "Opens https://ko-fi.com/dasikigaijin in your default browser. Thank you for your support!"
 }
