@@ -8,7 +8,7 @@
 - [ ] **1.10.4+26.2** (2026-09-05) - Ko-fi Support Integration: Injected top-pinned Ko-fi creator support button into YACL in-game configuration screen with native fallback.
 - [ ] **1.10.3+26.2** (2026-08-24) - Purged legacy `TextureLodHelper`; implemented single-purpose `EntityLodHelper` (secondary layer culling + distance shadow fade) and unit tests.
 - [ ] **1.10.2+26.2** (2026-08-24) - Entity Detail LOD configuration schema migration (`entityDetailLod`, `entityLodDistance`) and command updates (`/cameraculling entitylod`).
-- [ ] **1.10.1+26.2** (2026-08-20) - Complete Modrinth manifest & metadata alignment (Java 25 runtime dependency, Modrinth custom block, SPDX license, issue tracker links).
+- [x] **1.10.1+26.2** (2026-08-20) - Complete Modrinth manifest & metadata alignment (Java 25 runtime dependency, Modrinth custom block, SPDX license, issue tracker links).
 - [ ] **1.10.0+26.2** (2026-08-19) - Zero-Allocation Hot-Path Raycast Engine (eliminating unculling GC spikes) + 2-Sided Sign & Hanging Sign Back-Face/Blank Text Culling with YACL GUI integration.
 - [ ] **1.9.2+26.2** (2026-08-19) - Set Crowd Overdraw Culling to false by default; added 16m distance gating & local cluster filtering to eliminate open-field CPU lag.
 - [ ] **1.9.1+26.2** (2026-08-19) - Configured all culling features to ON and default culling level to SUPER (Extreme) for maximum optimization.
