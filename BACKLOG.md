@@ -1,7 +1,7 @@
 # 📌 Camera Culling Backlog
 
-<!-- Highest Historical ID: BL-CC-010 (Next Ticket Must Start at BL-CC-011) -->
-> **Next Available Ticket ID**: `[BL-CC-011]`
+<!-- Highest Historical ID: BL-CC-012 (Next Ticket Must Start at BL-CC-013) -->
+> **Next Available Ticket ID**: `[BL-CC-013]`
 
 This file tracks planned features, technical refinements, performance optimizations, and deferred improvements for **Camera Culling**.
 
@@ -11,18 +11,20 @@ This file tracks planned features, technical refinements, performance optimizati
 
 | ID | Category | Title | Priority | Target Version | Status | Specification |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`BL-CC-011`](tickets/BL-CC-011.md) | `[TECH_DEBT]` | Scaffold Anchor 7: Camera Culling v26.x (rolling 26.3+) | `[MEDIUM]` | Multi-Version Parity | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-011.md) |
 | [`BL-CC-006`](tickets/BL-CC-006.md) | `[REFINEMENT]` | Clarify Centralized Platform Release Distribution in Repository Documentation (GitHub Issue #1) | `[LOW]` | `All Anchors` | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-006.md) |
 | [`BL-CC-007`](tickets/BL-CC-007.md) | `[TECH_DEBT]` | Adopt 5-Pillar Testing & Sidedness Verification Harness | `[MEDIUM]` | All Anchors | `✅ RESOLVED` | [View Ticket](tickets/BL-CC-007.md) |
 | [`BL-CC-008`](tickets/BL-CC-008.md) | `[TECH_DEBT]` | Migrate Command Suite to Universal Brigadier Command Framework | `[MEDIUM]` | All Anchors | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-008.md) |
+| [`BL-CC-012`](tickets/BL-CC-012.md) | `[TECH_DEBT]` | Wiki Audit & Update to Latest Version: Camera Culling | `[MEDIUM]` | `All Anchors` | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-012.md) |
 
 | [`BL-CC-009`](tickets/BL-CC-009.md) | `[TECH_DEBT]` | Migrate Client Configuration GUI to UniversalConfigScreen | `[MEDIUM]` | All Anchors | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-009.md) |
-| [`BL-CC-010`](tickets/BL-CC-010.md) | `[GOVERNANCE]` | Storefront Reconciliation: Align Mod Pages with Current Public Release | `[HIGH]` | `Platform Pages` | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-010.md) |
+| [`BL-CC-010`](tickets/BL-CC-010.md) | `[GOVERNANCE]` | Storefront Reconciliation: Align Mod Pages with Current Public Release | `[HIGH]` | `Platform Pages` | `✅ RESOLVED` | [View Ticket](tickets/BL-CC-010.md) |
 ---
 
 ## 🏷 Legend & Status Tags
 - **Categories**: `[FEATURE]`, `[REFINEMENT]`, `[BUGFIX]`, `[PERF]`, `[TECH_DEBT]`
 - **Priorities**: `[HIGH]` (Critical logic/porting task), `[MEDIUM]` (Quality of life), `[LOW]` (Minor polish)
-- **Statuses**: `📌 DEFERRED` (Queued for future work), `🚧 IN_PROGRESS` (Active development), `✅ RESOLVED` (Implemented and verified)
+- **Statuses**: `📌 DEFERRED` (Queued for future work), `🚧 IN_PROGRESS` (Active development), `📌 DEFERRED` (Implemented and verified)
 
 ---
 

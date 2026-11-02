@@ -5,20 +5,20 @@
 </div>
 <p align="center">
     <a href="https://modrinth.com/mod/fabric-api"><img src="https://img.shields.io/badge/Requires-Fabric_API-blue?style=for-the-badge&logo=fabric" alt="Requires Fabric API"></a>
-    <img src="https://img.shields.io/badge/Language-Java_25-orange?style=for-the-badge&logo=java" alt="Java 25">
+    <img src="https://img.shields.io/badge/Language-Java-orange?style=for-the-badge&logo=openjdk" alt="Java">
     <img src="https://img.shields.io/badge/License-GPLv3-green?style=for-the-badge" alt="License">
-    <img src="https://img.shields.io/badge/Minecraft-26.1+-brightgreen?style=for-the-badge" alt="Minecraft 26.1+">
+    <img src="https://img.shields.io/badge/Minecraft-1.20.1--26.x-brightgreen?style=for-the-badge" alt="Minecraft 1.20.1-26.x">
 </p>
 
 # 📷 Camera Culling
 
-**Active Version Policy:** I build **1 JAR for 1 Version**. I support active Minecraft versions (**26.1.2**, **26.2**, and **26.3**). Each version is compiled natively with zero compromises.
+**Active Version Policy:** I build **1 JAR for 1 Version**. I support active Minecraft version anchors: **1.20.1**, **1.21.1**, **1.21.11**, and Modern Sovereign **26.1.2**, **26.2**, and **26.3+**. Each version is compiled natively with zero compromises.
 
-> **Unrender the unseen. Lightweight, zero-allocation camera occlusion culling, 2-sided sign text culling & distance texture LOD.**
+> **Unrender the unseen. Lightweight, zero-allocation camera occlusion culling, 2-sided sign text culling & distance entity detail LOD.**
 
-**The Vanilla Problem:** In vanilla Minecraft, the game's renderer extracts render states and draws thousands of entities, block entities, particle quads, and sign text glyphs even when they are hidden behind solid walls, underground in caves, or obscured from your field of view. Furthermore, rendering fully-resolved textures on distant mobs consumes precious GPU fillrate and memory bandwidth.
+**The Vanilla Problem:** In vanilla Minecraft, the game's renderer extracts render states and draws thousands of entities, block entities, particle quads, and sign text glyphs even when they are hidden behind solid walls, underground in caves, or obscured from your field of view. Furthermore, rendering fully-resolved secondary model layers on distant mobs consumes precious GPU fillrate and memory bandwidth.
 
-**Camera Culling** solves this at the rendering root. It performs lightning-fast client-side raycasting and frustum occlusion checks against block collisions to dynamically unrender occluded entities, block entities, particles, and sign text faces. Combined with a smart crowd overdraw defense, distance-based texture LOD mipmap scaling, dynamic boss/mini-boss protections, zero per-frame heap allocations, and an anti-flicker temporal hysteresis buffer, Camera Culling drastically increases frame rates without altering world simulation or network packets.
+**Camera Culling** solves this at the rendering root. It performs lightning-fast client-side raycasting and frustum occlusion checks against block collisions to dynamically unrender occluded entities, block entities, particles, and sign text faces. Combined with a smart crowd overdraw defense, distance-based entity detail & shadow LOD, dynamic boss/mini-boss protections, zero per-frame heap allocations, and an anti-flicker temporal hysteresis buffer, Camera Culling drastically increases frame rates without altering world simulation or network packets.
 
 Part of the **Vanilla Outsider Collection** — mods that refine the vanilla experience with modern standards.
 
@@ -26,14 +26,14 @@ Part of the **Vanilla Outsider Collection** — mods that refine the vanilla exp
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
 ### 🧱 Entity Occlusion Culling (Zero-Allocation Raycast Engine)
 
 Never waste GPU cycles rendering mobs you cannot see. Fast multi-point raytracing against solid block collision geometry unrenders entities hidden behind walls, cave ceilings, and terrain.
 
-- **Zero-Allocation Hot-Path Engine**: Passing primitive coordinates directly eliminates intermediate `new Vec3()` heap allocations in continuous frame rendering, removing JVM Young-Gen garbage collection stutter spikes when panning the camera across dense entity herds.
-- **Multi-Point Precision**: Evaluates key entity sightlines (head top, anatomical eye height, upper torso, center, and elevated flanks) to guarantee mobs are never culled prematurely when partially visible around corners.
+- **Zero-Allocation Hot-Path Engine**: Passing primitive coordinates directly eliminates intermediate `Vec3` heap allocations during continuous frame rendering, removing JVM Young-Gen garbage collection stutter spikes when panning across dense herds.
+- **Multi-Point Precision**: Evaluates key entity sightlines (head top, anatomical eye height, upper torso, center of mass, and elevated flanks) to guarantee mobs are never culled prematurely when partially visible around corners.
 - **Directional Floor Filtering**: Ignores upward block normal collisions (`Direction.UP`) at entity base level, preventing ground-grazing false culling on slopes and hills.
 - **Proximity Safety Margin**: Mobs within your close proximity safety bubble are always rendered smoothly without delay.
 
@@ -42,13 +42,14 @@ Never waste GPU cycles rendering mobs you cannot see. Fast multi-point raytracin
 
 ### 🛡️ Anti-Flicker Temporal Hysteresis
 
-- **Distance-Scaled Grace Buffer**: Implements an adaptive frame debounce decay ($4\text{ frames near} \le 32\text{m}$, $8\text{ frames medium} \ 32-64\text{m}$, $12\text{ frames far} > 64\text{m}$) that absorbs camera rotation and walking view-bobbing jitter without sudden pop-in.
+- **Distance-Scaled Grace Buffer**: Implements an adaptive frame debounce decay (4 frames near $\le 32\text{m}$, 8 frames medium $32-64\text{m}$, 12 frames far $> 64\text{m}$) that absorbs camera rotation and walking view-bobbing jitter without sudden pop-in.
+- **Instant Unculling**: Mobs becoming visible are rendered immediately with 0-frame latency as soon as a single sightline sample connects.
 
 ### 🪧 2-Sided Sign & Hanging Sign Back-Face Text Culling
 
 Signs with text on both sides render font glyphs, kerning tables, and glow outlines on both faces simultaneously—even when looking at only one side.
 
-- **Normal Vector Dot-Product Math**: Calculates the sign face normal vector ($\vec{N} \cdot \vec{V}$) across Wall Signs, Standing Signs, and Hanging Signs to automatically skip font rendering passes for whichever side faces away from the camera.
+- **Normal Vector Dot-Product Math**: Calculates the sign face normal vector across Wall Signs, Standing Signs, Ceiling Hanging Signs, and Wall Hanging Signs to automatically skip font rendering passes for whichever side faces away from the camera.
 - **Empty-Side Fast-Pass**: Automatically detects blank/unwritten sign faces and skips text layout immediately with zero math overhead.
 - **50% to 100% Draw Call Reduction** on signs in storage warehouses and multiplayer towns.
 
@@ -63,24 +64,23 @@ Dense mob farms and crowded pens are major FPS killers. Camera Culling detects w
 
 - **Cluster Density Cap**: Automatically caps rendered entities in tight 1.5-block clusters (default: 8 mobs per cluster), preventing rendering lag in cramming farms.
 - **16-Meter Distance Fast-Fail**: Completely bypasses crowd queries beyond 16 meters, ensuring zero CPU overhead in large open-field herds.
-- **Decorative & Small Mob Bypass**: Transparent or small entities (Slimes, Magma Cubes, Vexes, Armor Stands) never block sightlines or occlude other mobs.
+- **Decorative & Small Mob Bypass**: Transparent or small entities (Slimes, Magma Cubes, Vexes, Armor Stands, Item Frames) never block sightlines or occlude other mobs.
 
-### 🎨 Distance-Based Mob Texture LOD (Texture Resolution Reduction)
+### 🎨 Entity Detail & Shadow LOD
 
-Distant mobs don't need 4K-level crisp textures. Camera Culling features a decoupled, 3-tier OpenGL Mipmap LOD biasing engine that dynamically reduces texture resolution on distant mobs:
+Distant mobs don't need fully articulated outer model layers or heavy drop-shadows. Camera Culling features a decoupled distance detail engine:
 
-- **Near (< 16 blocks)**: 100% Native Full-Resolution crisp textures (0.0 LOD bias).
-- **Medium (16 – 32 blocks)**: Half-Resolution texture sampling (1.0 LOD bias).
-- **Far (> 32 blocks)**: Quarter-Resolution low-res mipmap sampling (2.5 LOD bias).
-- **GPU Fillrate Optimization**: Drastically reduces VRAM fillrate and memory bandwidth on large herds of distant mobs without degrading close-up visual fidelity.
+- **Secondary Render Layer Culling**: Automatically skips secondary model layers (armor overlays, accessories, micro-attachments) on living entities beyond the configured LOD distance (default: 32.0m).
+- **Distance-Scaled Shadow Fade**: Smoothly scales and fades entity shadow radii between start distance (32m) and far distance (48m), completely culling shadows on distant entities to reduce shadow quad draw overhead.
+- **Exemptions**: Players, glowing entities, bosses, mini-bosses, and blacklisted mobs are completely exempt from detail LOD downscaling.
 
 ### 🛡️ Two-Tier Entity Immunity Blacklist
 
 Want specific entities to never be culled under any circumstances? Camera Culling provides a robust two-tier blacklist system:
 
-- **Client Personal Blacklist**: Stored locally in `config/camera-culling.json`. Players can blacklist their favorite companions (e.g. `minecraft:wolf`, `minecraft:allay`, `minecraft:cat`).
+- **Client Personal Blacklist**: Stored locally in `config/camera-culling.json`. You can blacklist your favorite companions (e.g. `minecraft:wolf`, `minecraft:allay`, `minecraft:cat`).
 - **Server Admin Blacklist**: Configured in `config/camera-culling-server.json`. Server operators can enforce server-wide entity immunity across all connected clients.
-- **Full Immunity**: Blacklisted entities are 100% exempt from block occlusion culling, crowd overdraw culling, and texture LOD downscaling.
+- **Full Immunity**: Blacklisted entities are 100% exempt from block occlusion culling, crowd overdraw culling, and detail LOD downscaling.
 
 ### 👑 Dynamic Boss & Mini-Boss Immunity
 
@@ -90,7 +90,7 @@ Never lose sight of dangerous foes. Camera Culling automatically identifies both
 - **Configurable Health Thresholds**:
   - **Major Boss Threshold**: `bossHealthThreshold` (Default: `150.0 HP` / 75 hearts).
   - **Mini-Boss Threshold**: `miniBossHealthThreshold` (Default: `50.0 HP` / 25 hearts).
-- **Absolute Sightline Protection**: Bosses and mini-bosses are never culled behind solid blocks, never culled by crowd caps, and never downscaled by texture LOD.
+- **Absolute Sightline Protection**: Bosses and mini-bosses are never culled behind solid blocks, never culled by crowd caps, and never downscaled by detail LOD.
 
 ### 📦 Block Entity Occlusion Culling
 
@@ -101,10 +101,10 @@ Skips render extraction for block entities that are completely encased or occlud
 
 ### ⚙️ 4 Culling Intensity Profiles
 
-- **LOW (Conservative)**: 4.0-block safety buffer, 7-point sampling, padded hitboxes.
-- **MEDIUM (Balanced)**: 2.0-block safety buffer, 5-point sampling.
-- **HIGH (Aggressive)**: 1.0-block safety buffer, fast 3-point sampling, aggressive block entity culling.
-- **SUPER (Extreme - Default)**: 0.25-block safety buffer, ultra-fast 2-point check for maximum FPS on modern systems.
+- **LOW (Conservative)**: 5.0m buffer, 7-point sampling, padded hitboxes.
+- **MEDIUM (Balanced)**: 3.5m buffer, 5-point sampling, culls all block entities.
+- **HIGH (Aggressive)**: 3.0m buffer, 3-point sampling, aggressive block entity culling, decorative entity culling.
+- **SUPER (Extreme - Default)**: 2.0m buffer, ultra-fast 2-point check for maximum FPS on modern systems.
 
 ---
 
@@ -119,17 +119,18 @@ All settings can be inspected and adjusted in-game via the `/cameraculling` comm
 /cameraculling particles [true|false]               → Toggle particle occlusion culling
 /cameraculling animations [true|false]              → Toggle block & texture atlas animation culling
 /cameraculling crowdculling <true|false>            → Toggle crowd overdraw / entity-behind-entity culling
-/cameraculling cluster <1-128>                      → Set cluster density cap for packed mob pens
-/cameraculling texturlod <true|false>               → Toggle distance texture LOD independently
-/cameraculling texturlod range <near> <far>         → Set custom texture LOD distances (e.g. 16.0 32.0)
+/cameraculling cluster <1-128>                      → Set cluster density cap for packed mob pens (default: 8)
+/cameraculling entitylod [true|false]               → Toggle entity detail & secondary layer LOD
+/cameraculling entitylod distance <4.0-256.0>       → Set entity detail LOD distance threshold (default: 32.0m)
+/cameraculling texturlod <true|false>               → Alias for entity detail LOD toggle
 /cameraculling bossimmunity <true|false>            → Toggle boss & mini-boss immunity
-/cameraculling bosshealth <hp>                      → Set major boss health threshold (e.g. 150)
-/cameraculling minibosshealth <hp>                  → Set mini-boss health threshold (e.g. 50)
+/cameraculling bosshealth <boss_hp> [miniboss_hp]   → Set major boss health threshold (default: 150.0 HP)
+/cameraculling minibosshealth <miniboss_hp>         → Set mini-boss health threshold (default: 50.0 HP)
 /cameraculling blacklist add <entity_id>            → Add mob to personal client immunity list (e.g. minecraft:wolf)
 /cameraculling blacklist remove <entity_id>         → Remove mob from personal immunity list
 /cameraculling blacklist list                       → List all personal blacklisted entities
 /cameraculling blacklist clear                      → Clear personal immunity blacklist
-/cameraculling serverblacklist add <entity_id>      → Add mob to server-wide admin immunity list (OP)
+/cameraculling serverblacklist add <entity_id>      → Add mob to server admin immunity list
 /cameraculling serverblacklist remove <entity_id>   → Remove mob from server admin immunity list
 /cameraculling serverblacklist list                 → List all server blacklisted entities
 /cameraculling serverblacklist clear                → Clear server admin blacklist
@@ -149,9 +150,8 @@ Settings are saved directly to `config/camera-culling.json`:
   "level": "SUPER",
   "cullEntitiesBehindEntities": false,
   "maxEntitiesPerCluster": 8,
-  "distanceTextureLod": true,
-  "distanceTextureLodStart": 16.0,
-  "distanceTextureLodFar": 32.0,
+  "entityDetailLod": true,
+  "entityLodDistance": 32.0,
   "bossImmunity": true,
   "bossHealthThreshold": 150.0,
   "miniBossHealthThreshold": 50.0,
@@ -209,6 +209,7 @@ If you enjoy **Camera Culling** and the **Vanilla Outsider** philosophy, conside
 > **⚖️ License & Fork Guidelines (No Zero-Change Re-uploads):**<br>
 > This project is open-source under the **GNU GPLv3**. You are fully encouraged to inspect the code, learn from it, and fork the repository to create genuine modifications, substantial feature expansions, or community ports—provided your project remains open-source under GPLv3 with proper attribution.<br>
 > **However, straight 1:1 re-uploads, clone forks with no meaningful functional changes, or re-publishing identical builds under different project names (e.g. to farm downloads or rewards) are strictly forbidden.**
+
 ---
 
 <div align="center">
