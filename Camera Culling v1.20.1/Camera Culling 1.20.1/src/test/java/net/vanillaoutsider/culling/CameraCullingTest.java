@@ -231,4 +231,12 @@ public class CameraCullingTest {
         // Empty text detection
         assertTrue(net.vanillaoutsider.culling.util.SignTextCullingHelper.isTextEmpty(null));
     }
+
+    @Test
+    void testHasLineOfSightNullCameraSafety() {
+        // [BL-CC-013] In headless environment or when camera entity is null, must return true without throwing NPE
+        assertTrue(net.vanillaoutsider.culling.util.CullingRaycastHelper.hasLineOfSight(null, null, 0.0, 0.0, 0.0));
+        assertTrue(net.vanillaoutsider.culling.util.CullingRaycastHelper.hasLineOfSight(null, net.minecraft.world.phys.Vec3.ZERO, 1.0, 1.0, 1.0));
+        assertTrue(net.vanillaoutsider.culling.util.CullingRaycastHelper.hasLineOfSightToBlock(null, null, 0.0, 0.0, 0.0, null));
+    }
 }

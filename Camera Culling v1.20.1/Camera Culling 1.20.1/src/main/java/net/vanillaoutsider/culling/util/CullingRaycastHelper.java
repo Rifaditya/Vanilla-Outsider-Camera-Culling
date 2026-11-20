@@ -316,8 +316,19 @@ public final class CullingRaycastHelper {
     }
 
     public static boolean hasLineOfSight(Level level, Vec3 from, double toX, double toY, double toZ) {
+        if (level == null || from == null) {
+            return true;
+        }
+        Entity cameraEntity = Minecraft.getInstance().cameraEntity;
+        if (cameraEntity == null) {
+            cameraEntity = Minecraft.getInstance().player;
+        }
+        if (cameraEntity == null) {
+            return true;
+        }
+
         Vec3 to = new Vec3(toX, toY, toZ);
-        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
+        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, cameraEntity);
         BlockHitResult hit = level.clip(ctx);
         if (hit.getType() == HitResult.Type.MISS) {
             return true;
@@ -345,8 +356,19 @@ public final class CullingRaycastHelper {
     }
 
     public static boolean hasLineOfSightToBlock(Level level, Vec3 from, double toX, double toY, double toZ, BlockPos targetPos) {
+        if (level == null || from == null || targetPos == null) {
+            return true;
+        }
+        Entity cameraEntity = Minecraft.getInstance().cameraEntity;
+        if (cameraEntity == null) {
+            cameraEntity = Minecraft.getInstance().player;
+        }
+        if (cameraEntity == null) {
+            return true;
+        }
+
         Vec3 to = new Vec3(toX, toY, toZ);
-        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
+        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, cameraEntity);
         BlockHitResult hit = level.clip(ctx);
         if (hit.getType() == HitResult.Type.MISS) {
             return true;

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.3+1.20.1] - 2026-11-20
+
+### Fixed
+- **ClipContext Null Entity NPE Safety ([BL-CC-013])**:
+  - Replaced ambiguous `null` entity parameter with `CollisionContext.empty()` in `CullingRaycastHelper.java` (`hasLineOfSight` and `hasLineOfSightToBlock`).
+  - Resolves fatal `NullPointerException: Cannot invoke "net.minecraft.class_1297.method_21752()" because "$$0" is null` during entity occlusion raycasts upon joining worlds in MC 1.20.1.
+  - Restores 100% architectural parity with modern anchors (`1.21.1` through `26.x`).
+
+---
+
 ## [1.0.2+1.20.1] - 2026-10-30
 
 ### Added & Verified
