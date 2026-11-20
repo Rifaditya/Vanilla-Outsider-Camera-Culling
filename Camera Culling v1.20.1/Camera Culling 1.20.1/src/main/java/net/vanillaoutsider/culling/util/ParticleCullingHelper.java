@@ -2,7 +2,9 @@
 package net.vanillaoutsider.culling.util;
 
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -88,8 +90,20 @@ public final class ParticleCullingHelper {
         }
 
         // 4. Line-of-Sight Raycast: Check if a solid block occludes the particle
+        Entity cameraEntity = camera.getEntity();
+        if (cameraEntity == null) {
+            cameraEntity = Minecraft.getInstance().cameraEntity;
+        }
+        if (cameraEntity == null) {
+            cameraEntity = Minecraft.getInstance().player;
+        }
+        if (cameraEntity == null) {
+            CameraCullingClient.incrementRenderedParticles();
+            return false;
+        }
+
         Vec3 particleVec = new Vec3(x, y, z);
-        ClipContext ctx = new ClipContext(camPos, particleVec, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, null);
+        ClipContext ctx = new ClipContext(camPos, particleVec, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, cameraEntity);
         BlockHitResult hit = level.clip(ctx);
 
         if (hit.getType() == HitResult.Type.MISS) {

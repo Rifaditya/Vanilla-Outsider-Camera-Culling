@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.4+1.20.1] - 2026-11-20
+
+### Fixed
+- **ParticleCullingHelper ClipContext Null Entity NPE Safety ([BL-CC-014])**:
+  - Replaced ambiguous `null` entity parameter with active camera entity resolution (`camera.getEntity()` with `Minecraft.getInstance()` fallback) in `ParticleCullingHelper.java:shouldCullParticle`.
+  - Resolves fatal client crash `NullPointerException: Cannot invoke "net.minecraft.class_1297.method_21752()" because "$$0" is null` during particle rendering on MC 1.20.1.
+
+---
+
 ## [1.0.3+1.20.1] - 2026-11-20
 
 ### Fixed

@@ -1,7 +1,7 @@
 # 📌 Camera Culling Backlog
 
-<!-- Highest Historical ID: BL-CC-013 (Next Ticket Must Start at BL-CC-014) -->
-> **Next Available Ticket ID**: `[BL-CC-014]`
+<!-- Highest Historical ID: BL-CC-014 (Next Ticket Must Start at BL-CC-015) -->
+> **Next Available Ticket ID**: `[BL-CC-015]`
 
 This file tracks planned features, technical refinements, performance optimizations, and deferred improvements for **Camera Culling**.
 
@@ -11,6 +11,7 @@ This file tracks planned features, technical refinements, performance optimizati
 
 | ID | Category | Title | Priority | Target Version | Status | Specification |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`BL-CC-014`](tickets/BL-CC-014.md) | `[BUGFIX]` | Fix ParticleCullingHelper ClipContext Null Entity NPE in Anchor 1.20.1 | `[HIGH]` | `1.0.4+1.20.1` | `✅ RESOLVED` | [View Ticket](tickets/BL-CC-014.md) |
 | [`BL-CC-013`](tickets/BL-CC-013.md) | `[BUGFIX]` | Fix ClipContext Null Entity NPE in Anchor 1.20.1 | `[HIGH]` | `1.0.3+1.20.1` | `✅ RESOLVED` | [View Ticket](tickets/BL-CC-013.md) |
 | [`BL-CC-011`](tickets/BL-CC-011.md) | `[TECH_DEBT]` | Scaffold Anchor 7: Camera Culling v26.x (rolling 26.3+) | `[MEDIUM]` | Multi-Version Parity | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-011.md) |
 | [`BL-CC-006`](tickets/BL-CC-006.md) | `[REFINEMENT]` | Clarify Centralized Platform Release Distribution in Repository Documentation (GitHub Issue #1) | `[LOW]` | `All Anchors` | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-006.md) |
