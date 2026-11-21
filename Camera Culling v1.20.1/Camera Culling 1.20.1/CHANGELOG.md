@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.3+1.20.1] - 2026-11-20
+## [1.0.3+1.20.1] (Broken) - 2026-11-20
 
 ### Fixed
 - **ClipContext Null Entity NPE Safety ([BL-CC-013])**:
@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.2+1.20.1] - 2026-10-30
+## [1.0.2+1.20.1] (Broken) - 2026-10-30
 
 ### Added & Verified
 - **Adopted 5-Pillar Testing & Sidedness Verification Harness**:
