@@ -15,10 +15,12 @@ This directory contains dedicated atomic ticket files for **Camera Culling** und
 | `[BL-CC-007]` | `[TECH_DEBT]` | Adopt 5-Pillar Testing & Sidedness Verification Harness | `📌 DEFERRED` | [`BL-CC-007.md`](BL-CC-007.md) |
 | `[BL-CC-008]` | `[TECH_DEBT]` | Migrate Command Suite to Universal Brigadier Command Framework | `📌 DEFERRED` | [`BL-CC-008.md`](BL-CC-008.md) |
 | `[BL-CC-012]` | `[TECH_DEBT]` | Wiki Audit & Update to Latest Version: Camera Culling | `📌 DEFERRED` | [BL-CC-012.md](BL-CC-012.md) |
+| `[BL-CC-009]` | `[TECH_DEBT]` | Migrate Client Configuration GUI to UniversalConfigScreen | `📌 DEFERRED` | [BL-CC-009.md](BL-CC-009.md) |
+| `[BL-CC-010]` | `[GOVERNANCE]` | Storefront Reconciliation: Align Mod Pages with Current Public Release | `📌 DEFERRED` | [BL-CC-010.md](BL-CC-010.md) |
+| `[BL-CC-015]` | `[TECH_DEBT]` | Adopt Per-Mod Advancement-Triggered Early Access Support Prompt (`DasikPromptRegistry`) | `📌 DEFERRED` | [BL-CC-015.md](./BL-CC-015.md) |
+| `[BL-CC-016]` | `[BUGFIX]` | Fix `ConfirmLinkScreen.confirmLinkNow(screen, String)` Overload Regression on `v26.1` & `v26.2` | `📌 DEFERRED` | [`BL-CC-016.md`](BL-CC-016.md) |
 
 ---
 
 > [!NOTE]
 > Worker subagents should be directed to individual ticket files to minimize prompt token overhead.
-| `[BL-CC-009]` | `[TECH_DEBT]` | Migrate Client Configuration GUI to UniversalConfigScreen | `📌 DEFERRED` | [BL-CC-009.md](BL-CC-009.md) |
-| `[BL-CC-010]` | `[GOVERNANCE]` | Storefront Reconciliation: Align Mod Pages with Current Public Release | `📌 DEFERRED` | [BL-CC-010.md](BL-CC-010.md) |
