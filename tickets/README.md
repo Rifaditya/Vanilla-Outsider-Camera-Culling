@@ -18,7 +18,7 @@ This directory contains dedicated atomic ticket files for **Camera Culling** und
 | `[BL-CC-009]` | `[TECH_DEBT]` | Migrate Client Configuration GUI to UniversalConfigScreen | `📌 DEFERRED` | [BL-CC-009.md](BL-CC-009.md) |
 | `[BL-CC-010]` | `[GOVERNANCE]` | Storefront Reconciliation: Align Mod Pages with Current Public Release | `📌 DEFERRED` | [BL-CC-010.md](BL-CC-010.md) |
 | `[BL-CC-015]` | `[TECH_DEBT]` | Adopt Per-Mod Advancement-Triggered Early Access Support Prompt (`DasikPromptRegistry`) | `📌 DEFERRED` | [BL-CC-015.md](./BL-CC-015.md) |
-| `[BL-CC-016]` | `[BUGFIX]` | Fix `ConfirmLinkScreen.confirmLinkNow(screen, String)` Overload Regression on `v26.1` & `v26.2` | `📌 DEFERRED` | [`BL-CC-016.md`](BL-CC-016.md) |
+| `[BL-CC-016]` | `[BUGFIX]` | Fix `ConfirmLinkScreen.confirmLinkNow(screen, String)` Overload Regression on `v26.1` & `v26.2` | `✅ RESOLVED` | [`BL-CC-016.md`](BL-CC-016.md) |
 
 ---
 

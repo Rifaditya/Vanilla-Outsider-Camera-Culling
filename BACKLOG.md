@@ -21,14 +21,14 @@ This file tracks planned features, technical refinements, performance optimizati
 | [`BL-CC-009`](tickets/BL-CC-009.md) | `[TECH_DEBT]` | Migrate Client Configuration GUI to UniversalConfigScreen | `[MEDIUM]` | All Anchors | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-009.md) |
 | [`BL-CC-010`](tickets/BL-CC-010.md) | `[GOVERNANCE]` | Storefront Reconciliation: Align Mod Pages with Current Public Release | `[HIGH]` | `Platform Pages` | `✅ RESOLVED` | [View Ticket](tickets/BL-CC-010.md) |
 | [`BL-CC-015`](tickets/BL-CC-015.md) | `[TECH_DEBT]` | Adopt Per-Mod Advancement-Triggered Early Access Support Prompt (`DasikPromptRegistry`) | `[MEDIUM]` | `Opportunistic Per-Mod` | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-015.md) |
-| [`BL-CC-016`](tickets/BL-CC-016.md) | `[BUGFIX]` | Fix `ConfirmLinkScreen.confirmLinkNow(screen, String)` Overload Regression on `v26.1` & `v26.2` | `[HIGH]` | `v26.1`, `v26.2` | `📌 DEFERRED` | [View Ticket](tickets/BL-CC-016.md) |
+| [`BL-CC-016`](tickets/BL-CC-016.md) | `[BUGFIX]` | Fix `ConfirmLinkScreen.confirmLinkNow(screen, String)` Overload Regression on `v26.1` & `v26.2` | `[HIGH]` | `v26.1`, `v26.2` | `✅ RESOLVED` | [View Ticket](tickets/BL-CC-016.md) |
 
 ---
 
 ## 🏷 Legend & Status Tags
 - **Categories**: `[FEATURE]`, `[REFINEMENT]`, `[BUGFIX]`, `[PERF]`, `[TECH_DEBT]`
 - **Priorities**: `[HIGH]` (Critical logic/porting task), `[MEDIUM]` (Quality of life), `[LOW]` (Minor polish)
-- **Statuses**: `📌 DEFERRED` (Queued for future work), `🚧 IN_PROGRESS` (Active development), `📌 DEFERRED` (Implemented and verified)
+- **Statuses**: `📌 DEFERRED` (Queued for future work), `🚧 IN_PROGRESS` (Active development), `✅ RESOLVED` (Implemented and verified)
 
 ---
 

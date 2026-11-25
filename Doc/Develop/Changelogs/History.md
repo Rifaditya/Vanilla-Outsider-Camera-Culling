@@ -46,3 +46,17 @@
     5. **Pillar 5 (Sidedness & License Hygiene)**: Verified strict zero-client import leakage in common code paths and 100% single-line GPLv3 license header compliance across all sources.
   - 100% test pass rate across all 6 anchors (25 tests per anchor, 150 automated assertions passed). Clean `BUILD SUCCESSFUL` across Java 17, 21, and 25 runtimes.
 
+## [BL-CC-016] Fix ConfirmLinkScreen.confirmLinkNow(screen, String) Overload Regression on v26.1 & v26.2
+- **Category**: `[BUGFIX]`
+- **Priority**: `[HIGH]`
+- **Status**: `✅ RESOLVED`
+- **Target Version**: `1.10.8+26.1.2`, `1.10.8+26.2`
+- **Target Component(s)**: `YaclScreenHelper.java`, `ModMenuIntegration.java`, `build.gradle`, `CameraCullingYaclContractTest.java`, `.gitignore` (`v26.1`, `v26.2`)
+- **Date Added**: 2026-11-25
+- **Date Resolved**: 2026-11-25
+- **Resolution**:
+  - Updated `YaclScreenHelper.createSupportButton()` in both `v26.1` and `v26.2` to invoke `ConfirmLinkScreen.confirmLinkNow(screen, java.net.URI.create("https://ko-fi.com/dasikigaijin"))` instead of the removed `(Screen, String)` overload, matching `v1.21.1`, `v1.21.11`, and `v26.3`.
+  - Wrapped `ModMenuIntegration.getModConfigScreenFactory()`'s `FabricLoader` lookup in a headless `try/catch (Throwable ignored)` guard so contract tests run cleanly outside a full Fabric Loader launch (`[ERR-20261028-001]`).
+  - Added `testImplementation` `modmenu` dependency in `build.gradle` and introduced `CameraCullingYaclContractTest` on both `v26.1` and `v26.2` validating Ko-fi localization keys, missing-YACL `ModMenuIntegration` fallback safety, and JVM constant-pool verification that `YaclScreenHelper.class` calls `(Screen, URI)` and never `(Screen, String)` (27/27 tests passed on each anchor).
+  - Cleaned up literal `!CHANGELOG.md` and `!BACKLOG.md` whitelist entries in `.gitignore` across the mod root and `v26.1` / `v26.2` subprojects.
+
