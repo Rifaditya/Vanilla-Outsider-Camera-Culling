@@ -182,7 +182,7 @@ public final class YaclScreenHelper {
             return ButtonOption.createBuilder()
                 .name(Component.translatable("dasiklibrary.support.kofi.button"))
                 .description(OptionDescription.of(Component.translatable("dasiklibrary.support.kofi.tooltip")))
-                .action((screen, opt) -> ConfirmLinkScreen.confirmLinkNow(screen, "https://ko-fi.com/dasikigaijin"))
+                .action((screen, opt) -> ConfirmLinkScreen.confirmLinkNow(screen, java.net.URI.create("https://ko-fi.com/dasikigaijin")))
                 .build();
         } catch (Throwable ignored) {
             return null;

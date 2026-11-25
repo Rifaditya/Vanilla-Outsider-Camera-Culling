@@ -36,6 +36,7 @@ build_log_utf8.txt
 !*Changelogs*
 !*Changelogs*/**
 !**/CHANGELOG.md
+!CHANGELOG.md
 !**/History.md
 # Logging and archives
 *.log
@@ -56,6 +57,7 @@ build_log_utf8.txt
 # Marketing Exclusion
 Doc/Marketing/
 !**/BACKLOG.md
+!BACKLOG.md
 
 Archive/
 Archive Jar of all versions/

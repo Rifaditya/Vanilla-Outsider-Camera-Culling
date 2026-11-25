@@ -2,6 +2,7 @@
 
 ## 🚀 Published & Backlog Queue
 
+- [ ] **1.10.8+26.2** (2026-11-25) - Fixed `YaclScreenHelper` `ConfirmLinkScreen.confirmLinkNow(Screen, URI)` overload, guarded `ModMenuIntegration` headless lookup, and added YACL/bytecode contract tests (`[BL-CC-016]`).
 - [ ] **1.10.7+26.2** (2026-10-30) - Adopted 5-Pillar Testing & Sidedness Verification Harness.
 - [ ] **1.10.6+26.2** (2026-10-11) - Purged unremapped ModVersionGuard reflection guard resolving Knot ClassLoader crash.
 - [ ] **1.10.5+26.2** (2026-10-03) - Universal Dasik Library Alignment: Wired `dasik-library` 1.9.2 runtime dependency and aligned Modrinth manifest metadata.

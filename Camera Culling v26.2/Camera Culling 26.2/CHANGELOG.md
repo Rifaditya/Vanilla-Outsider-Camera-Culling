@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.8+26.2] - 2026-11-25
+
+### Fixed & Verified
+- **YACL Ko-fi Button `ConfirmLinkScreen` URI Overload (`[BL-CC-016]`)**:
+  - Updated `YaclScreenHelper` Ko-fi support action to invoke `ConfirmLinkScreen.confirmLinkNow(screen, java.net.URI.create(...))`, resolving `NoSuchMethodError` crash when clicking the Ko-fi support button without `DasikSupportHelper`.
+  - Guarded `ModMenuIntegration` `FabricLoader` lookup against uninitialized headless test environments (`[ERR-20261028-001]`).
+  - Added `CameraCullingYaclContractTest` verifying Ko-fi localization keys, missing-YACL fallback safety, and JVM constant-pool `ConfirmLinkScreen(Screen, URI)` signature enforcement.
+
+---
+
 ## [1.10.7+26.2] - 2026-10-30
 
 ### Added & Verified
